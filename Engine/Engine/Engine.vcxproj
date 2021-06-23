@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\apps\PhysicsSimulation.cpp" />
-    <ClCompile Include="src\apps\TreeGrowth.cpp" />
     <ClCompile Include="src\controllers\FreeCameraController.cpp" />
     <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
     <ClCompile Include="src\gui\Button.cpp" />
@@ -61,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\apps\PhysicsSimulation.h" />
-    <ClInclude Include="src\apps\TreeGrowth.h" />
     <ClInclude Include="src\Configurations.h" />
     <ClInclude Include="src\controllers\ICameraController.h" />
     <ClInclude Include="src\controllers\FreeCameraController.h" />

@@ -1,1 +1,1 @@
-# CGD - AVT Github repository 
+# Dragonslayer Game Engine

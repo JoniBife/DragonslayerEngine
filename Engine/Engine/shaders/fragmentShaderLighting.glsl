@@ -4,6 +4,7 @@
 in vec4 exPosition;
 in vec3 exNormal;
 in vec2 exTextCoord;
+in vec4 exColor;
 in vec4 fragPos;
 
 out vec4 fragmentColor;

@@ -42,7 +42,7 @@ private:
 	virtual void start() {/*EMPTY*/ }
 
 	/*
-	* Called every frameMesh
+	* Called every frame
 	*/
 	virtual void update() {/*EMPTY*/ }
 

@@ -108,7 +108,7 @@ public:
 
 	// Fills the colors list with color
 	void paint(const Vec4& color);
-        void setPrimitive(GLenum drawingPrimitive);
+    void setPrimitive(GLenum drawingPrimitive);
 
 	void setVerticesBufferType(GLenum bufferType);
 

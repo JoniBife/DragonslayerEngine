@@ -9,6 +9,7 @@ out vec4 exPosition;
 out vec3 exNormal;
 out vec4 exColor;
 out vec2 exTextCoord;
+out vec4 fragPos;
 
 uniform mat3 normal;
 uniform mat4 model;
@@ -24,6 +25,7 @@ void main(void)
 	exColor = inColor;
 	exTextCoord = inTextCoord;
 	exNormal = normal * inNormal;
+	fragPos = model * inPosition;
 
 	gl_Position =  projection * view * model * inPosition;
 }
