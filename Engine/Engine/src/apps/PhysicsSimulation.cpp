@@ -6,6 +6,7 @@
 #include "../utils/ColorRGBA.h"
 #include "../core/GameObject.h"
 #include "../core/Renderer.h"
+#include "../core/MeshRenderer.h"
 
 using namespace core;
 
@@ -100,12 +101,20 @@ void PhysicsSimulation::start() {
 
 	GameObject* gm = new GameObject("GO");
 	Renderer* r = new Renderer();
+	std::cout << r << std::endl;
 	gm->addComponent(r);
-	Component* c = new Component();
-	gm->addComponent(c);
+	MeshRenderer* mr = new MeshRenderer();
+	gm->addComponent(mr);
 
-	//Renderer r2 = gm->getComponent<Renderer>();
+	std::vector<Renderer*> rr = gm->getComponents<Renderer>();
 
+	for (auto r2 : rr) {
+		std::cout << r2 << std::endl;
+	}
+
+	gm->getTransform().position = { 1.0f, 5.0f, 10.0f };
+
+	std::cout << gm->getTransform().position << std::endl;
 
 	
 }

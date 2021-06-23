@@ -1,5 +1,7 @@
 #include "GameObject.h"
 
+#include <type_traits>
+
 using namespace core;
 
 GameObject::GameObject(const std::string& name) : transform(new Transform()), name(name) {}
@@ -7,7 +9,8 @@ GameObject::GameObject(const std::string& name) : transform(new Transform()), na
 GameObject::~GameObject() {
 	delete transform;
 
-	// Does not delete components because they are managed elsewhere TODO improve commment
+	for (Component* component : components)
+		delete component;
 }
 
 std::string core::GameObject::getName() const
@@ -20,30 +23,12 @@ Transform& core::GameObject::getTransform() const
 	return *transform;
 }
 
-void core::GameObject::addComponent(Component const* component)
+bool core::GameObject::addComponent(Component* component)
 {
-	components.push_back(component);
-}
-
-template <typename T, typename std::enable_if<std::is_base_of<Component, T>::value>::type*>
-T const* GameObject::getComponent() const {
-	for (Component* component : components) {
-
-		if (dynamic_cast<T*>(component) != nullptr) {
-			return component;
-		}
+	if (std::find(components.begin(), components.end(), component) == components.end()
+		&& component->setGameObject(this)) {
+		components.push_back(component);
+		return true;
 	}
-	return nullptr;
-}
-
-template <typename T, typename std::enable_if<std::is_base_of<Component, T>::value>::type*>
-std::vector<T const*> GameObject::getComponents() const {
-	std::vector<T&> foundComponents;
-	for (Component* component : components) {
-
-		if (dynamic_cast<T const*>(component) != nullptr) {
-			foundComponents.push_back(component);
-		}
-	}
-	return foundComponents;
+	return false;
 }

@@ -24,6 +24,7 @@
     <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
+    <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\gui\Button.cpp" />
     <ClCompile Include="src\gui\LineRenderer.cpp" />
     <ClCompile Include="src\gui\Panel.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
+    <ClInclude Include="src\core\MeshRenderer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Transform.h" />
     <ClInclude Include="src\Engine.h" />
