@@ -1,14 +1,18 @@
 @ECHO OFF
-ECHO Adding files...
+ECHO =================== Adding files... ===================
 git add -A
 
-set /p commitMessage="Write commit message:"
+set /p commitMessage="Write commit message: "
+set /p remote="Remote: "
+set /p branch="Branch: "
+
+ECHO =================== Committing... =====================
 
 git commit -m commitMessage
 
-ECHO pushing...
+ECHO =================== Pushing... ========================
 
-git push origin master
+git push remote branch
 
-ECHO Thanks :)
+ECHO =================== Thanks :) =========================
 QUIT
