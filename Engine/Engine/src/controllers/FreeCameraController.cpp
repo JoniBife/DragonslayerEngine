@@ -39,7 +39,7 @@ void FreeCameraController::setOnMovementListener(const std::function<void(Mat4&,
 */
 void FreeCameraController::processInputAndMove(const float elapsedTime) {
 	bool moved = processMouseInput();
-	moved = processKeyboardInput(elapsedTime) || moved;
+	moved = moved || processKeyboardInput(elapsedTime);
 	if (moved) {
 		Mat4 view = lookAt(position, position + front, up);
 		onMovement(view, currProj);
@@ -107,9 +107,9 @@ bool FreeCameraController::processKeyboardInput(const float elapsedTime) {
 		// We ensure that the mouse returns to where it was after ESC is pressed
 		if (!canControl) {
 			glfwGetCursorPos(win, &XPosBeforeESC, &YPosBeforeESC);
-			glfwSetCursorPos(win, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 		}
 		else {
+			//glfwSetCursorPos(win, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 			glfwSetCursorPos(win, XPosBeforeESC, YPosBeforeESC);
 		}
 

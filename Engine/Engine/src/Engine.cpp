@@ -6,10 +6,13 @@
 #include "view/Transformations.h"
 #include "InputManager.h"
 
+Engine* engine;
+
 ///////////////////////////////////////////////////////////////////// CALLBACKS
 void window_size_callback(GLFWwindow* win, int winx, int winy)
 {
-	glViewport(0, 0, winx, winy);
+	engine->updateWindow(winx, winy);
+	GL_CALL(glViewport(0, 0, winx, winy));
 }
 void glfw_error_callback(int error, const char* description)
 {
@@ -36,6 +39,7 @@ void setupCallbacks(GLFWwindow* win)
 	glfwSetWindowSizeCallback(win, window_size_callback);
 }
 void Engine::setupGLFW() {
+	engine = this;
 	glfwSetErrorCallback(glfw_error_callback);
 
 	if (!glfwInit())
@@ -46,7 +50,7 @@ void Engine::setupGLFW() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	if (MSAA > 0)
 		glfwWindowHint(GLFW_SAMPLES, MSAA);
 
@@ -134,6 +138,11 @@ void Engine::freeResources() {
 ////////////////////////////////////////////// SETTERS
 void Engine::setPreRender(std::function<void(std::function<void()> renderScene)> preRender) {
 	this->preRender = preRender;
+}
+void Engine::updateWindow(float width, float height)
+{
+	windowWidth = width;
+	windowHeight = height;
 }
 void Engine::setSkyBox(const std::vector<std::string>& facesFilePath) {
 	if (skybox)

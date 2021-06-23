@@ -24,17 +24,14 @@ namespace core {
 		std::string getName() const;
 		Transform& getTransform() const;
 
-		/*
-		* Adds component to the components vector
+		/* ! @brief Adds component to the components vector
 		* If component already has game object associated
 		* return false else return true
 		* TODO Maybe Check if the component allows for duplicates
-		* 
 		*/
 		bool addComponent(Component* component);
 
-		/*
-		* Returns the first component of type T
+		/*! @brief Returns the first component of type T
 		* found in the component list otherwise nullptr
 		* 
 		* returns * instead of reference because it can be null
@@ -54,8 +51,7 @@ namespace core {
 			return nullptr;
 		}
 		
-		/*
-		* Returns a vector containing all components of type T
+		/*! @brief Returns a vector containing all components of type T
 		* return * instead of reference for the sake of consistency with the previous method
 		* 
 		* TODO Move declaration to CPP

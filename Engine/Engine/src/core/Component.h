@@ -5,8 +5,7 @@ namespace core {
 
 	class GameObject; // Forward declaration of Component due to cross referencing between Component and GameObject
 
-	/*
-	* Base class for all components. A component can be added to a GameObject.
+	/* ! @brief Base class for all components. A component can be added to a GameObject.
 	* Examples of components include: RigidBody, MeshRenderer etc..
 	*/
 	class Component {
@@ -14,8 +13,7 @@ namespace core {
 	public:
 		virtual bool getType() const = 0;
 
-		/*
-		* Associates GameObject with this components
+		/*! @brief Associates GameObject with this components
 		* if the component already has a GameObject associated
 		* then return false else return true
 		*/

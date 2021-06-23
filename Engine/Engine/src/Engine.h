@@ -65,6 +65,9 @@ protected:
 public:
 	/* If called, the lambda preRender will be called before the rendering of the scene, useful for shadow mapping for example*/
 	void setPreRender(std::function<void(std::function<void()> renderScene)> preRender);
+
+	void updateWindow(float width, float height);
+
 	void run();
 };
 
