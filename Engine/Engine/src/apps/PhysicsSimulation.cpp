@@ -4,6 +4,10 @@
 #include "../math/MathAux.h"
 #include "../controllers/FreeCameraController.h"
 #include "../utils/ColorRGBA.h"
+#include "../core/GameObject.h"
+#include "../core/Renderer.h"
+
+using namespace core;
 
 Mesh* cubeMesh;
 ShaderProgram* bliinPhongShader;
@@ -93,6 +97,17 @@ void PhysicsSimulation::start() {
 	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
 	cubeMesh->paint(ColorRGBA::ORANGE);
 	cube = getSceneGraph()->getRoot()->createChild(cubeMesh, Mat4::IDENTITY, bliinPhongShader);
+
+	GameObject* gm = new GameObject("GO");
+	Renderer* r = new Renderer();
+	gm->addComponent(r);
+	Component* c = new Component();
+	gm->addComponent(c);
+
+	//Renderer r2 = gm->getComponent<Renderer>();
+
+
+	
 }
 
 void PhysicsSimulation::update() {

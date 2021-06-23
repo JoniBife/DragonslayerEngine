@@ -3,14 +3,20 @@
 
 #include "../math/Vec3.h"
 
-/*
-* TODO More accurate names
-* Maybe use unity example
-*/
-struct Transform {
-	Vec3 position; // Position in world space
-	Vec3 rotation; // Local rotation
-	Vec3 scale; // Local Scala
+namespace core {
+
+	/*
+	* TODO More accurate names
+	* Maybe use unity example
+	*/
+	class Transform {
+
+	public:
+		Vec3 position = Vec3::ZERO; // Position in world space
+		Vec3 rotation = Vec3::ZERO; // Local rotation
+		Vec3 scale = {1.0f, 1.0f, 1.0f}; // Local Scala
+	};
+
 };
 
 #endif
