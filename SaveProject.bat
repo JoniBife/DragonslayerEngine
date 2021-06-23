@@ -11,6 +11,4 @@ ECHO pushing...
 git push origin master
 
 ECHO Thanks :)
-
-ECHO Pushing...
-PAUSE
+QUIT
