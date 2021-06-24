@@ -6,9 +6,9 @@
 #include "Configurations.h"
 #include "view/Transformations.h"
 #include "InputManager.h"
-#include "vendor/imgui/imgui.h"
-#include "vendor/imgui/imgui_impl_glfw.h"
-#include "vendor/imgui/imgui_impl_opengl3.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
 
 Engine* engine;
@@ -22,8 +22,8 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 	GL_CALL(glViewport(0, 0, newWidth, newHeight));*/
 }
 void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy) {
-	engine->updateWindow(winx, winy);
-	GL_CALL(glViewport(0, 0, winx, winy));
+	engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
+	GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
 }
 void glfw_error_callback(int error, const char* description)
 {
@@ -66,10 +66,10 @@ void Engine::setupGLFW() {
 	if (MSAA > 0)
 		glfwWindowHint(GLFW_SAMPLES, MSAA);
 
-	windowWidth = SCREEN_WIDTH;
-	windowHeight = SCREEN_HEIGHT;
+	windowWidth = 2.0f / 3.0f * SCREEN_WIDTH;
+	windowHeight = 2.0f/3.0f * SCREEN_HEIGHT;
 
-	window = setupWindow(windowWidth, windowHeight, WINDOW_TITLE, FULLSCREEN, VSYNC);
+	window = setupWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE, FULLSCREEN, VSYNC);
 	setupCallbacks(window);
 
 	
@@ -117,7 +117,7 @@ void Engine::setupOpenGL() {
 	GL_CALL(glCullFace(GL_BACK));
 	GL_CALL(glFrontFace(GL_CCW));
 	if (MSAA > 0) GL_CALL(glEnable(GL_MULTISAMPLE));
-	GL_CALL(glViewport(0, 0, windowWidth, windowHeight));
+	GL_CALL(glViewport(0, SCREEN_HEIGHT - windowHeight, windowWidth, windowHeight));
 }
 
 ////////////////////////////////////////////// SCENE

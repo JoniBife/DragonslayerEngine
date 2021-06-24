@@ -19,6 +19,8 @@ GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window) : imGuiIO(imGuiIO)
 {
 	//imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	this->imGuiIO.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	this->imGuiIO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -39,6 +41,29 @@ GUI::~GUI()
 	ImGui::DestroyContext();
 }
 
+static void fileMenu() {
+	if (ImGui::MenuItem("Open", "Ctrl + O")) {}
+	if (ImGui::MenuItem("Save")) {}
+	if (ImGui::MenuItem("Save as..")) {}
+}
+
+static void mainMenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			fileMenu();
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+}
+
+static void tempUI() {
+	mainMenuBar();
+}
+
 void GUI::drawUI()
 {
 	// Start the Dear ImGui frame
@@ -46,10 +71,19 @@ void GUI::drawUI()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::ShowDemoWindow();
+	//tempUI();
+	bool open = true;
+	ImGui::ShowDemoWindow(&open);
 
 	// Rendering
 	ImGui::Render();
+
+	// Update and Render additional Platform Windows
+	if (imGuiIO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

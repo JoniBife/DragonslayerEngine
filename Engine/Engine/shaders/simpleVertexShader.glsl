@@ -27,5 +27,5 @@ void main(void)
 	exNormal = normal * inNormal;
 	fragPos = model * inPosition;
 
-	gl_Position =  projection * view * model * inPosition;
+	gl_Position =  projection* view * model * inPosition;
 }
