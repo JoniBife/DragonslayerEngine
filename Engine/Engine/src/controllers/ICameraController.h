@@ -8,7 +8,7 @@
 class ICameraController {
 
 public:
-	virtual void setOnMovementListener(const std::function<void(Mat4&, Mat4&)>& onMovement) = 0;
+	virtual void setOnMovementListener(const std::function<void(Mat4&)>& onMovement) = 0;
 	virtual void processInputAndMove(const float elapsedTime) = 0;
 };
 

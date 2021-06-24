@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "math/MathAux.h"
 #include "Engine.h"
 #include "utils/OpenGLUtils.h"
 #include "Configurations.h"
@@ -15,6 +16,12 @@ Engine* engine;
 ///////////////////////////////////////////////////////////////////// CALLBACKS
 void window_size_callback(GLFWwindow* win, int winx, int winy)
 {
+	/*int newWidth, newHeight;
+	glfwGetFramebufferSize(win, &newWidth, &newHeight);
+	engine->updateWindow(newWidth, newHeight);
+	GL_CALL(glViewport(0, 0, newWidth, newHeight));*/
+}
+void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy) {
 	engine->updateWindow(winx, winy);
 	GL_CALL(glViewport(0, 0, winx, winy));
 }
@@ -40,6 +47,7 @@ GLFWwindow* setupWindow(int windowWidth, int windowHeight, const char* title,
 }
 void setupCallbacks(GLFWwindow* win)
 {
+	glfwSetFramebufferSizeCallback(win, frameBufferSizeCallBack);
 	glfwSetWindowSizeCallback(win, window_size_callback);
 }
 void Engine::setupGLFW() {
@@ -121,7 +129,7 @@ void Engine::setupScene() {
 
 	camera = new Camera(
 		lookAt(cameraPos, cameraPos + cameraFront, cameraUp),
-		perspective(float(M_PI) / 2.0f, float(windowWidth / windowHeight), 0.001f, 100.0f),
+		perspective(float(M_PI) / 2.0f, float(windowWidth) / float(windowHeight), 0.001f, 100.0f),
 		0 // Uniform buffer object binding point
 	);
 
@@ -132,7 +140,7 @@ void Engine::setupScene() {
 
 void Engine::setupGUI()
 {
-	// Setup Dear ImGui context
+	// Setup Dear ImGui context and creating GUI instance
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO imGuiIO = ImGui::GetIO();(void)imGuiIO;
@@ -154,6 +162,7 @@ void Engine::updateWindow(float width, float height)
 {
 	windowWidth = width;
 	windowHeight = height;
+	camera->setProjection(perspective(PI / 2.0f, (float)getWindowWidth() / (float)getWindowHeight(), 0.001f, 100.0f));
 }
 void Engine::setSkyBox(const std::vector<std::string>& facesFilePath) {
 	if (skybox)

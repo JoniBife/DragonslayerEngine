@@ -1,6 +1,8 @@
 #include "Transformations.h"
 #include <math.h>
 #include <assert.h>
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 
@@ -42,6 +44,8 @@ Mat4 ortho(float left, float right, float bottom, float top) {
 
 Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 
+	//glm::mat4 persp = glm::perspective(fovyRad, aspectRatio, near, far);
+
 	// Divisions by 0 are not possible
 	assert(aspectRatio > 0);
 	assert(near != far);
@@ -51,8 +55,10 @@ Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 
 	float diffNearFar = near - far;
 
-	return { d / aspectRatio, 0.0f , 0.0f, 0.0f,
+	Mat4 ret =  { d / aspectRatio, 0.0f , 0.0f, 0.0f,
 			0.0f, d, 0.0f, 0.0f,
 			0.0f, 0.0f, (near + far) / diffNearFar, (2 * near * far) / diffNearFar,
 			0.0f, 0.0f, -1.0f, 0.0f };
+	
+	return ret;
 }

@@ -16,7 +16,7 @@ FreeCameraController::FreeCameraController(const float movementSpeed, const Vec3
 	glfwSetCursorPos(win, lastXpos, lastYpos);
 }
 
-void FreeCameraController::setOnMovementListener(const std::function<void(Mat4&, Mat4&)>& onMovement) {
+void FreeCameraController::setOnMovementListener(const std::function<void(Mat4&)>& onMovement) {
 	this->onMovement = onMovement;
 }
 
@@ -42,7 +42,7 @@ void FreeCameraController::processInputAndMove(const float elapsedTime) {
 	moved = moved || processKeyboardInput(elapsedTime);
 	if (moved) {
 		Mat4 view = lookAt(position, position + front, up);
-		onMovement(view, currProj);
+		onMovement(view);
 	}
 }
 
@@ -56,7 +56,7 @@ void FreeCameraController::snapToPosition(const Vec3 position, const Vec3 front,
 	this->yaw = yaw;
 	this->pitch = pitch;
 	Mat4 view = lookAt(position, position + front, this->up);
-	onMovement(view, currProj);
+	onMovement(view);
 }
 
 /*

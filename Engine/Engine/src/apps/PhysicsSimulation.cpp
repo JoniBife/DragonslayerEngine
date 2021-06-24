@@ -73,7 +73,7 @@ static void setupCamera(Camera* camera, GLFWwindow* window, int windowWidth, int
 	Vec3 cameraUp(0.0f, 1.0f, 0.0f); // up
 
 	Mat4 orthographicProj = ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.001f, 1000.0f);
-	Mat4 perspectiveProj = perspective(PI / 2.0f, float(windowWidth / windowHeight), 0.001f, 100.0f);
+	Mat4 perspectiveProj = perspective(PI / 2.0f, float(windowWidth) / float(windowHeight), 0.001f, 100.0f);
 
 	//cameraController = new OrbitCameraController({ 0,0,0 }, Qtrn(1, 0, 0, 0), this->getWindow());
 	cameraController = new FreeCameraController(cameraMovementSpeed, cameraPos, cameraFront, cameraUp, initialYaw, initialPitch, orthographicProj, perspectiveProj, window);
@@ -121,7 +121,6 @@ void PhysicsSimulation::start() {
 
 void PhysicsSimulation::update() {
 	updateCameraPositionInShaders();
-
 }
 
 void PhysicsSimulation::end() {

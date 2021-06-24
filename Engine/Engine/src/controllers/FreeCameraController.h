@@ -21,7 +21,7 @@
 class FreeCameraController : public ICameraController {
 
 private:
-	std::function<void(Mat4&, Mat4&)> onMovement;
+	std::function<void(Mat4&)> onMovement;
 	GLFWwindow* win;
 	Mat4 orthoProj;
 	Mat4 perspectiveProj;
@@ -48,7 +48,7 @@ public:
 	/*
 	* Sets an OnMovement callback that will be called when the movement event occurs (when the user moves the camera)
 	*/
-	void setOnMovementListener(const std::function<void(Mat4&, Mat4&)>& onMovement) override;
+	void setOnMovementListener(const std::function<void(Mat4&)>& onMovement) override;
 
 	/*
 	* Receives the user input and updates the view matrix accordingly

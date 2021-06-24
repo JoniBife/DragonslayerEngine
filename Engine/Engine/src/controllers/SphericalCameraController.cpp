@@ -26,7 +26,7 @@ SphericalCameraController::SphericalCameraController(const Vec3& eulerAngles, co
 	glfwSetScrollCallback(win, scroll_callback);
 }
 
-void SphericalCameraController::setOnMovementListener(const std::function<void(Mat4&, Mat4&)>& onMovement) {
+void SphericalCameraController::setOnMovementListener(const std::function<void(Mat4&)>& onMovement) {
 	this->onMovement = onMovement;
 }
 
@@ -44,7 +44,7 @@ void SphericalCameraController::processInputAndMove(const float elapsedTime) {
 		viewMatrix = Mat4::translation(0.0f, 0.0f, zoom) * Mat4::rotation(eulerAngles.y, Vec3::X) * Mat4::rotation(eulerAngles.x, Vec3::Y);
 		
 	}
-	onMovement(viewMatrix, Mat4::IDENTITY);
+	onMovement(viewMatrix);
 }
 
 void SphericalCameraController::processMouseInput() {
