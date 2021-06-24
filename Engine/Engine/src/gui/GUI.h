@@ -1,28 +1,25 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include <list>
-#include "GUIComponent.h"
+#include <GLFW/glfw3.h>
+
+#include "../vendor/imgui/imgui.h"
+#include "../vendor/imgui/imgui_impl_glfw.h"
+#include "../vendor/imgui/imgui_impl_opengl3.h"
+#include <stdio.h>
 
 class GUI {
 
 private: 
-	// Doubly-linked list, the list is sorted from the largest depth to the smallest depth 
-	std::list<GUIComponent*> guiComponents;
-	GLFWwindow* window;
+	ImGuiIO& imGuiIO;
+
+	void loadFonts();
 
 public:
-	GUI(GLFWwindow* window);
+	GUI(ImGuiIO& imGuiIO, GLFWwindow* window);
 	~GUI();
 
 	void drawUI();
-
-	void removeComponent(GUIComponent* component);
-
-	void addComponent(GUIComponent* component);
-
-private:
-	void addComponentSort(GUIComponent* component);
 };
 
 #endif

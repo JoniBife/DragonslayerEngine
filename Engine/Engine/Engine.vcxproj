@@ -25,16 +25,7 @@
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
-    <ClCompile Include="src\gui\Button.cpp" />
-    <ClCompile Include="src\gui\LineRenderer.cpp" />
-    <ClCompile Include="src\gui\Panel.cpp" />
-    <ClCompile Include="src\gui\TextField.cpp" />
-    <ClCompile Include="src\gui\UIRenderer.cpp" />
-    <ClCompile Include="src\gui\FontLoader.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
-    <ClCompile Include="src\gui\GUIComponent.cpp" />
-    <ClCompile Include="src\gui\Text.cpp" />
-    <ClCompile Include="src\gui\TextRenderer.cpp" />
     <ClCompile Include="src\math\Mat2.cpp" />
     <ClCompile Include="src\math\Mat3.cpp" />
     <ClCompile Include="src\math\Mat4.cpp" />
@@ -55,6 +46,13 @@
     <ClCompile Include="src\textures\Texture2D.cpp" />
     <ClCompile Include="src\utils\ColorRGBA.cpp" />
     <ClCompile Include="src\utils\OpenGLUtils.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\vendor\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\view\Camera.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -73,16 +71,7 @@
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Transform.h" />
     <ClInclude Include="src\Engine.h" />
-    <ClInclude Include="src\gui\Button.h" />
-    <ClInclude Include="src\gui\LineRenderer.h" />
-    <ClInclude Include="src\gui\TextField.h" />
-    <ClInclude Include="src\gui\Panel.h" />
-    <ClInclude Include="src\gui\UIRenderer.h" />
     <ClInclude Include="src\gui\GUI.h" />
-    <ClInclude Include="src\gui\GUIComponent.h" />
-    <ClInclude Include="src\gui\FontLoader.h" />
-    <ClInclude Include="src\gui\Text.h" />
-    <ClInclude Include="src\gui\TextRenderer.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\meshes\SkyBox.h" />
     <ClInclude Include="src\textures\CubeMap.h" />
@@ -107,6 +96,14 @@
     <ClInclude Include="src\textures\Texture2D.h" />
     <ClInclude Include="src\utils\ColorRGBA.h" />
     <ClInclude Include="src\utils\OpenGLUtils.h" />
+    <ClInclude Include="src\vendor\imgui\imconfig.h" />
+    <ClInclude Include="src\vendor\imgui\imgui.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui\imstb_truetype.h" />
     <ClInclude Include="src\view\Camera.h" />
     <ClInclude Include="src\view\Transformations.h" />
   </ItemGroup>
@@ -236,6 +233,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)Dependencies\glew-2.1.0\include;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

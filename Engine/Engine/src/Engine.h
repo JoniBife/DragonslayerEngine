@@ -7,6 +7,7 @@
 #include "gui/GUI.h"
 #include "meshes/SkyBox.h"
 
+
 class Engine {
 
 private:
@@ -33,21 +34,21 @@ private:
 	/* Sets up the camera and sceneGraph */
 	void setupScene();
 
+	/* Sets up everything related to ImGUI*/
+	void setupGUI();
+
 	/* Frees any memory allocated on the heap */
 	void freeResources();
 
-	/**
-	* Called before main loop
+	/* Called before main loop
 	*/
 	virtual void start() {/*EMPTY*/ }
 
-	/*
-	* Called every frame
+	/* Called every frame
 	*/
 	virtual void update() {/*EMPTY*/ }
 
-	/*
-	* Called after main loop
+	/* Called after main loop
 	* Should be used to free any memory allocated in start or update
 	*/
 	virtual void end() {/*EMPTY*/ }

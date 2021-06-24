@@ -136,7 +136,7 @@ bool FreeCameraController::processMouseInput() {
 		double xpos, ypos;
 		glfwGetCursorPos(win, &xpos, &ypos);
 
-		double mouseSensitivity = 0.05;
+		double mouseSensitivity = 0.1;
 
 		double xOffset = xpos - lastXpos;
 		double yOffset = lastYpos - ypos; // Y axis is inverted (increases downward)

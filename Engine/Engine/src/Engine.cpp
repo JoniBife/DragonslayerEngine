@@ -5,6 +5,10 @@
 #include "Configurations.h"
 #include "view/Transformations.h"
 #include "InputManager.h"
+#include "vendor/imgui/imgui.h"
+#include "vendor/imgui/imgui_impl_glfw.h"
+#include "vendor/imgui/imgui_impl_opengl3.h"
+#include <stdio.h>
 
 Engine* engine;
 
@@ -123,9 +127,16 @@ void Engine::setupScene() {
 
 	sceneGraph = new SceneGraph(camera);
 
-	gui = new GUI(window);
-
 	InputManager::createInstance(window);
+}
+
+void Engine::setupGUI()
+{
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO imGuiIO = ImGui::GetIO();(void)imGuiIO;
+	gui = new GUI(imGuiIO, window);
 }
 
 ////////////////////////////////////////////// RESOURCES
@@ -175,8 +186,6 @@ double Engine::getElapsedTime() {
 	return elapsedTime;
 }
 
-
-
 ////////////////////////////////////////////// MAIN LOOP
 void Engine::run() {
 
@@ -184,6 +193,7 @@ void Engine::run() {
 	setupGLFW(); 
 	setupGLEW();  
 	setupOpenGL();
+	setupGUI();
 	setupScene();
 
 	start();
@@ -194,6 +204,8 @@ void Engine::run() {
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwPollEvents();
+
 		double time = glfwGetTime();
 		elapsedTime = time - lastTime;
 		lastTime = time;
@@ -242,9 +254,10 @@ void Engine::run() {
 		gui->drawUI();// After everything from the scene is rendered, we render the UI;
 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary
 	}
+
+	// Cleanup
 	freeResources();
 	end(); //Has to be called before glfwTerminate()
 

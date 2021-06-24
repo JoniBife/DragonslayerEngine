@@ -1,82 +1,55 @@
-#include "TextRenderer.h"
-#include "UIRenderer.h"
-#include "LineRenderer.h"
 #include "GUI.h"
-#include "../view/Transformations.h"
+#include <filesystem>
 
-#define ever (;;)
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void GUI::loadFonts()
 {
-	if (width > 0 && height > 0) {
-		Mat4 projection = ortho(0.0f, float(width), 0.0f, float(height));
+	imGuiIO.Fonts->AddFontDefault();
 
-		TextRenderer::getInstance()->updateProjection(projection);
-		UIRenderer::getInstance()->updateProjection(projection);
-		LineRenderer::getInstance()->updateProjection(projection);
-	}
-}
-
-
-GUI::GUI(GLFWwindow* window) : window(window) {
-	// Setting a callback to scale the UI when the window framebuffer size changes
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-}
-
-GUI::~GUI() {
-	for (GUIComponent* comp : guiComponents)
-		delete comp;
-}
-
-
-void GUI::drawUI() {
-	/*
-	* We are using the painters algorithm to draw the GUI.
-	* Each component is associated with a depth and the components
-	* are drawn from the furthest to the closest.
-	* Since the insertion is sorted we don't need to sort the list each
-	* time we are drawing.
-	*/
-	for (GUIComponent* comp : guiComponents) {
-		comp->draw();
-	}
-}
-
-void GUI::removeComponent(GUIComponent* component) {
-	guiComponents.remove(component);
-}
-
-void GUI::addComponent(GUIComponent* component) {
-	component->setWindow(window);
-	addComponentSort(component);
-}
-
-void GUI::addComponentSort(GUIComponent* component) {
-
-	// If the list is empty we insert in the front
-	if (guiComponents.empty()) {
-		guiComponents.push_front(component);
-		return;
-	}
-
-	// Otherwise we find the adequate position to insert
-	std::list<GUIComponent*>::iterator curr = guiComponents.begin();
-
-	for ever {
-
-		// If we reached the end of the list we insert in the end
-		if (curr == guiComponents.end()) {
-			guiComponents.push_back(component);
-			return;
+	// Loading all fonts in fonts dirrectory
+	std::string fontsPath = "../Engine/fonts";
+	
+	for (const auto& file : std::filesystem::directory_iterator(fontsPath)) {
+		if (file.path().extension().string().compare(".ttf") == 0) {
+			imGuiIO.Fonts->AddFontFromFileTTF(file.path().string().c_str(), 16.0f);
 		}
-
-		// If the depth is smaller or equal to the curr then we insert before it
-		if (component->getDepth() <= (**curr).getDepth()) {
-			guiComponents.insert(curr, component);
-			return;
-		}
-;
-		++curr;
 	}
 }
 
+GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window) : imGuiIO(imGuiIO)
+{
+	//imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
+	loadFonts();
+}
+
+GUI::~GUI()
+{
+	// ImGUI cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void GUI::drawUI()
+{
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::ShowDemoWindow();
+
+	// Rendering
+	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
