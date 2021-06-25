@@ -300,12 +300,12 @@ Mesh* Mesh::rectangle(const float width, const float height) {
 	};
 
 	rectangle->textCoords = {
-		{0.0f, 0.0f},
 		{0.0f, 1.0f},
-		{1.0f, 1.0f},
 		{0.0f, 0.0f},
-		{1.0f, 1.0f},
-		{1.0f, 0.0f}
+		{1.0f, 0.0f},
+		{0.0f, 1.0f},
+		{1.0f, 0.0f},
+		{1.0f, 1.0f}
 	};
 
 	return rectangle;

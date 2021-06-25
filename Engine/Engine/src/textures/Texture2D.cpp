@@ -6,6 +6,8 @@
 #include "../math/Vec2.h"
 #include "../math/Vec3.h"
 
+Texture2D::Texture2D() { }
+
 Texture2D::Texture2D(const std::string& textureFilePath) {
 	// Loading image data from textureFilePath
 	unsigned char* data = stbi_load(textureFilePath.c_str(), &width, &height, &nrChannels, 0);
@@ -77,6 +79,28 @@ Texture2D::Texture2D(const std::string& textureFilePath, GLint param)
 
 Texture2D::~Texture2D() {
 	GL_CALL(glDeleteTextures(1, &id));
+}
+
+Texture2D* Texture2D::emptyTexture(unsigned int width, unsigned int height)
+{
+	// Texture must must be at least 1x1
+	assert(width > 0 && height > 0);
+
+	Texture2D* emptyTexture = new Texture2D();
+
+	// Generating the texture
+	GL_CALL(glGenTextures(1, &emptyTexture->id));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, emptyTexture->id));
+
+	// Empty texture
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+	return emptyTexture;
 }
 
 void Texture2D::bind(unsigned int unitNumber) {

@@ -132,6 +132,9 @@
     <ClCompile Include="src\vendor\imgui\imgui_impl_opengl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\textures\FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\Mat2.h">
@@ -248,6 +251,9 @@
     <ClInclude Include="src\core\MeshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\textures\FrameBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragmentShaderNM.glsl" />
@@ -275,5 +281,7 @@
     <None Include="shaders\leaves\vertexShaderBlending.glsl" />
     <None Include="shaders\leaves\fragmentShaderBlendingSM.glsl" />
     <None Include="shaders\leaves\vertexShaderBlendingSM.glsl" />
+    <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
+    <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
   </ItemGroup>
 </Project>

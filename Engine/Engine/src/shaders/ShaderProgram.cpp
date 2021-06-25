@@ -9,7 +9,7 @@
 #define TANGENTS 4
 
 // In the future we should add other constructors to support other types of shaders
-ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader)
+ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader, bool locationInShader)
 {
 	GL_CALL(id = glCreateProgram());
 
@@ -21,11 +21,14 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& fragmentShader)
     // e.g. layout (location = 0) in vec3 in_Position;
     // Even if the shader does not contain one of these attributes its alright
     // OpenGL Docs: " It is also permissible to bind a generic attribute index to an attribute variable name that is never used in a vertex shader."
-    GL_CALL(glBindAttribLocation(id, VERTICES, "inPosition"));
-    GL_CALL(glBindAttribLocation(id, NORMALS, "inNormal"));
-    GL_CALL(glBindAttribLocation(id, COLORS, "inColor"));
-    GL_CALL(glBindAttribLocation(id, TEXTCOORDS, "inTextCoord"));
-    GL_CALL(glBindAttribLocation(id, TANGENTS, "inTangent"));
+    
+    if (!locationInShader) {
+        GL_CALL(glBindAttribLocation(id, VERTICES, "inPosition"));
+        GL_CALL(glBindAttribLocation(id, NORMALS, "inNormal"));
+        GL_CALL(glBindAttribLocation(id, COLORS, "inColor"));
+        GL_CALL(glBindAttribLocation(id, TEXTCOORDS, "inTextCoord"));
+        GL_CALL(glBindAttribLocation(id, TANGENTS, "inTangent"));
+    }
 
 	GL_CALL(glLinkProgram(id));
 

@@ -6,7 +6,7 @@
 
 class ITexture {
 
-public:
+protected:
 	GLuint id = 0;
 
 public:
@@ -14,6 +14,8 @@ public:
 	virtual void bind(unsigned int unitNumber) = 0;
 
 	virtual void unBind(unsigned int unitNumber) = 0;
+
+	GLuint getId() { return id; }
 };
 
 #endif

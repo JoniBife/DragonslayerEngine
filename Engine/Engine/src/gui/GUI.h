@@ -12,14 +12,15 @@ class GUI {
 
 private: 
 	ImGuiIO& imGuiIO;
-
+	
+	void setDefaultTheme();
 	void loadFonts();
 
 public:
 	GUI(ImGuiIO& imGuiIO, GLFWwindow* window);
 	~GUI();
 
-	void drawUI();
+	void drawUI(GLuint id);
 };
 
 #endif

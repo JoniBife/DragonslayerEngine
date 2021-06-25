@@ -23,6 +23,8 @@ class Texture2D : public ITexture {
 private:
 	int width = 0, height = 0, nrChannels = 0; // In RGB there are 3 channels while in RGBA there are 4 for example
 
+	Texture2D();
+
 public:
 
 	Texture2D(const std::string& textureFilePath);
@@ -30,6 +32,8 @@ public:
 	Texture2D(const std::string& textureFilePath, GLint param);
 
 	~Texture2D();
+
+	static Texture2D* emptyTexture(unsigned int width, unsigned int height);
 
 	void bind(unsigned int unitNumber) override;
 

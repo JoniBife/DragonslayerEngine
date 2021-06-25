@@ -10,6 +10,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
+#include "textures/FrameBuffer.h"
+#include "textures/Texture2D.h"
 
 Engine* engine;
 
@@ -21,9 +23,12 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 	engine->updateWindow(newWidth, newHeight);
 	GL_CALL(glViewport(0, 0, newWidth, newHeight));*/
 }
-void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy) {
-	engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
-	GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
+void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy) 
+{
+	engine->updateWindow(winx, winy);
+	GL_CALL(glViewport(0, 0, winx, winy));
+	//engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
+	//GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
 }
 void glfw_error_callback(int error, const char* description)
 {
@@ -35,7 +40,15 @@ GLFWwindow* setupWindow(int windowWidth, int windowHeight, const char* title,
 	int isFullscreen, int isVsync)
 {
 	GLFWmonitor* monitor = isFullscreen ? glfwGetPrimaryMonitor() : 0;
-	GLFWwindow* win = glfwCreateWindow(windowWidth, windowHeight, title, monitor, 0);
+
+	/*const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+	glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+	glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+	glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);*/
+
+	GLFWwindow* win = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, title, monitor, NULL);
 	if (!win)
 	{
 		glfwTerminate();
@@ -66,8 +79,10 @@ void Engine::setupGLFW() {
 	if (MSAA > 0)
 		glfwWindowHint(GLFW_SAMPLES, MSAA);
 
-	windowWidth = 2.0f / 3.0f * SCREEN_WIDTH;
-	windowHeight = 2.0f/3.0f * SCREEN_HEIGHT;
+	windowWidth = SCREEN_WIDTH;
+	windowHeight = SCREEN_HEIGHT;
+	//windowWidth = 2.0f/3.0f * SCREEN_WIDTH;
+	//windowHeight = 2.0f/3.0f * SCREEN_HEIGHT;
 
 	window = setupWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE, FULLSCREEN, VSYNC);
 	setupCallbacks(window);
@@ -205,10 +220,37 @@ void Engine::run() {
 	setupGUI();
 	setupScene();
 
-	//start();
-	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
+	start();
+	sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
 	double lastTime = glfwGetTime();
+ 
+	Texture2D* frameTexture = Texture2D::emptyTexture(windowWidth, windowHeight);
+	FrameBuffer* frameBuffer = new FrameBuffer([&]() {
+
+		// Bind frameBuffer
+
+		frameTexture->bind(GL_TEXTURE0);
+		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture->getId(), 0));
+		frameTexture->unBind(GL_TEXTURE0);
+
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+		// Unbind frameBuffer
+	});
+
+	Mesh* quad = Mesh::rectangle(2.0f, 2.0f);
+	quad->init();
+
+	Shader vs(GL_VERTEX_SHADER, "../Engine/Shaders/framebuffer/sceneViewVertexShader.glsl");
+	Shader fs(GL_FRAGMENT_SHADER, "../Engine/Shaders/framebuffer/sceneViewFragmentShader.glsl");
+	ShaderProgram* sp = new ShaderProgram(vs, fs, true);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -219,50 +261,58 @@ void Engine::run() {
 		elapsedTime = time - lastTime;
 		lastTime = time;
 
-		/*update();
-		if (preRender) {
+		// First render to frame buffer
+		frameBuffer->bind();
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+		glEnable(GL_DEPTH_TEST);
+		{
+			update();
+			if (preRender) {
 
-			// PreRender has been defined so we render the scene once first
-			preRender([&]() {
+				// PreRender has been defined so we render the scene once first
+				preRender([&]() {
+					sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
+					sceneGraph->draw((float)elapsedTime); // Drawing only after update
+					});
+
+				// After Pre render we render the scene as expected
+				GL_CALL(glClearColor(BACKGROUND_COLOR));
+				GL_CALL(glEnable(GL_DEPTH_TEST));
+				GL_CALL(glDepthFunc(GL_LEQUAL));
+				GL_CALL(glDepthMask(GL_TRUE));
+				GL_CALL(glDepthRange(0.0, 1.0));
+				GL_CALL(glClearDepth(1.0));
+				GL_CALL(glEnable(GL_CULL_FACE));
+				GL_CALL(glCullFace(GL_BACK));
+				GL_CALL(glFrontFace(GL_CCW));
+				if (MSAA > 0) GL_CALL(glEnable(GL_MULTISAMPLE));
+				GL_CALL(glViewport(0, 0, windowWidth, windowHeight));
+
+				GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+				if (skybox) {
+					skybox->draw();
+				}
+
 				sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 				sceneGraph->draw((float)elapsedTime); // Drawing only after update
-			});
-
-			// After Pre render we render the scene as expected
-			GL_CALL(glClearColor(BACKGROUND_COLOR));
-			GL_CALL(glEnable(GL_DEPTH_TEST));
-			GL_CALL(glDepthFunc(GL_LEQUAL));
-			GL_CALL(glDepthMask(GL_TRUE));
-			GL_CALL(glDepthRange(0.0, 1.0));
-			GL_CALL(glClearDepth(1.0));
-			GL_CALL(glEnable(GL_CULL_FACE));
-			GL_CALL(glCullFace(GL_BACK));
-			GL_CALL(glFrontFace(GL_CCW));
-			if (MSAA > 0) GL_CALL(glEnable(GL_MULTISAMPLE));
-			GL_CALL(glViewport(0, 0, windowWidth, windowHeight));
-
-			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-			if (skybox) {
-				skybox->draw();
 			}
+			else {
 
-			sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
-			sceneGraph->draw((float)elapsedTime); // Drawing only after update
-		} else {
-			
-			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+				GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-			if (skybox) {
-				skybox->draw();
+				if (skybox) {
+					skybox->draw();
+				}
+
+				sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
+				sceneGraph->draw((float)elapsedTime); // Drawing only after update
 			}
+		}
+		frameBuffer->unbind();
 
-			sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
-			sceneGraph->draw((float)elapsedTime); // Drawing only after update
-			
-		}*/
-
-		gui->drawUI();// After everything from the scene is rendered, we render the UI;
+		gui->drawUI(frameTexture->getId());// After everything from the scene is rendered, we render the UI;
 
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary

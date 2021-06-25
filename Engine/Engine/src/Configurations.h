@@ -3,7 +3,7 @@
 #ifndef CONFIGURATIONS_H
 #define CONFIGURATIONS_H
 
-#define WINDOW_TITLE "Engine"
+#define WINDOW_TITLE "Dragonslayer Engine"
 
 #define OPEN_GL_MAJOR 4
 #define OPEN_GL_MINOR 0
