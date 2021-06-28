@@ -15,3 +15,5 @@ GameObject* core::Component::getGameObject()
 {
 	return gameObject;
 }
+
+core::Component::Component(const std::string& name) : name(name) {}

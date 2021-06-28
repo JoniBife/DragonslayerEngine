@@ -99,7 +99,11 @@ void PhysicsSimulation::start() {
 	cubeMesh->paint(ColorRGBA::ORANGE);
 	cube = getSceneGraph()->getRoot()->createChild(cubeMesh, Mat4::IDENTITY, bliinPhongShader);
 
-	GameObject* gm = new GameObject("GO");
+	GameObject* gm2 = new GameObject("Face");
+
+	GameObject* gm = new GameObject("Cube");
+	gm->addChildren(gm2);
+
 	Renderer* r = new Renderer();
 	std::cout << r << std::endl;
 	gm->addComponent(r);
@@ -112,9 +116,25 @@ void PhysicsSimulation::start() {
 		std::cout << r2 << std::endl;
 	}
 
-	gm->getTransform().position = { 1.0f, 5.0f, 10.0f };
+	gm->getTransform()->position = { 1.0f, 5.0f, 10.0f };
 
-	std::cout << gm->getTransform().position << std::endl;
+	std::cout << gm->getTransform()->position << std::endl;
+
+	GameObject* piloca2 = new GameObject("cl2");
+	GameObject* piloca = new GameObject("cl");
+	piloca->addChildren(piloca2);
+	GameObject* ines = new GameObject("Clone");
+	ines->addChildren(piloca);
+
+	
+
+	GameObject* perna1 = new GameObject("perna");
+
+	GameObject* perna2 = new GameObject("perna");
+
+	GameObject* joao = new GameObject("Joao");
+	joao->addChildren(perna1);
+	joao->addChildren(perna2);
 
 	
 }

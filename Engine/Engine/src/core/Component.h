@@ -1,6 +1,8 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <string>
+
 namespace core {
 
 	class GameObject; // Forward declaration of Component due to cross referencing between Component and GameObject
@@ -12,6 +14,7 @@ namespace core {
 
 	public:
 		virtual bool getType() const = 0;
+		std::string getName() const { return name; }
 
 		/* Associates GameObject with this components
 		* if the component already has a GameObject associated
@@ -21,8 +24,12 @@ namespace core {
 
 		GameObject* getGameObject();
 
+	protected:
+		Component(const std::string& name);
+
 	private:
-		GameObject* gameObject;
+		GameObject* gameObject = nullptr;
+		std::string name;
 
 	};
 

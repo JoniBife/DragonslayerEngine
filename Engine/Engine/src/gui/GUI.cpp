@@ -1,6 +1,10 @@
 #include "GUI.h"
 #include <imgui/imgui_internal.h>
 #include <filesystem>
+#include <iostream>
+#include "../core/Hierarchy.h"
+
+using namespace core;
 
 
 void GUI::setDefaultTheme()
@@ -166,16 +170,114 @@ static void showDockspace() {
 	*/
 }
 
+static void showHierarchyRecurs(std::list<GameObject*> gameObjects);
+
+static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 static void showHierarchyPanel() {
-	ImGui::Begin("Hierarchy");                        
+	ImGui::Begin("Hierarchy");   
 
-	ImGui::Text("Cube");              
+	Hierarchy& hierarchy = Hierarchy::getHierarchy();
 
+	auto rootGameObjects = hierarchy.getRootGameObjects();
+
+	showHierarchyRecurs(rootGameObjects);
+	
 	ImGui::End();
+}
+
+static GameObject* selected = nullptr;
+
+static void showHierarchyRecurs(std::list<GameObject*> gameObjects) {
+
+	auto treeNodeFlags = base_flags;
+
+	for (GameObject* gameObject : gameObjects) {
+
+		if (gameObject->isSelected())
+			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+
+		// If there it does not have children then use selectable
+		if (gameObject->numberOfChildren() == 0) {
+
+			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
+			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
+
+			if (ImGui::IsItemClicked()) {
+				gameObject->select();
+				if (selected != nullptr) {
+					selected->unselect();
+				}
+				selected = gameObject;
+			}
+
+			if (open)
+			ImGui::TreePop();
+		}
+		else {
+
+			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
+			
+			if (ImGui::IsItemClicked()) {
+				gameObject->select();
+				if (selected != nullptr) {
+					selected->unselect();
+				}
+				selected = gameObject;
+			}
+
+			if (open) {
+				showHierarchyRecurs(gameObject->getChildren());
+				ImGui::TreePop();
+			}
+
+			
+		}
+
+		treeNodeFlags = base_flags;
+	}
 }
 
 static void showObjectPanel() {
 	ImGui::Begin("Object");
+
+	if (selected != nullptr) {
+		ImGui::Text(selected->getName().c_str());
+
+
+		for (Component* component : selected->getAttachedComponents()) {
+			ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
+			window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
+			window_flags |= ImGuiWindowFlags_MenuBar;
+
+			//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+
+			ImGui::BeginChild("ChildR", ImVec2(0, 100), true, window_flags);
+			if (ImGui::BeginMenuBar())
+			{
+				if (ImGui::BeginMenu(component->getName().c_str()))
+				{
+					if (ImGui::MenuItem("Remove")) {
+
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenuBar();
+			}
+			if (ImGui::BeginTable("split", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings))
+			{
+				for (int i = 0; i < 100; i++)
+				{
+					char buf[32];
+					sprintf_s(buf, "%03d", i);
+					ImGui::TableNextColumn();
+					ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
+				}
+				ImGui::EndTable();
+			}
+			ImGui::EndChild();
+		}
+		
+	}
 
 	ImGui::End();
 }

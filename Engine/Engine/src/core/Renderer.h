@@ -7,11 +7,15 @@ namespace core {
 
 	class Renderer : public Component {
 
-		virtual bool getType() const override;
+	protected:
+		Renderer(const std::string& name);
+
+	public:
+		Renderer();
+		bool getType() const override;
 
 	};
 
 }
-
 
 #endif

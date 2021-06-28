@@ -24,7 +24,10 @@
     <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
+    <ClCompile Include="src\core\Hierarchy.cpp" />
+    <ClCompile Include="src\core\MeshRenderer.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
+    <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
     <ClCompile Include="src\math\Mat2.cpp" />
     <ClCompile Include="src\math\Mat3.cpp" />
@@ -68,6 +71,7 @@
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
+    <ClInclude Include="src\core\Hierarchy.h" />
     <ClInclude Include="src\core\MeshRenderer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Transform.h" />
