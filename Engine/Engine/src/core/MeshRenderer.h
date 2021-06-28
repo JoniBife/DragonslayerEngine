@@ -10,6 +10,7 @@ namespace core {
 	public:
 		MeshRenderer();
 
+		void onGUI() const override;
 	};
 
 };

@@ -243,40 +243,29 @@ static void showObjectPanel() {
 	if (selected != nullptr) {
 		ImGui::Text(selected->getName().c_str());
 
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
+
+		if (ImGui::CollapsingHeader("Transform", flags))
+		{
+			selected->getTransform()->onGUI();
+			ImGui::Separator();
+		}
+
 
 		for (Component* component : selected->getAttachedComponents()) {
-			ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
-			window_flags |= ImGuiWindowFlags_NoScrollWithMouse;
-			window_flags |= ImGuiWindowFlags_MenuBar;
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 
-			//ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-
-			ImGui::BeginChild("ChildR", ImVec2(0, 100), true, window_flags);
-			if (ImGui::BeginMenuBar())
+			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
 			{
-				if (ImGui::BeginMenu(component->getName().c_str()))
-				{
-					if (ImGui::MenuItem("Remove")) {
-
-					}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenuBar();
+				component->onGUI();
+				ImGui::TextWrapped("ABOUT THIS DEMO:");
+				ImGui::TextWrapped("Sections below are demonstrating many aspects of the library.");
+				ImGui::TextWrapped("The \"Examples\" menu above leads to more demo contents.");
+				ImGui::TextWrapped("The \"Tools\" menu above gives access to: About Box, Style Editor,\n"
+					"and Metrics/Debugger (general purpose Dear ImGui debugging tool).");
+				ImGui::Separator();
 			}
-			if (ImGui::BeginTable("split", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings))
-			{
-				for (int i = 0; i < 100; i++)
-				{
-					char buf[32];
-					sprintf_s(buf, "%03d", i);
-					ImGui::TableNextColumn();
-					ImGui::Button(buf, ImVec2(-FLT_MIN, 0.0f));
-				}
-				ImGui::EndTable();
-			}
-			ImGui::EndChild();
 		}
-		
 	}
 
 	ImGui::End();

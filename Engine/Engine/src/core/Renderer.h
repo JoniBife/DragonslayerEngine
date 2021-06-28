@@ -13,6 +13,8 @@ namespace core {
 	public:
 		Renderer();
 		bool getType() const override;
+		
+		virtual void onGUI() const override;
 
 	};
 

@@ -20,6 +20,8 @@ namespace core {
 		Vec3 rotation = Vec3::ZERO; // Local rotation
 		Vec3 scale = {1.0f, 1.0f, 1.0f}; // Local Scale
 
+		void onGUI() const;
+
 		friend class GameObject;
 
 	};
