@@ -5,7 +5,6 @@
 #include "utils/OpenGLUtils.h"
 #include "Configurations.h"
 #include "view/Transformations.h"
-#include "InputManager.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -149,8 +148,6 @@ void Engine::setupScene() {
 	);
 
 	sceneGraph = new SceneGraph(camera);
-
-	InputManager::createInstance(window);
 }
 
 void Engine::setupGUI()

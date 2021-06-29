@@ -9,6 +9,6 @@ bool core::Renderer::getType() const
     return false;
 }
 
-void core::Renderer::onGUI() const
+void core::Renderer::onGUI()
 {
 }

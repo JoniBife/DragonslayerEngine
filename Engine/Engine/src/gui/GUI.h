@@ -14,6 +14,7 @@ private:
 	ImGuiIO& imGuiIO;
 	
 	void setDefaultTheme();
+	void setDefaultStyle();
 	void loadFonts();
 
 public:
