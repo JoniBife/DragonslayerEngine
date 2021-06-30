@@ -15,18 +15,24 @@ BlinnPhongMaterial::BlinnPhongMaterial() : Material( "Blinn-Phong Material") {
     diffuseLocation = shaderProgram->getUniformLocation("diffuseStrength");
     specularLocation = shaderProgram->getUniformLocation("specularStrength");
     shininessLocation = shaderProgram->getUniformLocation("shininess");
+
+    modelMatrixLocation = shaderProgram->getUniformLocation("model");
+    normalMatrixLocation = shaderProgram->getUniformLocation("normal");
 }
 
 BlinnPhongMaterial::~BlinnPhongMaterial()
 {
 }
 
-void BlinnPhongMaterial::sendParametersToShader()
+void BlinnPhongMaterial::sendParametersToShader(const Mat4& modelMatrix, const Mat4& normalMatrix)
 {
     shaderProgram->setUniform(ambientLocation, ambientStrength);
     shaderProgram->setUniform(diffuseLocation, diffuseStrength);
     shaderProgram->setUniform(specularLocation, specularStrength);
     shaderProgram->setUniform(shininessLocation, shininess);
+
+    shaderProgram->setUniform(modelMatrixLocation, modelMatrix);
+    shaderProgram->setUniform(normalMatrixLocation, normalMatrix);
 }
 
 void BlinnPhongMaterial::setAmbientStrength(float ambientStrength)

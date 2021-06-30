@@ -12,6 +12,8 @@ private:
 
 protected:
 	ShaderProgram* shaderProgram = nullptr;
+	GLint modelMatrixLocation = -1;
+	GLint normalMatrixLocation = -1;
 
 	Material(const std::string& name);
 	virtual ~Material();
@@ -19,8 +21,14 @@ protected:
 public:
 	ShaderProgram& getShaderProgram() const;
 
-	/* Should send the material parameters to the shader (e.g. via uniforms) */
-	virtual void sendParametersToShader() = 0;
+	/*! @brief Should send the material parameters to the shader (e.g. via uniforms)
+	and the model and normal matrix.
+	*/
+	virtual void sendParametersToShader(const Mat4& modelMatrix, const Mat4& normalMatrix = Mat4::IDENTITY) = 0;
+
+	void use();
+
+	void stopUsing();
 
 	std::string getName() const;
 };

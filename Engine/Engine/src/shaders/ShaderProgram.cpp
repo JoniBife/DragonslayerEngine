@@ -174,7 +174,7 @@ GLuint ShaderProgram::getUniformBlockIndex(const GLchar* name) {
 // Used to obtain the location of uniforms, this way we avoid doing this in every setUniform
 GLint ShaderProgram::getUniformLocation(const GLchar* name) const {
     GL_CALL(GLint location =  glGetUniformLocation(id, name));
-    assert(location >= 0); // execution should stop if location is < 0
+    //assert(location >= 0); // execution should stop if location is < 0
     return location;
 }
 

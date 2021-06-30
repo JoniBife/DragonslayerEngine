@@ -13,7 +13,7 @@ namespace core {
 		std::vector<Renderer*> renderer;
 
 	public:
-		
+			
 
 	};
 

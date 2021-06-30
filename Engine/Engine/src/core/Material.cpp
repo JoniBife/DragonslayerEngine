@@ -15,6 +15,18 @@ ShaderProgram& Material::getShaderProgram() const
 	return *shaderProgram;
 }
 
+void Material::use()
+{
+	assert(shaderProgram != nullptr);
+	shaderProgram->use();
+}
+
+void Material::stopUsing()
+{
+	assert(shaderProgram != nullptr);
+	shaderProgram->stopUsing();
+}
+
 std::string Material::getName() const
 {
 	return name;

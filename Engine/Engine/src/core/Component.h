@@ -17,7 +17,7 @@ namespace core {
 		virtual bool getType() const = 0;
 		std::string getName() const { return name; }
 
-		/* Associates GameObject with this components
+		/*! @brief Associates GameObject with this components
 		* if the component already has a GameObject associated
 		* then return false else return true
 		*/
@@ -31,8 +31,9 @@ namespace core {
 	protected:
 		Component(const std::string& name);
 
-	private:
 		GameObject* gameObject = nullptr;
+
+	private:
 		std::string name;
 
 		/* Called by the scene graph to update the component every frame */

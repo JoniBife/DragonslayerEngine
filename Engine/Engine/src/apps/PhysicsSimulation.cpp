@@ -7,6 +7,7 @@
 #include "../core/GameObject.h"
 #include "../core/Renderer.h"
 #include "../core/MeshRenderer.h"
+#include "../core/BlinnPhongMaterial.h"
 
 using namespace core;
 
@@ -104,7 +105,9 @@ void PhysicsSimulation::start() {
 	GameObject* gm = new GameObject("Cube");
 	gm->addChildren(gm2);
 
-	MeshRenderer* mr = new MeshRenderer();
+	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
+
+	MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
 	gm->addComponent(mr);
 
 	std::vector<Renderer*> rr = gm->getComponents<Renderer>();

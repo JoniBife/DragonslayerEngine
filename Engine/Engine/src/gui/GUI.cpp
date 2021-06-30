@@ -253,6 +253,8 @@ static void showObjectPanel() {
 			selected->getTransform()->onGUI();
 		}
 
+		ImGui::Dummy(ImVec2(0.0f, 2.5f));
+
 
 		for (Component* component : selected->getAttachedComponents()) {
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
@@ -260,6 +262,7 @@ static void showObjectPanel() {
 			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
 			{
 				component->onGUI();
+				ImGui::Dummy(ImVec2(0.0f, 2.5f));
 			}
 		}
 	}

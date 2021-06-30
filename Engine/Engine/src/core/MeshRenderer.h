@@ -5,17 +5,23 @@
 #include "../core/Material.h"
 #include "Renderer.h"
 
-
 namespace core {
 
 	class MeshRenderer : public Renderer {
 
 	private:
-		Mesh* mesh;
-		Material* material;
+		Mesh* mesh = nullptr;
+		Material* material = nullptr;
 	
 	public:
 		MeshRenderer();
+		MeshRenderer(Mesh* mesh, Material* material);
+
+		void setMesh(Mesh* mesh);
+		void setMaterial(Material* material);
+
+		Mesh* getMesh() const;
+		Material* getMaterial() const;
 
 		void onGUI() override;
 
