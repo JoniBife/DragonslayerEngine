@@ -29,6 +29,88 @@ void Camera::update(float elapsedTime) {
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
+void Camera::setCameraPosition(const Vec3& position)
+{
+	dirty = true;
+	this->position = position;
+}
+
+void Camera::setCameraTarget(const Vec3& target)
+{
+	dirty = true;
+	this->target = target;
+}
+
+void Camera::setCameraUp(const Vec3& up)
+{
+	dirty = true;
+	this->up = up;
+}
+
+void Camera::setNearPlane(float nearPlane)
+{
+	assert(nearPlane > 0.01f);
+	assert(nearPlane < far);
+	dirty = true;
+	this->near = nearPlane;
+}
+
+void Camera::setFarPlane(float farPlane)
+{
+	assert(farPlane > 0);
+	assert(farPlane > near);
+	dirty = true;
+	this->far = farPlane;
+}
+
+void Camera::setFov(float fov)
+{
+	// TODO Check range of fov
+	assert(fov > 0);
+	dirty = true;
+	this->fov = fov;
+}
+
+Vec3 Camera::getCameraPosition() const
+{
+	return position;
+}
+
+Vec3 Camera::getCameraTarget() const
+{
+	return target;
+}
+
+Vec3 Camera::getCameraUp() const
+{
+	return up;
+}
+
+float Camera::getNearPlane() const
+{
+	return near;
+}
+
+float Camera::getFarPlane() const
+{
+	return far;
+}
+
+float Camera::getFov() const
+{
+	return fov;
+}
+
+Mat4 Camera::getView() const
+{
+	return view;
+}
+
+Mat4 Camera::getProjection() const
+{
+	return projection;
+}
+
 // Sets the view matrix
 void Camera::setView(const Mat4& view) {
 	this->view = view;
