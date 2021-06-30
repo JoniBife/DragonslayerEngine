@@ -144,7 +144,10 @@
     <ClCompile Include="src\core\MeshRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\BliinPhongMaterial.cpp">
+    <ClCompile Include="src\core\BlinnPhongMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -275,7 +278,7 @@
     <ClInclude Include="src\core\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\BliinPhongMaterial.h">
+    <ClInclude Include="src\core\BlinnPhongMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -307,5 +310,7 @@
     <None Include="shaders\leaves\vertexShaderBlendingSM.glsl" />
     <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
     <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
+    <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
+    <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
   </ItemGroup>
 </Project>

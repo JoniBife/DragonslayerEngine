@@ -13,7 +13,7 @@ public:
 	static Mesh* loadFromFile(const std::string& filePath);
 private:
 
-	static Mesh* createMeshFromFileStream(std::ifstream& meshFile);
+	static Mesh* createMeshFromFileStream(std::ifstream& meshFile, const std::string& filePath);
 
 	static Vec4 parseVertex(std::stringstream& sin);
 

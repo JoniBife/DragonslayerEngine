@@ -104,9 +104,6 @@ void PhysicsSimulation::start() {
 	GameObject* gm = new GameObject("Cube");
 	gm->addChildren(gm2);
 
-	Renderer* r = new Renderer();
-	std::cout << r << std::endl;
-	gm->addComponent(r);
 	MeshRenderer* mr = new MeshRenderer();
 	gm->addComponent(mr);
 

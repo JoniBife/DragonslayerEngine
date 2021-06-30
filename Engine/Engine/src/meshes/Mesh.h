@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <GL/glew.h>
+#include <string>
 #include "IDrawable.h"
 #include "../math/Mat4.h"
 #include "../math/Vec4.h"
@@ -52,9 +53,11 @@ private:
 	GLenum verticesBufferType = GL_STATIC_DRAW;
 	int verticesBufferSize = -1;
 
+	std::string fileName = "Code-defined mesh"; // The name of the file where the mesh information is contained
+
 public:
 
-	Mesh();
+	Mesh(const std::string& fileName = "Code-defined mesh");
 
 	// Copy constructor
 	Mesh(const Mesh& mesh);
@@ -118,6 +121,8 @@ public:
 	// If the number of vertices is the same it uses glBufferSubData
 	// otherwise it allocates a new buffer to place the vertices and deletes the old one
 	void updateVertices(const std::vector<Vec4>& vertices);
+
+	std::string getName() const;
 };
 
 #endif

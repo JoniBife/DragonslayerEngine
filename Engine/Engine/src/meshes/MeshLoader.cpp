@@ -25,7 +25,7 @@ Mesh* MeshLoader::loadFromFile(const std::string& filePath) {
         }
 
         // read file's buffer contents into streams
-        Mesh* mesh = createMeshFromFileStream(meshFile);
+        Mesh* mesh = createMeshFromFileStream(meshFile, filePath);
         // close file handlers
         meshFile.close();
 
@@ -44,7 +44,7 @@ Mesh* MeshLoader::loadFromFile(const std::string& filePath) {
     }
 }
 
-Mesh* MeshLoader::createMeshFromFileStream(std::ifstream& meshFile) {
+Mesh* MeshLoader::createMeshFromFileStream(std::ifstream& meshFile, const std::string& filePath) {
 
     std::vector<Vec4> verticesData;
     std::vector<Vec3> normalsData;
@@ -64,7 +64,7 @@ Mesh* MeshLoader::createMeshFromFileStream(std::ifstream& meshFile) {
         else if (firstChar.compare("f") == 0) parseFace(sline, verticesIdx, textCoordsIdx, normalsIdx, normalsData, textCoordsData);
     }
 
-    Mesh* mesh = new Mesh();
+    Mesh* mesh = new Mesh(filePath);
     bool hasTextCoords = textCoordsData.size() > 0;
     bool hasNormals = normalsData.size() > 0;
 

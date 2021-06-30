@@ -13,7 +13,7 @@
 #define TEXTCOORDS 3
 #define TANGENTS 4
 
-Mesh::Mesh() {}
+Mesh::Mesh(const std::string& fileName) : fileName(fileName) {}
 
 Mesh::Mesh(const Mesh& mesh) {
 	vertices = mesh.vertices;
@@ -397,4 +397,9 @@ void Mesh::updateVertices(const std::vector<Vec4>& vertices) {
 		}
 	}
 	GL_CALL(glBindVertexArray(0));
+}
+
+std::string Mesh::getName() const
+{
+	return fileName;
 }

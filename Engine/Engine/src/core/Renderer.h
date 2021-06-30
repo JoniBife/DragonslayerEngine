@@ -14,9 +14,9 @@ namespace core {
 		Renderer();
 		bool getType() const override;
 		
-		virtual void onGUI() override;
+		virtual void onGUI() override = 0;
 
-		virtual void update() override;
+		virtual void update() override = 0;
 
 	};
 

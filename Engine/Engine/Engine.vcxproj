@@ -22,10 +22,11 @@
     <ClCompile Include="src\apps\PhysicsSimulation.cpp" />
     <ClCompile Include="src\controllers\FreeCameraController.cpp" />
     <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
-    <ClCompile Include="src\core\BliinPhongMaterial.cpp" />
+    <ClCompile Include="src\core\BlinnPhongMaterial.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Hierarchy.cpp" />
+    <ClCompile Include="src\core\Material.cpp" />
     <ClCompile Include="src\core\MeshRenderer.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
@@ -70,7 +71,7 @@
     <ClInclude Include="src\controllers\ICameraController.h" />
     <ClInclude Include="src\controllers\FreeCameraController.h" />
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
-    <ClInclude Include="src\core\BliinPhongMaterial.h" />
+    <ClInclude Include="src\core\BlinnPhongMaterial.h" />
     <ClInclude Include="src\core\CoreRenderer.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
@@ -110,6 +111,8 @@
     <ClInclude Include="src\view\Transformations.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
+    <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
     <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
     <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
     <None Include="shaders\leaves\fragmentShaderBlending.glsl" />
