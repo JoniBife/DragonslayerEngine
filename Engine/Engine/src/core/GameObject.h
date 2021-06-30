@@ -81,7 +81,7 @@ namespace core {
 		}
 
 
-		std::vector<Component*> getAttachedComponents() const { return components; }
+		std::vector<Component*> getAttachedComponents() const;
 
 
 		//////////////SCENE GRAPH/////////////////////
@@ -100,6 +100,8 @@ namespace core {
 		bool isSelected() const;
 
 		///////////////////////////////////////////////
+
+		friend class Hierarchy;
 	};
 
 };

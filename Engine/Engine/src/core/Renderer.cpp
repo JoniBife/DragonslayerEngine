@@ -12,3 +12,7 @@ bool core::Renderer::getType() const
 void core::Renderer::onGUI()
 {
 }
+
+void core::Renderer::update()
+{
+}

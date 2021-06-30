@@ -16,6 +16,8 @@ namespace core {
 		
 		virtual void onGUI() override;
 
+		virtual void update() override;
+
 	};
 
 }

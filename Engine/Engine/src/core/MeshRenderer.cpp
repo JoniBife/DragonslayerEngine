@@ -9,3 +9,8 @@ void core::MeshRenderer::onGUI()
 {
 
 }
+
+void core::MeshRenderer::update()
+{
+
+}

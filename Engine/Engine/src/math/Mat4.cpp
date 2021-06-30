@@ -340,6 +340,15 @@ Vec4 Mat4::operator*(const Vec4& v) const {
 	return prod;
 }
 
+Vec3 Mat4::operator*(const Vec3& v) const
+{
+	Vec3 prod;
+	prod.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * 1.0f;
+	prod.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * 1.0f;
+	prod.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * 1.0f;
+	return prod;
+}
+
 float* Mat4::operator[](const int lines) {
 	return m[lines];
 }

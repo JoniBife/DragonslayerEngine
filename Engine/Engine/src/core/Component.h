@@ -1,6 +1,7 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include "../gui/GUI.h"
 #include <string>
 
 namespace core {
@@ -33,6 +34,12 @@ namespace core {
 	private:
 		GameObject* gameObject = nullptr;
 		std::string name;
+
+		/* Called by the scene graph to update the component every frame */
+		virtual void update() = 0;
+
+		friend class Hierarchy;
+		friend class GUI;
 
 	};
 

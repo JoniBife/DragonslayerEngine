@@ -9,6 +9,17 @@ core::Transform::Transform()
 {
 }
 
+Mat4 core::Transform::getModelMatrix()
+{
+	// TODO Move this to somewhere more intuitive
+	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
+		Mat4::rotation(rotation.y, Vec3::Y) *
+		Mat4::rotation(rotation.x, Vec3::X) *
+		Mat4::scaling(scale);
+
+	return model;
+}
+
 void core::Transform::onGUI()
 {
 	float inputFieldsWidth = ImGui::GetContentRegionAvail().x * 0.25f;
@@ -26,7 +37,6 @@ void core::Transform::onGUI()
 	ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
 	ImGui::InputFloat("##PositionZ", &(position.z));
-	
 	
 
 	ImGui::Text("Rotation");
@@ -58,4 +68,11 @@ void core::Transform::onGUI()
 	ImGui::SetNextItemWidth(inputFieldsWidth);
 	ImGui::InputFloat("##ScaleZ", &(scale.z)); 
 	
+}
+
+void core::Transform::update(const Mat4& parentModel)
+{
+	position = parentModel * position;
+	rotation = parentModel * rotation;
+	scale = parentModel * scale;
 }

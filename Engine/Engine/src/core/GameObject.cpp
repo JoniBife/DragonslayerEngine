@@ -79,6 +79,11 @@ unsigned int core::GameObject::numberOfChildren() const {
 	return children.size();
 }
 
+std::vector<Component*> core::GameObject::getAttachedComponents() const
+{
+	return components;
+}
+
 void core::GameObject::setParent(GameObject* gameObject)
 {
 	assert(gameObject != this);

@@ -3,6 +3,7 @@
 
 #include <list>
 #include "../math/Vec3.h"
+#include "../math/Mat4.h"
 
 namespace core {
 
@@ -14,13 +15,19 @@ namespace core {
 
 	private:
 		Transform();
+		Mat4 model = Mat4::IDENTITY;
 		
 	public:
 		Vec3 position = Vec3::ZERO; // Position in world space
 		Vec3 rotation = Vec3::ZERO; // Local rotation
 		Vec3 scale = {1.0f, 1.0f, 1.0f}; // Local Scale
 
+		Mat4 getModelMatrix();
+
 		void onGUI();
+
+		/* Updates the position rotation and scale to be relative from the parent */
+		void update(const Mat4& parentModel);
 
 		friend class GameObject;
 

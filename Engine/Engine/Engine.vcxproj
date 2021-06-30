@@ -22,6 +22,7 @@
     <ClCompile Include="src\apps\PhysicsSimulation.cpp" />
     <ClCompile Include="src\controllers\FreeCameraController.cpp" />
     <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
+    <ClCompile Include="src\core\BliinPhongMaterial.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Hierarchy.cpp" />
@@ -69,9 +70,12 @@
     <ClInclude Include="src\controllers\ICameraController.h" />
     <ClInclude Include="src\controllers\FreeCameraController.h" />
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
+    <ClInclude Include="src\core\BliinPhongMaterial.h" />
+    <ClInclude Include="src\core\CoreRenderer.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
     <ClInclude Include="src\core\Hierarchy.h" />
+    <ClInclude Include="src\core\Material.h" />
     <ClInclude Include="src\core\MeshRenderer.h" />
     <ClInclude Include="src\core\Renderer.h" />
     <ClInclude Include="src\core\Transform.h" />

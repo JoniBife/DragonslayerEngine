@@ -251,7 +251,6 @@ static void showObjectPanel() {
 		if (ImGui::CollapsingHeader("Transform", flags))
 		{
 			selected->getTransform()->onGUI();
-			ImGui::Separator();
 		}
 
 
@@ -261,12 +260,6 @@ static void showObjectPanel() {
 			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
 			{
 				component->onGUI();
-				ImGui::TextWrapped("ABOUT THIS DEMO:");
-				ImGui::TextWrapped("Sections below are demonstrating many aspects of the library.");
-				ImGui::TextWrapped("The \"Examples\" menu above leads to more demo contents.");
-				ImGui::TextWrapped("The \"Tools\" menu above gives access to: About Box, Style Editor,\n"
-					"and Metrics/Debugger (general purpose Dear ImGui debugging tool).");
-				ImGui::Separator();
 			}
 		}
 	}

@@ -53,6 +53,7 @@ struct Mat4 {
 	friend Mat4 operator-(const float s, const Mat4& mat4);
 	Mat4 operator/(const float s) const;
 	Vec4 operator*(const Vec4& v) const;
+	Vec3 operator*(const Vec3& v) const; // This operation is incorrect from linear algebra's perspective but its useful
 
 	float* operator[](const int lines);
 	
