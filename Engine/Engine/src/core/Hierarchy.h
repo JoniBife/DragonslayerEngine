@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <list>
 #include "../math/Mat4.h"
+#include <functional>
 
 namespace core {
 
@@ -17,6 +18,7 @@ namespace core {
 		bool addRoot(GameObject* gameObject);
 		bool removeRoot(GameObject* gameObject);
 
+		void traverseSceneRecursively(GameObject* gameObject, const std::function<void(GameObject*)>& onGameObject);
 		void updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel = Mat4::IDENTITY);
 
 		friend class GameObject; // Transform is a friend class to have access to addRoot and removeRoot
@@ -28,6 +30,8 @@ namespace core {
 		static Hierarchy* instance;
 
 		std::list<GameObject*> getRootGameObjects() const;
+
+		void traverseScene(const std::function<void(GameObject*)>& onGameObject);
 
 		void updateScene();
 	};

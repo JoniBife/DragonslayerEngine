@@ -27,6 +27,8 @@ Texture2D::Texture2D(const std::string& textureFilePath) {
 	else if (nrChannels == 4)
 		format = GL_RGBA;
 
+	internalFormat = format;
+
 	// texture wrapping/filtering options
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT));
@@ -62,6 +64,8 @@ Texture2D::Texture2D(const std::string& textureFilePath, GLint param)
 	else if (nrChannels == 4)
 		format = GL_RGBA;
 
+	internalFormat = format;
+
 	// texture wrapping/filtering options
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, param));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, param));
@@ -87,6 +91,8 @@ Texture2D* Texture2D::emptyTexture(unsigned int width, unsigned int height)
 	assert(width > 0 && height > 0);
 
 	Texture2D* emptyTexture = new Texture2D();
+	emptyTexture->width = width;
+	emptyTexture->height = height;
 
 	// Generating the texture
 	GL_CALL(glGenTextures(1, &emptyTexture->id));
@@ -94,6 +100,7 @@ Texture2D* Texture2D::emptyTexture(unsigned int width, unsigned int height)
 
 	// Empty texture
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	emptyTexture->internalFormat = GL_RGB;
 
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -111,6 +118,26 @@ void Texture2D::bind(unsigned int unitNumber) {
 void Texture2D::unBind(unsigned int unitNumber) {
 	GL_CALL(glActiveTexture(unitNumber));
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+int Texture2D::getWidth() const
+{
+	return width;
+}
+
+int Texture2D::getHeight() const
+{
+	return height;
+}
+
+void Texture2D::resize(unsigned int width, unsigned int height)
+{
+	bind(GL_TEXTURE0);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, NULL);
+	unBind(GL_TEXTURE0);
+
+	this->width = width;
+	this->height = height;
 }
 
 

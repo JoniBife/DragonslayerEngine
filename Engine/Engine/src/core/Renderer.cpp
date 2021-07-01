@@ -1,18 +1,20 @@
 #include "Renderer.h"
 
-core::Renderer::Renderer(const std::string& name) : Component(name) { }
+using namespace core;
 
-core::Renderer::Renderer() : Renderer("Renderer") {}
+Renderer::Renderer(const std::string& name) : Component(name) { }
 
-bool core::Renderer::getType() const
+Renderer::Renderer() : Renderer("Renderer") {}
+
+bool Renderer::getType() const
 {
     return false;
 }
 
-void core::Renderer::onGUI()
+void Renderer::onGUI()
 {
 }
 
-void core::Renderer::update()
+void Renderer::update()
 {
 }

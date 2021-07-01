@@ -150,6 +150,9 @@
     <ClCompile Include="src\core\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\Renderer3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\Mat2.h">
@@ -272,7 +275,7 @@
     <ClInclude Include="src\core\Hierarchy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\CoreRenderer.h">
+    <ClInclude Include="src\core\Renderer3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\Material.h">

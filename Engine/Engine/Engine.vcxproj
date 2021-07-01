@@ -29,6 +29,7 @@
     <ClCompile Include="src\core\Material.cpp" />
     <ClCompile Include="src\core\MeshRenderer.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
+    <ClCompile Include="src\core\Renderer3D.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
     <ClCompile Include="src\math\Mat2.cpp" />
@@ -72,7 +73,7 @@
     <ClInclude Include="src\controllers\FreeCameraController.h" />
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
     <ClInclude Include="src\core\BlinnPhongMaterial.h" />
-    <ClInclude Include="src\core\CoreRenderer.h" />
+    <ClInclude Include="src\core\Renderer3D.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
     <ClInclude Include="src\core\Hierarchy.h" />

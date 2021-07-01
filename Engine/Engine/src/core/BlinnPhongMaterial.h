@@ -4,31 +4,35 @@
 #include "Material.h"
 #include "../math/Vec3.h"
 
-class BlinnPhongMaterial : public Material {
+namespace core {
 
-private: 
-	float ambientStrength = 0.1f; GLint ambientLocation;
-	float diffuseStrength = 1.0f; GLint diffuseLocation;
-	float specularStrength = 0.7f; GLint specularLocation;
-	unsigned int shininess = 32; GLint shininessLocation;
+	class BlinnPhongMaterial : public Material {
 
-	Vec3 color; GLint colorLocation;
+	private:
+		float ambientStrength = 0.1f; GLint ambientLocation;
+		float diffuseStrength = 1.0f; GLint diffuseLocation;
+		float specularStrength = 0.7f; GLint specularLocation;
+		unsigned int shininess = 32; GLint shininessLocation;
 
-public:
-	void setAmbientStrength(float ambientStrength);
-	void setDiffuseStrength(float diffuseStrength);
-	void setSpecularStrength(float specularStrength);
-	void setShininess(float shininess);
+		Vec3 color; GLint colorLocation;
 
-	float getAmbientStrength() const;
-	float getDiffuseStrength() const;
-	float getSpecularStrength() const;
-	unsigned int getShininess() const;
+	public:
+		void setAmbientStrength(float ambientStrength);
+		void setDiffuseStrength(float diffuseStrength);
+		void setSpecularStrength(float specularStrength);
+		void setShininess(float shininess);
 
-	BlinnPhongMaterial();
-	~BlinnPhongMaterial();
+		float getAmbientStrength() const;
+		float getDiffuseStrength() const;
+		float getSpecularStrength() const;
+		unsigned int getShininess() const;
 
-	void sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) override;
+		BlinnPhongMaterial();
+		~BlinnPhongMaterial();
+
+		void sendParametersToShader(const Vec3& viewPosition, const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) override;
+
+	};
 
 };
 

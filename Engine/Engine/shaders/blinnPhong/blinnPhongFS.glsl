@@ -10,8 +10,8 @@ in vec4 fragPos;
 out vec4 fragmentColor;
 
 // UNIFORMS
-uniform vec3 lightPosition = { 4.0, 30.0, 20.0} ;
-uniform vec3 viewPos = { 0.0, 0.0, 5.0 };
+uniform vec3 lightPosition = { 4.0, 30.0, 20.0};
+uniform vec3 viewPosition;
 
 // Ambient
 uniform vec3 lightColor = {1.0, 1.0, 1.0};
@@ -54,7 +54,7 @@ vec3 calculateLight(vec3 color, vec3 surfaceNormal, vec3 fragPos, vec3 lightPos,
 
 void main(void)
 {
-	vec3 result = calculateLight(lightColor, exNormal, vec3(fragPos), lightPosition, viewPos);
+	vec3 result = calculateLight(lightColor, exNormal, vec3(fragPos), lightPosition, viewPosition);
 
 	fragmentColor = vec4(result * exColor.xyz, 1.0);
 }

@@ -9,8 +9,6 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
-#include "textures/FrameBuffer.h"
-#include "textures/Texture2D.h"
 
 Engine* engine;
 
@@ -138,9 +136,9 @@ void Engine::setupOpenGL() {
 void Engine::setupScene() {
 
 
-	camera = new Camera();
+	editorCamera = new Camera();
 
-	sceneGraph = new SceneGraph(camera);
+	sceneGraph = new SceneGraph(editorCamera);
 
 	hierarchy = core::Hierarchy::instance;
 }
@@ -157,7 +155,7 @@ void Engine::setupGUI()
 ////////////////////////////////////////////// RESOURCES
 void Engine::freeResources() {
 	delete sceneGraph;
-	delete camera;
+	delete editorCamera;
 	delete gui;
 }
 
@@ -169,13 +167,13 @@ void Engine::updateWindow(float width, float height)
 {
 	windowWidth = width;
 	windowHeight = height;
-	camera->setViewportSize(width, height);
+	editorCamera->setViewportSize(width, height);
 }
 void Engine::setSkyBox(const std::vector<std::string>& facesFilePath) {
 	if (skybox)
 		delete skybox;
 
-	skybox = new SkyBox(facesFilePath, camera);
+	skybox = new SkyBox(facesFilePath, editorCamera);
 }
 
 ////////////////////////////////////////////// GETTERS
@@ -186,7 +184,7 @@ SceneGraph* Engine::getSceneGraph() {
 	return sceneGraph;
 }
 Camera* Engine::getCamera() {
-	return camera;
+	return editorCamera;
 }
 GUI* Engine::getGui() {
 	return gui;
@@ -205,10 +203,14 @@ double Engine::getElapsedTime() {
 ////////////////////////////////////////////// MAIN LOOP
 void Engine::run() {
 
+	renderer3D = new core::Renderer3D();
+
 	// Setup (DO NOT CHANGE ORDER OF SETUP)
 	setupGLFW(); 
 	setupGLEW();  
-	setupOpenGL();
+	
+	renderer3D->setup();
+
 	setupGUI();
 	setupScene();
 
@@ -216,33 +218,6 @@ void Engine::run() {
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
 	double lastTime = glfwGetTime();
- 
-	Texture2D* frameTexture = Texture2D::emptyTexture(windowWidth, windowHeight);
-	FrameBuffer* frameBuffer = new FrameBuffer([&]() {
-
-		// Bind frameBuffer
-
-		frameTexture->bind(GL_TEXTURE0);
-		GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture->getId(), 0));
-		frameTexture->unBind(GL_TEXTURE0);
-
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, windowWidth, windowHeight);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-		// Unbind frameBuffer
-	});
-
-	Mesh* quad = Mesh::rectangle(2.0f, 2.0f);
-	quad->init();
-
-	Shader vs(GL_VERTEX_SHADER, "../Engine/Shaders/framebuffer/sceneViewVertexShader.glsl");
-	Shader fs(GL_FRAGMENT_SHADER, "../Engine/Shaders/framebuffer/sceneViewFragmentShader.glsl");
-	ShaderProgram* sp = new ShaderProgram(vs, fs, true);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -255,19 +230,12 @@ void Engine::run() {
 
 		update();
 
-		camera->update(elapsedTime);
+		editorCamera->update(elapsedTime);
 
-		// First render to frame buffer
-		frameBuffer->bind();
-		glClearColor(BACKGROUND_COLOR);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
-		glEnable(GL_DEPTH_TEST);
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-		
 		hierarchy->updateScene();
-		frameBuffer->unbind();
 
-		gui->drawUI(frameTexture->getId(), *camera);// After everything from the scene is rendered, we render the UI;
+		Texture2D& frameTexture = renderer3D->RenderToTexture(*editorCamera, *hierarchy);
+		gui->drawUI(frameTexture.getId(), *editorCamera);// After everything from the scene is rendered, we render the UI;
 
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary

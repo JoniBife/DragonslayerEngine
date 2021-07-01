@@ -27,17 +27,17 @@ GameObject::~GameObject() {
 		delete component;
 }
 
-std::string core::GameObject::getName() const
+std::string GameObject::getName() const
 {
 	return name;
 }
 
-Transform* core::GameObject::getTransform() const
+Transform* GameObject::getTransform() const
 {
 	return transform;
 }
 
-bool core::GameObject::addComponent(Component* component)
+bool GameObject::addComponent(Component* component)
 {
 	assert(component != nullptr);
 
@@ -52,7 +52,7 @@ bool core::GameObject::addComponent(Component* component)
 	return false;
 }
 
-bool core::GameObject::addChildren(GameObject* gameObject) {
+bool GameObject::addChildren(GameObject* gameObject) {
 
 	// Cannot add null children
 	assert(gameObject != nullptr);
@@ -72,23 +72,23 @@ bool core::GameObject::addChildren(GameObject* gameObject) {
 	return true;
 }
 
-std::list<GameObject*> core::GameObject::getChildren() const {
+std::list<GameObject*> GameObject::getChildren() const {
 	return children;
 }
-GameObject* core::GameObject::getParent() const {
+GameObject* GameObject::getParent() const {
 	return parent;
 }
 
-unsigned int core::GameObject::numberOfChildren() const {
+unsigned int GameObject::numberOfChildren() const {
 	return children.size();
 }
 
-std::vector<Component*> core::GameObject::getAttachedComponents() const
+std::vector<Component*> GameObject::getAttachedComponents() const
 {
 	return components;
 }
 
-void core::GameObject::setParent(GameObject* gameObject)
+void GameObject::setParent(GameObject* gameObject)
 {
 	assert(gameObject != this);
 
@@ -102,16 +102,16 @@ void core::GameObject::setParent(GameObject* gameObject)
 	parent = gameObject;
 }
 
-void core::GameObject::select()
+void GameObject::select()
 {
 	selected = true;
 }
 
-void core::GameObject::unselect()
+void GameObject::unselect()
 {
 	selected = false;
 }
 
-bool core::GameObject::isSelected() const {
+bool GameObject::isSelected() const {
 	return selected;
 }

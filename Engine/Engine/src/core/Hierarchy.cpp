@@ -1,6 +1,8 @@
 #include "Hierarchy.h"
 
-bool core::Hierarchy::addRoot(GameObject* gameObject)
+using namespace core;
+
+bool Hierarchy::addRoot(GameObject* gameObject)
 {
 	for (GameObject* root : rootGameObjects) {
 		if (root == gameObject)
@@ -11,7 +13,7 @@ bool core::Hierarchy::addRoot(GameObject* gameObject)
 	return true;
 }
 
-bool core::Hierarchy::removeRoot(GameObject* gameObject)
+bool Hierarchy::removeRoot(GameObject* gameObject)
 {
 	bool canRemove = false;
 	for (GameObject* root : rootGameObjects) {
@@ -27,28 +29,44 @@ bool core::Hierarchy::removeRoot(GameObject* gameObject)
 	return canRemove;
 }
 
-core::Hierarchy* core::Hierarchy::instance = new Hierarchy();
+Hierarchy* Hierarchy::instance = new Hierarchy();
 
-core::Hierarchy& core::Hierarchy::createHierarchy() {
+Hierarchy& Hierarchy::createHierarchy() {
 	// There can only be one instance of hierachy
 	assert(instance == nullptr);
 	//instance = 
 	return *instance;
 }
 
-void core::Hierarchy::updateScene()
+void Hierarchy::updateScene()
 {
 	for (GameObject* gameObject : rootGameObjects) {
 		updateSceneRecursively(gameObject);
 	}
 }
 
-std::list<core::GameObject*> core::Hierarchy::getRootGameObjects() const
+std::list<GameObject*> Hierarchy::getRootGameObjects() const
 {
 	return rootGameObjects;
 }
 
-void core::Hierarchy::updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel)
+void Hierarchy::traverseScene(const std::function<void(GameObject*)>& onGameObject)
+{
+	for (GameObject* root : rootGameObjects) {
+		traverseSceneRecursively(root, onGameObject);
+	}
+}
+
+void Hierarchy::traverseSceneRecursively(GameObject* gameObject, const std::function<void(GameObject*)>& onGameObject)
+{
+	onGameObject(gameObject);
+
+	for (GameObject* child : gameObject->getChildren()) {
+		traverseSceneRecursively(child,	onGameObject);
+	}
+}
+
+void Hierarchy::updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel)
 {
 	// Update the position with the parent model matrix
 	gameObject->transform->update(parentModel);
@@ -66,7 +84,7 @@ void core::Hierarchy::updateSceneRecursively(GameObject* gameObject, const Mat4&
 	
 }
 
-core::Hierarchy& core::Hierarchy::getHierarchy()
+Hierarchy& Hierarchy::getHierarchy()
 {
 	assert(instance != nullptr); return *instance;
 }

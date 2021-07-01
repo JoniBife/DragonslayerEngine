@@ -1,5 +1,7 @@
 #include "BlinnPhongMaterial.h"
 
+using namespace core;
+
 unsigned int BlinnPhongMaterial::getShininess() const
 {
     return shininess;
@@ -18,13 +20,14 @@ BlinnPhongMaterial::BlinnPhongMaterial() : Material( "Blinn-Phong Material") {
 
     modelMatrixLocation = shaderProgram->getUniformLocation("model");
     normalMatrixLocation = shaderProgram->getUniformLocation("normal");
+    viewPositionLocation = shaderProgram->getUniformLocation("viewPosition");
 }
 
 BlinnPhongMaterial::~BlinnPhongMaterial()
 {
 }
 
-void BlinnPhongMaterial::sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix)
+void BlinnPhongMaterial::sendParametersToShader(const Vec3& viewPosition, const Mat4& modelMatrix, const Mat3& normalMatrix)
 {
     shaderProgram->setUniform(ambientLocation, ambientStrength);
     shaderProgram->setUniform(diffuseLocation, diffuseStrength);
@@ -33,6 +36,7 @@ void BlinnPhongMaterial::sendParametersToShader(const Mat4& modelMatrix, const M
 
     shaderProgram->setUniform(modelMatrixLocation, modelMatrix);
     shaderProgram->setUniform(normalMatrixLocation, normalMatrix);
+    shaderProgram->setUniform(viewPositionLocation, viewPosition);
 }
 
 void BlinnPhongMaterial::setAmbientStrength(float ambientStrength)

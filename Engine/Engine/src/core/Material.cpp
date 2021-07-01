@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "Material.h"
 
+using namespace core;
+
 Material::Material(const std::string& name) : name(name) {}
 
 Material::~Material()

@@ -1,23 +1,35 @@
 #include "MeshRenderer.h"
 
-core::MeshRenderer::MeshRenderer() : Renderer("Mesh Renderer")
+using namespace core;
+
+MeshRenderer::MeshRenderer() : Renderer("Mesh Renderer")
 {
 
 }
 
-core::MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) : Renderer("Mesh Renderer"), mesh(mesh), material(material) {}
+MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) : Renderer("Mesh Renderer"), mesh(mesh), material(material) {}
 
-void core::MeshRenderer::setMesh(Mesh* mesh)
+void MeshRenderer::setMesh(Mesh* mesh)
 {
 	this->mesh = mesh;
 }
 
-void core::MeshRenderer::setMaterial(Material* material)
+void MeshRenderer::setMaterial(Material* material)
 {
 	this->material = material;
 }
 
-void core::MeshRenderer::onGUI()
+Mesh* core::MeshRenderer::getMesh() const
+{
+	return mesh;
+}
+
+Material* core::MeshRenderer::getMaterial() const
+{
+	return material;
+}
+
+void MeshRenderer::onGUI()
 {
 	ImGui::TextWrapped("Mesh: "); ImGui::SameLine();
 
@@ -42,22 +54,7 @@ void core::MeshRenderer::onGUI()
 	ImGui::TextWrapped(materialName.c_str());
 }
 
-void core::MeshRenderer::update()
+void MeshRenderer::update()
 {
-	// Cannot render the mesh if the mesh or the material are not set
-	if (mesh == nullptr || material == nullptr)
-		return;
 
-	material->use();
-	mesh->bind();
-
-	Transform* transform = gameObject->getTransform();
-
-	Mat3 inverse;
-	bool canInverse = transform->getModelMatrix().toMat3().inverse(inverse);
-	material->sendParametersToShader(transform->getModelMatrix(), inverse.transpose());
-	mesh->draw();
-
-	mesh->draw();
-	material->stopUsing();
 }

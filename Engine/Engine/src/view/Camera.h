@@ -16,7 +16,7 @@ private:
 	GLuint uboBp = 0;
 	ICameraController* cameraController;
 
-	Vec3 position = { 0.0f, 0.0f, 5.0f }; // eye
+	Vec3 position = { 0.0f, 0.0f, 10.0f }; // eye
 	Vec3 target = { 0.0f, 0.0f, 0.0f }; // center
 	Vec3 front = target - position;
 	Vec3 up = { 0.0f, 1.0f, 0.0f }; // up
@@ -35,17 +35,17 @@ public:
 
 	void update(float elapsedTime);
 
-	void setCameraPosition(const Vec3& position);
-	void setCameraTarget(const Vec3& target);
-	void setCameraUp(const Vec3& up);
+	void setPosition(const Vec3& position);
+	void setTarget(const Vec3& target);
+	void setUp(const Vec3& up);
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 	void setFov(float fov);
 	void setViewportSize(float viewportWidth, float viewportHeight);
 
-	Vec3 getCameraPosition() const;
-	Vec3 getCameraTarget() const;
-	Vec3 getCameraUp() const;
+	Vec3 getPosition() const;
+	Vec3 getTarget() const;
+	Vec3 getUp() const;
 	float getNearPlane() const;
 	float getFarPlane() const;
 	float getFov() const;

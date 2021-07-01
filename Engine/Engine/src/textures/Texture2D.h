@@ -22,6 +22,7 @@ class Texture2D : public ITexture {
 
 private:
 	int width = 0, height = 0, nrChannels = 0; // In RGB there are 3 channels while in RGBA there are 4 for example
+	GLint internalFormat;
 
 	Texture2D();
 
@@ -38,6 +39,11 @@ public:
 	void bind(unsigned int unitNumber) override;
 
 	void unBind(unsigned int unitNumber) override;
+	
+	int getWidth() const;
+	int getHeight() const;
+
+	void resize(unsigned int width, unsigned int height);
 };
 
 #endif

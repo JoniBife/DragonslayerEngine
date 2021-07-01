@@ -2,7 +2,7 @@
 
 using namespace core;
 
-bool core::Component::setGameObject(GameObject* gameObject)
+bool Component::setGameObject(GameObject* gameObject)
 {
 	if (this->gameObject == nullptr) {
 		this->gameObject = gameObject;
@@ -11,9 +11,9 @@ bool core::Component::setGameObject(GameObject* gameObject)
 	return false;
 }
 
-GameObject* core::Component::getGameObject()
+GameObject* Component::getGameObject()
 {
 	return gameObject;
 }
 
-core::Component::Component(const std::string& name) : name(name) {}
+Component::Component(const std::string& name) : name(name) {}

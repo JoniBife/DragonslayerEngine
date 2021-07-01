@@ -43,19 +43,19 @@ void Camera::update(float elapsedTime) {
 	}
 }
 
-void Camera::setCameraPosition(const Vec3& position)
+void Camera::setPosition(const Vec3& position)
 {
 	dirty = true;
 	this->position = position;
 }
 
-void Camera::setCameraTarget(const Vec3& target)
+void Camera::setTarget(const Vec3& target)
 {
 	dirty = true;
 	this->target = target;
 }
 
-void Camera::setCameraUp(const Vec3& up)
+void Camera::setUp(const Vec3& up)
 {
 	dirty = true;
 	this->up = up;
@@ -92,17 +92,17 @@ void Camera::setViewportSize(float viewportWidth, float viewportHeight)
 	this->viewportHeight = viewportHeight;
 }
 
-Vec3 Camera::getCameraPosition() const
+Vec3 Camera::getPosition() const
 {
 	return position;
 }
 
-Vec3 Camera::getCameraTarget() const
+Vec3 Camera::getTarget() const
 {
 	return target;
 }
 
-Vec3 Camera::getCameraUp() const
+Vec3 Camera::getUp() const
 {
 	return up;
 }

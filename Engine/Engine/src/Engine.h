@@ -7,6 +7,7 @@
 #include "core/Hierarchy.h"
 #include "gui/GUI.h"
 #include "meshes/SkyBox.h"
+#include "../core/Renderer3D.h"
 
 
 class Engine {
@@ -16,7 +17,8 @@ private:
 	GLFWwindow* window = nullptr;
 	SceneGraph* sceneGraph = nullptr;
 	core::Hierarchy* hierarchy;
-	Camera* camera = nullptr;
+	core::Renderer3D* renderer3D;
+	Camera* editorCamera = nullptr;
 	GUI* gui = nullptr;
 	SkyBox* skybox = nullptr;
 	int windowWidth = 0;
@@ -33,7 +35,7 @@ private:
 	/* Sets up everything related to glfw */
 	void setupOpenGL();
 
-	/* Sets up the camera and sceneGraph */
+	/* Sets up the editorCamera and sceneGraph */
 	void setupScene();
 
 	/* Sets up everything related to ImGUI*/

@@ -5,16 +5,18 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
 
-core::Transform::Transform()
+using namespace core;
+
+Transform::Transform()
 {
 }
 
-Mat4 core::Transform::getModelMatrix()
+Mat4 Transform::getModelMatrix()
 {
 	return model;
 }
 
-void core::Transform::onGUI()
+void Transform::onGUI()
 {
 	float inputFieldsWidth = ImGui::GetContentRegionAvail().x * 0.25f;
 
@@ -64,7 +66,7 @@ void core::Transform::onGUI()
 	
 }
 
-void core::Transform::update(const Mat4& parentModel)
+void Transform::update(const Mat4& parentModel)
 {
 	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
 		Mat4::rotation(rotation.y, Vec3::Y) *
@@ -74,14 +76,14 @@ void core::Transform::update(const Mat4& parentModel)
 	model = parentModel * model;
 }
 
-void core::Transform::makeChildOfTransform(Transform* transform)
+void Transform::makeChildOfTransform(Transform* transform)
 {
 	this->position += transform->position;
 	this->rotation += transform->rotation;
 	this->scale *= transform->scale;
 }
 
-void core::Transform::removeChildOfTransform(Transform* transform)
+void Transform::removeChildOfTransform(Transform* transform)
 {
 	this->position -= transform->position;
 	this->rotation -= transform->rotation;

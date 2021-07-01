@@ -4,33 +4,41 @@
 #include <string>
 #include "../shaders/shaderProgram.h"
 
-/* Base class for all materials (e.g BlinnPhongMaterial) */
-class Material {
+namespace core {
 
-private:
-	std::string name;
+	/* Base class for all materials (e.g BlinnPhongMaterial) */
+	class Material {
 
-protected:
-	ShaderProgram* shaderProgram = nullptr;
-	GLint modelMatrixLocation = -1;
-	GLint normalMatrixLocation = -1;
+	private:
+		std::string name;
 
-	Material(const std::string& name);
-	virtual ~Material();
+	protected:
+		ShaderProgram* shaderProgram = nullptr;
+		GLint modelMatrixLocation = -1;
+		GLint normalMatrixLocation = -1;
+		GLint viewPositionLocation = -1;
 
-public:
-	ShaderProgram& getShaderProgram() const;
+		Material(const std::string& name);
+		virtual ~Material();
 
-	/*! @brief Should send the material parameters to the shader (e.g. via uniforms)
-	and the model and normal matrix.
-	*/
-	virtual void sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) = 0;
+	public:
+		ShaderProgram& getShaderProgram() const;
 
-	void use();
+		/*! @brief Should send the material parameters to the shader (e.g. via uniforms)
+		and the model and normal matrix.
+		*/
+		virtual void sendParametersToShader(
+			const Vec3& viewPosition,
+			const Mat4& modelMatrix, 
+			const Mat3& normalMatrix = Mat3::IDENTITY) = 0;
 
-	void stopUsing();
+		void use();
 
-	std::string getName() const;
-};
+		void stopUsing();
+
+		std::string getName() const;
+	};
+
+}
 
 #endif

@@ -7,8 +7,10 @@ class FrameBuffer {
 
 private:
 	GLuint id;
+	
 
 public:
+	GLuint rbo;
 	FrameBuffer(const std::function<void()>& setAttachments);
 	~FrameBuffer();
 
