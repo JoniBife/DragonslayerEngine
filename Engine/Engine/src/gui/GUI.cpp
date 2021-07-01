@@ -336,8 +336,6 @@ void GUI::drawUI(GLuint id, Camera& camera)
 	// Rendering
 	ImGui::Render();
 
-	//ImGui::PopFont();
-
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	
