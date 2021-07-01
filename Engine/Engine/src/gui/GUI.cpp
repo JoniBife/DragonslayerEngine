@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 #include "../core/Hierarchy.h"
+#include "../view/Camera.h"
 
 using namespace core;
 
@@ -282,15 +283,24 @@ static void showSceneView(GLuint id) {
 	ImGui::End();
 }
 
-static void showTempUI(GLuint id) {
+static void showEditorCameraPanel(Camera& camera) {
+	ImGui::Begin("Editor camera configs");
+	{
+		camera.OnGUI();
+	}
+	ImGui::End();
+}
+
+static void showTempUI(GLuint id, Camera& camera) {
 	showMainMenuBar();
     showDockspace();
 	showHierarchyPanel();
 	showObjectPanel();
 	showSceneView(id);
+	showEditorCameraPanel(camera);
 }
 
-void GUI::drawUI(GLuint id)
+void GUI::drawUI(GLuint id, Camera& camera)
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -299,7 +309,7 @@ void GUI::drawUI(GLuint id)
 
 	setDefaultStyle();
 
-	showTempUI(id);
+	showTempUI(id, camera);
 	bool open = true;
 	ImGui::ShowDemoWindow(&open);
 

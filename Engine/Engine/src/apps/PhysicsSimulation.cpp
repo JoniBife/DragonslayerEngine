@@ -19,71 +19,7 @@ GLint cameraPosL;
 
 FreeCameraController* cameraController;
 
-static void loadShaders(Camera* camera) {
-
-	Shader vs(GL_VERTEX_SHADER, "../Engine/shaders/simpleVertexShader.glsl");
-	Shader fs(GL_FRAGMENT_SHADER, "../Engine/shaders/fragmentShaderLighting.glsl");
-	bliinPhongShader = new ShaderProgram(vs, fs);
-	// Associating the shared matrix index with the binding point of the camera (0)
-	GLuint sharedMatricesIndex = bliinPhongShader->getUniformBlockIndex("SharedMatrices");
-	bliinPhongShader->bindUniformBlock(sharedMatricesIndex, camera->getUboBindingPoint());
-
-	Vec3 lightPos(4.0f, 30.0f, 20.0f);
-
-	Mat4 lightProj = ortho(-100.0f, 100.0f, -10.0f, 100.0f, 1.0f, 70.5f);
-
-	Vec3 lightTarget(0.0f, 0.0f, 0.0f); // center
-	Vec3 lightUp(0.0f, 1.0f, 0.0f); // up
-
-	Mat4 lightView = lookAt(lightPos, lightTarget, lightUp);
-
-	Mat4 LSM = lightProj * lightView;
-
-	Vec3 lightColor(1.0f, 1.0f, 1.0f);
-	float ambientStrength = 0.1f;
-
-	float specularStrength = 0.7f;
-	unsigned int shininess = 32;
-
-	/////////////////// CYLINDER ///////////////////////
-	GLint lightColorL = bliinPhongShader->getUniformLocation("lightColor");
-	GLint ambientStrenghtL = bliinPhongShader->getUniformLocation("ambientStrength");
-	GLint lightPositionL = bliinPhongShader->getUniformLocation("lightPosition");
-	GLint specularStrengthL = bliinPhongShader->getUniformLocation("specularStrength");
-	GLint shininessL = bliinPhongShader->getUniformLocation("shininess");
-	cameraPosL = bliinPhongShader->getUniformLocation("viewPos");
-
-	bliinPhongShader->use();
-	bliinPhongShader->setUniform(lightColorL, lightColor);
-	bliinPhongShader->setUniform(ambientStrenghtL, ambientStrength);
-	bliinPhongShader->setUniform(lightPositionL, lightPos);
-	bliinPhongShader->setUniform(specularStrengthL, specularStrength);
-	bliinPhongShader->setUniform(shininessL, shininess);
-	bliinPhongShader->stopUsing();
-}
-static void setupCamera(Camera* camera, GLFWwindow* window, int windowWidth, int windowHeight) {
-	// Adding a spherical camera controller
-	float cameraMovementSpeed = 30.0f;
-	// Since we are looking at the -z axis in our initial orientation, yaw has to be set -90 degress otherwise we would look at +x axis
-	float initialYaw = -90.0f;
-	float initialPitch = 0.0f;
-
-	Vec3 cameraPos(0.0f, 0.0f, 5.0f); // eye
-	Vec3 cameraTarget(0.0f, 0.0f, 0.0f); // center
-	Vec3 cameraFront = cameraTarget - cameraPos;
-	Vec3 cameraUp(0.0f, 1.0f, 0.0f); // up
-
-	Mat4 orthographicProj = ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.001f, 1000.0f);
-	Mat4 perspectiveProj = perspective(PI / 2.0f, float(windowWidth) / float(windowHeight), 0.001f, 100.0f);
-
-	//cameraController = new OrbitCameraController({ 0,0,0 }, Qtrn(1, 0, 0, 0), this->getWindow());
-	cameraController = new FreeCameraController(cameraMovementSpeed, cameraPos, cameraFront, cameraUp, initialYaw, initialPitch, orthographicProj, perspectiveProj, window);
-
-	//cameraController = new SphericalCameraController({ 0,0,0 }, Qtrn(1, 0, 0, 0), this->getWindow(), -5.0f);
-	camera->addCameraController(cameraController);
-	camera->setView(lookAt(cameraPos, cameraPos + cameraFront, cameraUp));
-	camera->setProjection(perspectiveProj);
-}
+GameObject* gm;
 
 static void updateCameraPositionInShaders() {
 
@@ -93,24 +29,26 @@ static void updateCameraPositionInShaders() {
 }
 
 void PhysicsSimulation::start() {
-	loadShaders(getCamera());
-	setupCamera(getCamera(), getWindow(), getWindowWidth(), getWindowHeight());
+	//loadShaders(getCamera());
 
-	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
+	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
 	cubeMesh->paint(ColorRGBA::ORANGE);
-	cube = getSceneGraph()->getRoot()->createChild(cubeMesh, Mat4::IDENTITY, bliinPhongShader);
+	cubeMesh->init();
+	//cube = getSceneGraph()->getRoot()->createChild(cubeMesh, Mat4::IDENTITY, bliinPhongShader);
 
-	GameObject* gm2 = new GameObject("Face");
 
-	GameObject* gm = new GameObject("Cube");
-	gm->addChildren(gm2);
-
+	gm = new GameObject("Cube");
 	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
+
+	GLuint sharedMatricesIndex = mat->getShaderProgram().getUniformBlockIndex("SharedMatrices");
+	mat->getShaderProgram().bindUniformBlock(sharedMatricesIndex, getCamera()->getUboBindingPoint());
 
 	MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
 	gm->addComponent(mr);
 
-	std::vector<Renderer*> rr = gm->getComponents<Renderer>();
+	gm->getTransform()->rotation.x  = PI / 4.0f;
+
+	/*/std::vector<Renderer*> rr = gm->getComponents<Renderer>();
 
 	for (auto r2 : rr) {
 		std::cout << r2 << std::endl;
@@ -126,21 +64,18 @@ void PhysicsSimulation::start() {
 	GameObject* ines = new GameObject("Clone");
 	ines->addChildren(piloca);
 
-	
-
 	GameObject* perna1 = new GameObject("perna");
 
 	GameObject* perna2 = new GameObject("perna");
 
 	GameObject* joao = new GameObject("Joao");
 	joao->addChildren(perna1);
-	joao->addChildren(perna2);
+	joao->addChildren(perna2);*/
 
-	
 }
 
 void PhysicsSimulation::update() {
-	updateCameraPositionInShaders();
+	gm->getTransform()->rotation.y += (PI / 8.0f) * getElapsedTime();
 }
 
 void PhysicsSimulation::end() {

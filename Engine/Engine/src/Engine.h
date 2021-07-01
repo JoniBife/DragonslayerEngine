@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "scene/SceneGraph.h"
+#include "core/Hierarchy.h"
 #include "gui/GUI.h"
 #include "meshes/SkyBox.h"
 
@@ -14,6 +15,7 @@ private:
 	// Only derived classed have access to this members
 	GLFWwindow* window = nullptr;
 	SceneGraph* sceneGraph = nullptr;
+	core::Hierarchy* hierarchy;
 	Camera* camera = nullptr;
 	GUI* gui = nullptr;
 	SkyBox* skybox = nullptr;

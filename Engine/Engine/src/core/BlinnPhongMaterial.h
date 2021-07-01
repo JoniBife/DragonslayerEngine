@@ -28,7 +28,7 @@ public:
 	BlinnPhongMaterial();
 	~BlinnPhongMaterial();
 
-	void sendParametersToShader(const Mat4& modelMatrix, const Mat4& normalMatrix = Mat4::IDENTITY) override;
+	void sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) override;
 
 };
 

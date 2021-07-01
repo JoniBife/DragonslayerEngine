@@ -13,8 +13,7 @@ namespace core {
 
 	private:
 		std::list<GameObject*> rootGameObjects;
-		static Hierarchy* instance;
-
+		
 		bool addRoot(GameObject* gameObject);
 		bool removeRoot(GameObject* gameObject);
 
@@ -25,6 +24,8 @@ namespace core {
 	public:
 		static Hierarchy& createHierarchy();
 		static Hierarchy& getHierarchy();
+
+		static Hierarchy* instance;
 
 		std::list<GameObject*> getRootGameObjects() const;
 

@@ -50,6 +50,7 @@ std::list<core::GameObject*> core::Hierarchy::getRootGameObjects() const
 
 void core::Hierarchy::updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel)
 {
+
 	// First we update the children
 	for (GameObject* child : gameObject->getChildren()) {
 		updateSceneRecursively(child, parentModel * gameObject->transform->getModelMatrix());

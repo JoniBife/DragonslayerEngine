@@ -10,11 +10,11 @@ in vec4 fragPos;
 out vec4 fragmentColor;
 
 // UNIFORMS
-uniform vec3 lightPosition;
-uniform vec3 viewPos;
+uniform vec3 lightPosition = { 4.0, 30.0, 20.0} ;
+uniform vec3 viewPos = { 0.0, 0.0, 5.0 };
 
 // Ambient
-uniform vec3 lightColor;
+uniform vec3 lightColor = {1.0, 1.0, 1.0};
 uniform float ambientStrength;
 
 // Diffuse

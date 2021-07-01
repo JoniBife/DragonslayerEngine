@@ -136,18 +136,13 @@ void Engine::setupOpenGL() {
 
 ////////////////////////////////////////////// SCENE
 void Engine::setupScene() {
-	Vec3 cameraPos(0.0f, 0.0f, 5.0f); // eye
-	Vec3 cameraTarget(0.0f, 0.0f, 0.0f); // center
-	Vec3 cameraFront = cameraTarget - cameraPos;
-	Vec3 cameraUp(0.0f, 1.0f, 0.0f); // up
 
-	camera = new Camera(
-		lookAt(cameraPos, cameraPos + cameraFront, cameraUp),
-		perspective(float(M_PI) / 2.0f, float(windowWidth) / float(windowHeight), 0.001f, 100.0f),
-		0 // Uniform buffer object binding point
-	);
+
+	camera = new Camera();
 
 	sceneGraph = new SceneGraph(camera);
+
+	hierarchy = core::Hierarchy::instance;
 }
 
 void Engine::setupGUI()
@@ -174,7 +169,7 @@ void Engine::updateWindow(float width, float height)
 {
 	windowWidth = width;
 	windowHeight = height;
-	camera->setProjection(perspective(PI / 2.0f, (float)getWindowWidth() / (float)getWindowHeight(), 0.001f, 100.0f));
+	camera->setViewportSize(width, height);
 }
 void Engine::setSkyBox(const std::vector<std::string>& facesFilePath) {
 	if (skybox)
@@ -218,7 +213,7 @@ void Engine::run() {
 	setupScene();
 
 	start();
-	sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
+	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
 	double lastTime = glfwGetTime();
  
@@ -258,58 +253,21 @@ void Engine::run() {
 		elapsedTime = time - lastTime;
 		lastTime = time;
 
+		update();
+
+		camera->update(elapsedTime);
+
 		// First render to frame buffer
 		frameBuffer->bind();
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(BACKGROUND_COLOR);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
 		glEnable(GL_DEPTH_TEST);
-		{
-			update();
-			if (preRender) {
-
-				// PreRender has been defined so we render the scene once first
-				preRender([&]() {
-					sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
-					sceneGraph->draw((float)elapsedTime); // Drawing only after update
-					});
-
-				// After Pre render we render the scene as expected
-				GL_CALL(glClearColor(BACKGROUND_COLOR));
-				GL_CALL(glEnable(GL_DEPTH_TEST));
-				GL_CALL(glDepthFunc(GL_LEQUAL));
-				GL_CALL(glDepthMask(GL_TRUE));
-				GL_CALL(glDepthRange(0.0, 1.0));
-				GL_CALL(glClearDepth(1.0));
-				GL_CALL(glEnable(GL_CULL_FACE));
-				GL_CALL(glCullFace(GL_BACK));
-				GL_CALL(glFrontFace(GL_CCW));
-				if (MSAA > 0) GL_CALL(glEnable(GL_MULTISAMPLE));
-				GL_CALL(glViewport(0, 0, windowWidth, windowHeight));
-
-				GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-				if (skybox) {
-					skybox->draw();
-				}
-
-				sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
-				sceneGraph->draw((float)elapsedTime); // Drawing only after update
-			}
-			else {
-
-				GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-				if (skybox) {
-					skybox->draw();
-				}
-
-				sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
-				sceneGraph->draw((float)elapsedTime); // Drawing only after update
-			}
-		}
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		
+		hierarchy->updateScene();
 		frameBuffer->unbind();
 
-		gui->drawUI(frameTexture->getId());// After everything from the scene is rendered, we render the UI;
+		gui->drawUI(frameTexture->getId(), *camera);// After everything from the scene is rendered, we render the UI;
 
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary

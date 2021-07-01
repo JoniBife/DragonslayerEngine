@@ -24,7 +24,7 @@ public:
 	/*! @brief Should send the material parameters to the shader (e.g. via uniforms)
 	and the model and normal matrix.
 	*/
-	virtual void sendParametersToShader(const Mat4& modelMatrix, const Mat4& normalMatrix = Mat4::IDENTITY) = 0;
+	virtual void sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) = 0;
 
 	void use();
 

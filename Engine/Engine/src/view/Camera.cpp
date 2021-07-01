@@ -1,12 +1,19 @@
 #include "Camera.h"
 #include "../utils/OpenGLUtils.h"
+#include "Transformations.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <stdio.h>
 
-Camera::Camera(const Mat4& view, const Mat4& projection, const GLuint uboBp) : view(view), projection(projection) {
+#include "../math/MathAux.h"
+
+Camera::Camera() {
 	GL_CALL(glGenBuffers(1, &vbo));
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vbo));
 	{
 		GL_CALL(glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 16 * 2, 0, GL_DYNAMIC_DRAW));
-		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, uboBp, vbo));
+		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, vbo));
 	}
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
@@ -27,6 +34,13 @@ void Camera::update(float elapsedTime) {
 		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
 	}
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+
+	if (dirty) {
+		dirty = false;
+		front = target - position;
+		view = lookAt(position, position + front, up);
+		projection = perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
+	}
 }
 
 void Camera::setCameraPosition(const Vec3& position)
@@ -71,6 +85,13 @@ void Camera::setFov(float fov)
 	this->fov = fov;
 }
 
+void Camera::setViewportSize(float viewportWidth, float viewportHeight)
+{
+	assert(viewportWidth > 0 && viewportHeight > 0);
+	this->viewportWidth = viewportWidth;
+	this->viewportHeight = viewportHeight;
+}
+
 Vec3 Camera::getCameraPosition() const
 {
 	return position;
@@ -111,17 +132,22 @@ Mat4 Camera::getProjection() const
 	return projection;
 }
 
-// Sets the view matrix
-void Camera::setView(const Mat4& view) {
-	this->view = view;
+float Camera::getViewportWidth() const
+{
+	return viewportWidth;
 }
 
-// Sets the projection matrix
-void Camera::setProjection(const Mat4& projection) {
-	this->projection = projection;
+float Camera::getViewportHeight() const
+{
+	return viewportHeight;
 }
 
-// Adds the FreeCameraController
+Vec2 Camera::getViewportSize() const
+{
+	return Vec2(viewportWidth, viewportHeight);
+}
+
+/*
 void Camera::addCameraController(ICameraController* cameraController) {
 	this->cameraController = cameraController;
 	this->cameraController->setOnMovementListener([&](Mat4& view) {
@@ -129,7 +155,34 @@ void Camera::addCameraController(ICameraController* cameraController) {
 		setView(view);
 		setProjection(projection);
 	});
-}
+}*/
 
 // UboBp Getter
 GLuint Camera::getUboBindingPoint() { return uboBp; }
+
+void Camera::OnGUI()
+{
+	/*
+	Vec3 getCameraPosition() const;
+	Vec3 getCameraTarget() const;
+	Vec3 getCameraUp() const;
+	float getNearPlane() const;
+	float getFarPlane() const;
+	float getFov() const;
+	Mat4 getView() const;
+	Mat4 getProjection() const;
+	float getViewportWidth() const;
+	float getViewportHeight() const;
+	Vec2 getViewportSize() const;
+	*/
+
+	ImGui::InputFloat("Near plane", &near);
+	ImGui::InputFloat("Far plane", &far);
+
+	float min = 0.0f;
+	float max = 180.0f;
+	ImGui::SliderScalar("Fov", ImGuiDataType_Float, &fov, &min, &max);
+
+	dirty = true;
+
+}

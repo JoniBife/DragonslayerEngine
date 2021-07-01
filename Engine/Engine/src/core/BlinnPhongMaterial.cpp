@@ -24,7 +24,7 @@ BlinnPhongMaterial::~BlinnPhongMaterial()
 {
 }
 
-void BlinnPhongMaterial::sendParametersToShader(const Mat4& modelMatrix, const Mat4& normalMatrix)
+void BlinnPhongMaterial::sendParametersToShader(const Mat4& modelMatrix, const Mat3& normalMatrix)
 {
     shaderProgram->setUniform(ambientLocation, ambientStrength);
     shaderProgram->setUniform(diffuseLocation, diffuseStrength);

@@ -3,30 +3,17 @@
 
 #include "GL/glew.h"
 #include "../math/Mat4.h"
+#include "../math/Vec2.h"
 #include "../controllers/ICameraController.h"
 #include <assert.h>
 
-/*
-* Usage example:
-* 
-* Camera camera(view, projection);
-* 
-* // Maybe add a camera controller
-* camera.addCameraController(cameraController);
-* 
-* // Maybe update view
-* camera.setView(newView);
-* 
-* // Finally update the camera
-* camera.update();
-*/
 class Camera {
 
 private:
 	Mat4 view;
-	Mat4 projection;
+	Mat4 projection; // TODO Create a projection class
 	GLuint vbo;
-	GLuint uboBp;
+	GLuint uboBp = 0;
 	ICameraController* cameraController;
 
 	Vec3 position = { 0.0f, 0.0f, 5.0f }; // eye
@@ -34,15 +21,17 @@ private:
 	Vec3 front = target - position;
 	Vec3 up = { 0.0f, 1.0f, 0.0f }; // up
 
+	float viewportWidth = 1366, viewportHeight = 720;
+
 	float near = 0.01f;
 	float far = 100.0f;
 
 	float fov = 45.0f;
 
-	bool dirty; // Indicates whether a setter was called
+	bool dirty = true; // Indicates whether a setter was called
 
 public:
-	Camera(const Mat4& view, const Mat4& projection, const GLuint uboBp);
+	Camera();
 
 	void update(float elapsedTime);
 
@@ -52,6 +41,7 @@ public:
 	void setNearPlane(float nearPlane);
 	void setFarPlane(float farPlane);
 	void setFov(float fov);
+	void setViewportSize(float viewportWidth, float viewportHeight);
 
 	Vec3 getCameraPosition() const;
 	Vec3 getCameraTarget() const;
@@ -61,10 +51,15 @@ public:
 	float getFov() const;
 	Mat4 getView() const;
 	Mat4 getProjection() const;
+	float getViewportWidth() const;
+	float getViewportHeight() const;
+	Vec2 getViewportSize() const;
 
-	void addCameraController(ICameraController* cameraController);
+	//void addCameraController(ICameraController* cameraController);
 
 	GLuint getUboBindingPoint();
+
+	void OnGUI();
 };
 
 #endif
