@@ -89,6 +89,7 @@ namespace core {
 		/* Adds child to GameObject, returns false if it is already a child else true */
 		bool addChildren(GameObject* gameObject);
 
+
 		std::list<GameObject*> getChildren() const;
 		GameObject* getParent() const;
 		void setParent(GameObject* gameObject);

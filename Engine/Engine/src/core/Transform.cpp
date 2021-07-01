@@ -11,12 +11,6 @@ core::Transform::Transform()
 
 Mat4 core::Transform::getModelMatrix()
 {
-	// TODO Move this to somewhere more intuitive
-	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
-		Mat4::rotation(rotation.y, Vec3::Y) *
-		Mat4::rotation(rotation.x, Vec3::X) *
-		Mat4::scaling(scale);
-
 	return model;
 }
 
@@ -72,7 +66,24 @@ void core::Transform::onGUI()
 
 void core::Transform::update(const Mat4& parentModel)
 {
-	position = parentModel * position;
-	rotation = parentModel * rotation;
-	scale = parentModel * scale;
+	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
+		Mat4::rotation(rotation.y, Vec3::Y) *
+		Mat4::rotation(rotation.x, Vec3::X) *
+		Mat4::scaling(scale);
+
+	model = parentModel * model;
+}
+
+void core::Transform::makeChildOfTransform(Transform* transform)
+{
+	this->position += transform->position;
+	this->rotation += transform->rotation;
+	this->scale *= transform->scale;
+}
+
+void core::Transform::removeChildOfTransform(Transform* transform)
+{
+	this->position -= transform->position;
+	this->rotation -= transform->rotation;
+	this->scale /= transform->scale;
 }

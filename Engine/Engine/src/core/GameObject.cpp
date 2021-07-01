@@ -4,7 +4,7 @@
 
 using namespace core;
 
-GameObject::GameObject(const std::string& name) : transform(new Transform()), name(name) , hierarchy(Hierarchy::getHierarchy()) {
+GameObject::GameObject(const std::string& name) : transform(new Transform()), name(name), hierarchy(Hierarchy::getHierarchy()) {
 	// When a gameobject is created it gets added automatically to the hierarchy
 	hierarchy.addRoot(this);
 }
@@ -41,6 +41,9 @@ bool core::GameObject::addComponent(Component* component)
 {
 	assert(component != nullptr);
 
+	if (component->getGameObject() != nullptr)
+		return false;
+
 	if (std::find(components.begin(), components.end(), component) == components.end()
 		&& component->setGameObject(this)) {
 		components.push_back(component);
@@ -63,6 +66,7 @@ bool core::GameObject::addChildren(GameObject* gameObject) {
 	}
 
 	gameObject->setParent(this);
+	//gameObject->transform->makeChildOfTransform(transform);
 
 	children.push_back(gameObject);
 	return true;
@@ -88,8 +92,11 @@ void core::GameObject::setParent(GameObject* gameObject)
 {
 	assert(gameObject != this);
 
-	if (parent == nullptr) {
+	if (parent == nullptr && gameObject != nullptr) {
 		hierarchy.removeRoot(this);
+	}
+	else if (parent != nullptr && gameObject == nullptr) {
+		hierarchy.addRoot(this);
 	}
 
 	parent = gameObject;

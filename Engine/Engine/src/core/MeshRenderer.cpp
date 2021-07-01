@@ -52,7 +52,10 @@ void core::MeshRenderer::update()
 	mesh->bind();
 
 	Transform* transform = gameObject->getTransform();
-	material->sendParametersToShader(transform->getModelMatrix());
+
+	Mat3 inverse;
+	bool canInverse = transform->getModelMatrix().toMat3().inverse(inverse);
+	material->sendParametersToShader(transform->getModelMatrix(), inverse.transpose());
 	mesh->draw();
 
 	mesh->draw();

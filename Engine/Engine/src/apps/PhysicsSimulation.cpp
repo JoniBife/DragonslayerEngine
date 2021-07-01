@@ -21,21 +21,15 @@ FreeCameraController* cameraController;
 
 GameObject* gm;
 
-static void updateCameraPositionInShaders() {
-
-	bliinPhongShader->use();
-	bliinPhongShader->setUniform(cameraPosL, cameraController->position);
-	bliinPhongShader->stopUsing();
-}
-
 void PhysicsSimulation::start() {
-	//loadShaders(getCamera());
 
-	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
+	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
 	cubeMesh->paint(ColorRGBA::ORANGE);
 	cubeMesh->init();
-	//cube = getSceneGraph()->getRoot()->createChild(cubeMesh, Mat4::IDENTITY, bliinPhongShader);
 
+	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
+	sphereMesh->paint(ColorRGBA::BLUE);
+	sphereMesh->init();
 
 	gm = new GameObject("Cube");
 	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
@@ -45,37 +39,18 @@ void PhysicsSimulation::start() {
 
 	MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
 	gm->addComponent(mr);
-
 	gm->getTransform()->rotation.x  = PI / 4.0f;
 
-	/*/std::vector<Renderer*> rr = gm->getComponents<Renderer>();
+	GameObject* gm2 = new GameObject("Sphere");
+	MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
+	gm2->addComponent(mr2);
 
-	for (auto r2 : rr) {
-		std::cout << r2 << std::endl;
-	}
-
-	gm->getTransform()->position = { 1.0f, 5.0f, 10.0f };
-
-	std::cout << gm->getTransform()->position << std::endl;
-
-	GameObject* piloca2 = new GameObject("cl2");
-	GameObject* piloca = new GameObject("cl");
-	piloca->addChildren(piloca2);
-	GameObject* ines = new GameObject("Clone");
-	ines->addChildren(piloca);
-
-	GameObject* perna1 = new GameObject("perna");
-
-	GameObject* perna2 = new GameObject("perna");
-
-	GameObject* joao = new GameObject("Joao");
-	joao->addChildren(perna1);
-	joao->addChildren(perna2);*/
-
+	gm->addChildren(gm2);
+	
 }
 
 void PhysicsSimulation::update() {
-	gm->getTransform()->rotation.y += (PI / 8.0f) * getElapsedTime();
+	//gm->getTransform()->rotation.y += (PI / 8.0f) * getElapsedTime();
 }
 
 void PhysicsSimulation::end() {

@@ -271,10 +271,13 @@ static void showObjectPanel() {
 	ImGui::End();
 }
 
-static void showSceneView(GLuint id) {
+static void showSceneView(GLuint id, Camera& camera) {
 	ImGui::Begin("SceneView");
 	{
 		ImGui::BeginChild("SceneRenderer");
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		camera.setViewportSize(viewportPanelSize.x, viewportPanelSize.y);
+
 		ImVec2 wsize = ImGui::GetWindowSize();
 
 		ImGui::Image((ImTextureID)id, wsize, ImVec2(0, 1), ImVec2(1, 0));
@@ -296,7 +299,7 @@ static void showTempUI(GLuint id, Camera& camera) {
     showDockspace();
 	showHierarchyPanel();
 	showObjectPanel();
-	showSceneView(id);
+	showSceneView(id, camera);
 	showEditorCameraPanel(camera);
 }
 
