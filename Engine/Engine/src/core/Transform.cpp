@@ -66,7 +66,7 @@ void Transform::onGUI()
 	
 }
 
-void Transform::update(const Mat4& parentModel)
+void Transform::onFrameUpdate(const Mat4& parentModel)
 {
 	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
 		Mat4::rotation(rotation.y, Vec3::Y) *

@@ -25,7 +25,9 @@ namespace core {
 
 		void onGUI() override;
 
-		void update() override;
+		void onStart() override;
+		void onFrameUpdate() override;
+		void onEnd() override;
 	};
 
 };

@@ -69,11 +69,11 @@ void Hierarchy::traverseSceneRecursively(GameObject* gameObject, const std::func
 void Hierarchy::updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel)
 {
 	// Update the position with the parent model matrix
-	gameObject->transform->update(parentModel);
+	gameObject->transform->onFrameUpdate(parentModel);
 
 	// Then update each of the components
 	for (Component* component : gameObject->components) {
-		component->update();
+		component->onFrameUpdate();
 	}
 
 	// First we update the children
@@ -88,4 +88,18 @@ Hierarchy& Hierarchy::getHierarchy()
 {
 	assert(instance != nullptr); return *instance;
 }
+
+GameObject& core::Hierarchy::createGameObject(const std::string& name)
+{
+	GameObject* gm = new GameObject(name);
+	addRoot(gm);
+	return *gm;
+}
+
+void core::Hierarchy::deleteGameObject(GameObject& gameObject)
+{
+	// TODO Delete
+}
+
+
 

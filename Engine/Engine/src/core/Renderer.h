@@ -16,7 +16,7 @@ namespace core {
 		
 		virtual void onGUI() override = 0;
 
-		virtual void update() override = 0;
+		virtual void onFrameUpdate() override = 0;
 
 	};
 

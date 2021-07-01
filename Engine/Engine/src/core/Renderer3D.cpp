@@ -47,7 +47,7 @@ void core::Renderer3D::setup()
     GL_CALL(glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 }
 
-Texture2D& core::Renderer3D::RenderToTexture(const Camera& camera, Hierarchy& hierarchy)
+Texture2D& core::Renderer3D::renderToTexture(const Camera& camera, Hierarchy& hierarchy)
 {
     if (frameTexture == nullptr && frameBuffer == nullptr) {
         frameTexture = Texture2D::emptyTexture(camera.getViewportWidth(), camera.getViewportHeight());
@@ -92,14 +92,14 @@ Texture2D& core::Renderer3D::RenderToTexture(const Camera& camera, Hierarchy& hi
     GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)); // we're not using the stencil buffer now
     GL_CALL(glEnable(GL_DEPTH_TEST));
 
-    Render(camera, hierarchy);
+    render(camera, hierarchy);
 
     frameBuffer->unbind();
 
     return *frameTexture;
 }
 
-void core::Renderer3D::Render(const Camera& camera, Hierarchy& hierarchy)
+void core::Renderer3D::render(const Camera& camera, Hierarchy& hierarchy)
 {
     Mesh* mesh = nullptr;
     Material* material = nullptr;

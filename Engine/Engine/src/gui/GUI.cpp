@@ -185,6 +185,15 @@ static void showHierarchyPanel() {
 	auto rootGameObjects = hierarchy.getRootGameObjects();
 
 	showHierarchyRecurs(rootGameObjects);
+
+	if (ImGui::BeginPopupContextWindow())
+	{
+		if (ImGui::MenuItem("Create GameObject")) {
+			hierarchy.createGameObject();
+		}
+		if (ImGui::MenuItem("Close")) {}
+		ImGui::EndPopup();
+	}
 	
 	ImGui::End();
 }
@@ -205,6 +214,15 @@ static void showHierarchyRecurs(std::list<GameObject*> gameObjects) {
 
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
+
+			if (ImGui::BeginPopupContextItem())
+			{
+				if (ImGui::MenuItem("Delete GameObject")) {
+				
+				}
+				if (ImGui::MenuItem("Close")) {}
+				ImGui::EndPopup();
+			}
 
 			if (ImGui::IsItemClicked()) {
 				gameObject->select();
@@ -253,7 +271,6 @@ static void showObjectPanel() {
 		{
 			selected->getTransform()->onGUI();
 		}
-
 		ImGui::Dummy(ImVec2(0.0f, 2.5f));
 
 
@@ -263,8 +280,8 @@ static void showObjectPanel() {
 			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
 			{
 				component->onGUI();
-				ImGui::Dummy(ImVec2(0.0f, 2.5f));
 			}
+			ImGui::Dummy(ImVec2(0.0f, 2.5f));
 		}
 	}
 

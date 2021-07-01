@@ -15,6 +15,6 @@ void Renderer::onGUI()
 {
 }
 
-void Renderer::update()
+void Renderer::onFrameUpdate()
 {
 }

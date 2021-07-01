@@ -54,7 +54,15 @@ void MeshRenderer::onGUI()
 	ImGui::TextWrapped(materialName.c_str());
 }
 
-void MeshRenderer::update()
+void core::MeshRenderer::onStart()
+{
+}
+
+void MeshRenderer::onFrameUpdate()
 {
 
+}
+
+void core::MeshRenderer::onEnd()
+{
 }

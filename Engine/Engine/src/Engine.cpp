@@ -104,38 +104,8 @@ void Engine::setupGLEW() {
 	}
 }
 
-////////////////////////////////////////////// OPENGL
-void printOpenGLInfo()
-{
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	const GLubyte* vendor = glGetString(GL_VENDOR);
-	const GLubyte* version = glGetString(GL_VERSION);
-	const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-	std::cout << "OpenGL Renderer: " << renderer << " (" << vendor << ")" << std::endl;
-	std::cout << "OpenGL version " << version << std::endl;
-	std::cout << "GLSL version " << glslVersion << std::endl;
-}
-void Engine::setupOpenGL() {
-#if _DEBUG
-	printOpenGLInfo();
-#endif
-	GL_CALL(glClearColor(BACKGROUND_COLOR));
-	GL_CALL(glEnable(GL_DEPTH_TEST));
-	GL_CALL(glDepthFunc(GL_LEQUAL));
-	GL_CALL(glDepthMask(GL_TRUE));
-	GL_CALL(glDepthRange(0.0, 1.0));
-	GL_CALL(glClearDepth(1.0));
-	GL_CALL(glEnable(GL_CULL_FACE));
-	GL_CALL(glCullFace(GL_BACK));
-	GL_CALL(glFrontFace(GL_CCW));
-	if (MSAA > 0) GL_CALL(glEnable(GL_MULTISAMPLE));
-	GL_CALL(glViewport(0, SCREEN_HEIGHT - windowHeight, windowWidth, windowHeight));
-}
-
 ////////////////////////////////////////////// SCENE
 void Engine::setupScene() {
-
-
 	editorCamera = new Camera();
 
 	sceneGraph = new SceneGraph(editorCamera);
@@ -215,6 +185,9 @@ void Engine::run() {
 	setupScene();
 
 	start();
+
+	hierarchy->updateScene();
+
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
 	double lastTime = glfwGetTime();
@@ -234,7 +207,7 @@ void Engine::run() {
 
 		hierarchy->updateScene();
 
-		Texture2D& frameTexture = renderer3D->RenderToTexture(*editorCamera, *hierarchy);
+		Texture2D& frameTexture = renderer3D->renderToTexture(*editorCamera, *hierarchy);
 		gui->drawUI(frameTexture.getId(), *editorCamera);// After everything from the scene is rendered, we render the UI;
 
 		glfwSwapBuffers(window);

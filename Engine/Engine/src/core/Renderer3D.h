@@ -22,9 +22,8 @@ namespace core {
 
 		void setup();
 
-		Texture2D& RenderToTexture(const Camera& camera, Hierarchy& hierarchy);
-		void Render(const Camera& camera, Hierarchy& hierarchy);
-			
+		Texture2D& renderToTexture(const Camera& camera, Hierarchy& hierarchy);
+		void render(const Camera& camera, Hierarchy& hierarchy);
 	};
 
 }

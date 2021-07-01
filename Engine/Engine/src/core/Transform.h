@@ -27,7 +27,7 @@ namespace core {
 		void onGUI();
 
 		/* Updates the position rotation and scale to be relative from the parent */
-		void update(const Mat4& parentModel);
+		void onFrameUpdate(const Mat4& parentModel);
 
 		void makeChildOfTransform(Transform* transform);
 		void removeChildOfTransform(Transform* transform);

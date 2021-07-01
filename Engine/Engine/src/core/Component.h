@@ -16,6 +16,7 @@ namespace core {
 	public:
 		virtual bool getType() const = 0;
 		std::string getName() const { return name; }
+		float getElapsedTime() const { return elapsedTime; }
 
 		/*! @brief Associates GameObject with this components
 		* if the component already has a GameObject associated
@@ -35,9 +36,16 @@ namespace core {
 
 	private:
 		std::string name;
+		float elapsedTime;
+
+		void setElapsedTime(float elapsedTime);
+
+		virtual void onStart() = 0;
 
 		/* Called by the scene graph to update the component every frame */
-		virtual void update() = 0;
+		virtual void onFrameUpdate() = 0;
+
+		virtual void onEnd() = 0;
 
 		friend class Hierarchy;
 		friend class GUI;

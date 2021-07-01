@@ -17,3 +17,8 @@ GameObject* Component::getGameObject()
 }
 
 Component::Component(const std::string& name) : name(name) {}
+
+void core::Component::setElapsedTime(float elapsedTime)
+{
+	this->elapsedTime = elapsedTime;
+}

@@ -27,6 +27,9 @@ namespace core {
 		static Hierarchy& createHierarchy();
 		static Hierarchy& getHierarchy();
 
+		GameObject& createGameObject(const std::string& name = "GameObject");
+		void deleteGameObject(GameObject& gameObject);
+
 		static Hierarchy* instance;
 
 		std::list<GameObject*> getRootGameObjects() const;

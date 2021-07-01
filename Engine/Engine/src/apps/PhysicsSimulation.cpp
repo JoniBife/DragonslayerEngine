@@ -8,6 +8,7 @@
 #include "../core/Renderer.h"
 #include "../core/MeshRenderer.h"
 #include "../core/BlinnPhongMaterial.h"
+#include "../scripts/CubeController.h"
 
 using namespace core;
 
@@ -41,6 +42,9 @@ void PhysicsSimulation::start() {
 	gm->addComponent(mr);
 	gm->getTransform()->rotation.x  = PI / 4.0f;
 
+	CubeController* cubeController = new CubeController();
+	gm->addComponent(cubeController);
+
 	GameObject* gm2 = new GameObject("Sphere");
 	MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
 	gm2->addComponent(mr2);
@@ -50,7 +54,7 @@ void PhysicsSimulation::start() {
 }
 
 void PhysicsSimulation::update() {
-	//gm->getTransform()->rotation.y += (PI / 8.0f) * getElapsedTime();
+	
 }
 
 void PhysicsSimulation::end() {
