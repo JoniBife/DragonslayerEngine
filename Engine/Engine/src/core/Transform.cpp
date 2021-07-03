@@ -5,6 +5,9 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
 
+#include "../math/MathAux.h"
+#include "../math/Qtrn.h"
+
 using namespace core;
 
 Transform::Transform()
@@ -37,18 +40,27 @@ void Transform::onGUI()
 
 	ImGui::Text("Rotation");
 
+	Vec3 rotationInDegrees = { 
+		radiansToDegrees(rotation.x), 
+		radiansToDegrees(rotation.y),
+		radiansToDegrees(rotation.z)
+	};
+
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
-	ImGui::InputFloat("##RotationX", &(rotation.x)); ImGui::SameLine();
+	ImGui::InputFloat("##RotationX", &(rotationInDegrees.x)); ImGui::SameLine();
 
 	ImGui::TextColored(ImVec4(0, 1, 0, 1), "Y"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
-	ImGui::InputFloat("##RotationY", &(rotation.y)); ImGui::SameLine();
+	ImGui::InputFloat("##RotationY", &(rotationInDegrees.y)); ImGui::SameLine();
 
 	ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
-	ImGui::InputFloat("##RotationZ", &(rotation.z));
-	
+	ImGui::InputFloat("##RotationZ", &(rotationInDegrees.z));
+
+	rotation.x = degreesToRadians(rotationInDegrees.x);
+	rotation.y = degreesToRadians(rotationInDegrees.y);
+	rotation.z = degreesToRadians(rotationInDegrees.z);
 
 	ImGui::Text("Scale");
 
@@ -68,10 +80,16 @@ void Transform::onGUI()
 
 void Transform::onFrameUpdate(const Mat4& parentModel)
 {
-	model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
+	Mat4 qtrnRotation = (Qtrn(rotation.z, Vec3::Z) * Qtrn(rotation.y, Vec3::Y) * Qtrn(rotation.x, Vec3::X)).toRotationMatrix();
+
+	/*model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
 		Mat4::rotation(rotation.y, Vec3::Y) *
 		Mat4::rotation(rotation.x, Vec3::X) *
-		Mat4::scaling(scale);
+		Mat4::scaling(scale);*/
+
+	// TODO Create quaternion method to calculate the rotation from yaw pitch and roll
+
+	model = Mat4::translation(position) * qtrnRotation * Mat4::scaling(scale);
 
 	model = parentModel * model;
 }

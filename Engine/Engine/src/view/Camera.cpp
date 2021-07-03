@@ -179,8 +179,8 @@ void Camera::OnGUI()
 	ImGui::InputFloat("Near plane", &near);
 	ImGui::InputFloat("Far plane", &far);
 
-	float min = 0.0f;
-	float max = 180.0f;
+	float min = 0.01f;
+	float max = 179.0f; 
 	ImGui::SliderScalar("Fov", ImGuiDataType_Float, &fov, &min, &max);
 
 	dirty = true;

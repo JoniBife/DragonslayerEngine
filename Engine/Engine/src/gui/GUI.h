@@ -11,7 +11,6 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
 
-
 class GUI {
 
 private: 

@@ -5,6 +5,7 @@
 #include "utils/OpenGLUtils.h"
 #include "Configurations.h"
 #include "view/Transformations.h"
+#include "core/Input.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -179,6 +180,8 @@ void Engine::run() {
 	setupGLFW(); 
 	setupGLEW();  
 	
+	core::Input::initialize(window);
+
 	renderer3D->setup();
 
 	setupGUI();
@@ -217,6 +220,8 @@ void Engine::run() {
 	// Cleanup
 	freeResources();
 	end(); //Has to be called before glfwTerminate()
+	
+	core::Input::terminate();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

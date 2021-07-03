@@ -27,6 +27,7 @@
     <ClCompile Include="src\core\Controller.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Hierarchy.cpp" />
+    <ClCompile Include="src\core\Input.cpp" />
     <ClCompile Include="src\core\Material.cpp" />
     <ClCompile Include="src\core\MeshRenderer.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="src\textures\Texture2D.cpp" />
     <ClCompile Include="src\utils\ColorRGBA.cpp" />
     <ClCompile Include="src\utils\OpenGLUtils.cpp" />
+    <ClCompile Include="src\vendor\imGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
@@ -76,6 +78,7 @@
     <ClInclude Include="src\controllers\SphericalCameraController.h" />
     <ClInclude Include="src\core\BlinnPhongMaterial.h" />
     <ClInclude Include="src\core\Controller.h" />
+    <ClInclude Include="src\core\Input.h" />
     <ClInclude Include="src\core\Renderer3D.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
@@ -112,6 +115,7 @@
     <ClInclude Include="src\textures\Texture2D.h" />
     <ClInclude Include="src\utils\ColorRGBA.h" />
     <ClInclude Include="src\utils\OpenGLUtils.h" />
+    <ClInclude Include="src\vendor\imGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\view\Camera.h" />
     <ClInclude Include="src\view\Transformations.h" />
   </ItemGroup>
@@ -244,7 +248,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)Dependencies\glew-2.1.0\include;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\include;$(SolutionDir)Dependencies\glm;$(SolutionDir)Engine\src\vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)Dependencies\glew-2.1.0\include;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\include;$(SolutionDir)Engine\src\vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

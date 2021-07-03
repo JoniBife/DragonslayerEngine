@@ -1,8 +1,6 @@
 #include "Transformations.h"
 #include <math.h>
 #include <assert.h>
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 
 Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 

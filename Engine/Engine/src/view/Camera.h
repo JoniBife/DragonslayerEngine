@@ -26,7 +26,7 @@ private:
 	float near = 0.01f;
 	float far = 100.0f;
 
-	float fov = 45.0f;
+	float fov = 60.0f;
 
 	bool dirty = true; // Indicates whether a setter was called
 

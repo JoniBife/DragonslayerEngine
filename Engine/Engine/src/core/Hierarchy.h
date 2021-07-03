@@ -21,7 +21,7 @@ namespace core {
 		void traverseSceneRecursively(GameObject* gameObject, const std::function<void(GameObject*)>& onGameObject);
 		void updateSceneRecursively(GameObject* gameObject, const Mat4& parentModel = Mat4::IDENTITY);
 
-		friend class GameObject; // Transform is a friend class to have access to addRoot and removeRoot
+		friend class GameObject; // GameObject is a friend class to have access to addRoot and removeRoot
 
 	public:
 		static Hierarchy& createHierarchy();
