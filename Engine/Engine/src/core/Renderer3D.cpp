@@ -3,6 +3,8 @@
 #include "../Configurations.h"
 #include "../core/MeshRenderer.h"
 
+using namespace core;
+
 core::Renderer3D::Renderer3D()
 {
 

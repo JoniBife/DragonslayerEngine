@@ -1,11 +1,8 @@
+
 #include "GUI.h"
-#include <imgui/imgui_internal.h>
+
 #include <filesystem>
 #include <iostream>
-#include "../core/Hierarchy.h"
-#include "../view/Camera.h"
-
-using namespace core;
 
 
 void GUI::setDefaultTheme()
@@ -112,6 +109,9 @@ GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window) : imGuiIO(imGuiIO)
 	ImGui_ImplOpenGL3_Init("#version 130");
 
 	loadFonts();
+
+	objectPanel = new ObjectPanel();
+	hierarchyPanel = new HierarchyPanel(Hierarchy::getHierarchy(), *objectPanel);
 }
 
 GUI::~GUI()
@@ -174,120 +174,6 @@ static void showDockspace() {
 	*/
 }
 
-static void showHierarchyRecurs(std::list<GameObject*> gameObjects);
-
-static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-static void showHierarchyPanel() {
-	ImGui::Begin("Hierarchy");   
-
-	Hierarchy& hierarchy = Hierarchy::getHierarchy();
-
-	auto rootGameObjects = hierarchy.getRootGameObjects();
-
-	showHierarchyRecurs(rootGameObjects);
-
-	if (ImGui::BeginPopupContextWindow())
-	{
-		if (ImGui::MenuItem("Create GameObject")) {
-			hierarchy.createGameObject();
-		}
-		if (ImGui::MenuItem("Close")) {}
-		ImGui::EndPopup();
-	}
-	
-	ImGui::End();
-}
-
-static GameObject* selected = nullptr;
-
-static void showHierarchyRecurs(std::list<GameObject*> gameObjects) {
-
-	auto treeNodeFlags = base_flags;
-
-	for (GameObject* gameObject : gameObjects) {
-
-		if (gameObject->isSelected())
-			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
-
-		// If there it does not have children then use selectable
-		if (gameObject->numberOfChildren() == 0) {
-
-			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
-			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
-
-			if (ImGui::BeginPopupContextItem())
-			{
-				if (ImGui::MenuItem("Delete GameObject")) {
-				
-				}
-				if (ImGui::MenuItem("Close")) {}
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::IsItemClicked()) {
-				gameObject->select();
-				if (selected != nullptr) {
-					selected->unselect();
-				}
-				selected = gameObject;
-			}
-
-			if (open)
-			ImGui::TreePop();
-		}
-		else {
-
-			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
-			
-			if (ImGui::IsItemClicked()) {
-				gameObject->select();
-				if (selected != nullptr) {
-					selected->unselect();
-				}
-				selected = gameObject;
-			}
-
-			if (open) {
-				showHierarchyRecurs(gameObject->getChildren());
-				ImGui::TreePop();
-			}
-
-			
-		}
-
-		treeNodeFlags = base_flags;
-	}
-}
-
-static void showObjectPanel() {
-	ImGui::Begin("Object");
-
-	if (selected != nullptr) {
-		ImGui::Text(selected->getName().c_str());
-
-		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-
-		if (ImGui::CollapsingHeader("Transform", flags))
-		{
-			selected->getTransform()->onGUI();
-		}
-		ImGui::Dummy(ImVec2(0.0f, 2.5f));
-
-
-		for (Component* component : selected->getAttachedComponents()) {
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-
-			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
-			{
-				component->onGUI();
-			}
-			ImGui::Dummy(ImVec2(0.0f, 2.5f));
-		}
-	}
-
-	ImGui::End();
-}
-
 static void showSceneView(GLuint id, Camera& camera) {
 	ImGui::Begin("SceneView");
 	{
@@ -314,8 +200,6 @@ static void showEditorCameraPanel(Camera& camera) {
 static void showTempUI(GLuint id, Camera& camera) {
 	showMainMenuBar();
     showDockspace();
-	showHierarchyPanel();
-	showObjectPanel();
 	showSceneView(id, camera);
 	showEditorCameraPanel(camera);
 }
@@ -332,6 +216,9 @@ void GUI::drawUI(GLuint id, Camera& camera)
 	showTempUI(id, camera);
 	bool open = true;
 	ImGui::ShowDemoWindow(&open);
+
+	hierarchyPanel->onGUI();
+	objectPanel->onGUI();
 
 	// Rendering
 	ImGui::Render();

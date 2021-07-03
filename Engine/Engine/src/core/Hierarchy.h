@@ -41,6 +41,4 @@ namespace core {
 
 }
 
-#include "GameObject.h"
-
 #endif

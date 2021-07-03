@@ -34,6 +34,6 @@ namespace core {
 
 	};
 
-};
+}
 
 #endif

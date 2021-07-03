@@ -15,6 +15,6 @@ namespace core {
 		bool getType() const override;
 	};
 
-};
+}
 
 #endif

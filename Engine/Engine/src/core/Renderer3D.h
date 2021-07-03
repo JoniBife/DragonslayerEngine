@@ -6,6 +6,7 @@
 #include "MeshRenderer.h"
 #include "../textures/Texture2D.h"
 #include "../textures/FrameBuffer.h"
+#include "../core/Hierarchy.h"
 
 namespace core {
 

@@ -80,9 +80,7 @@ namespace core {
 			return foundComponents;
 		}
 
-
 		std::vector<Component*> getAttachedComponents() const;
-
 
 		//////////////SCENE GRAPH/////////////////////
 
@@ -104,10 +102,6 @@ namespace core {
 
 		friend class Hierarchy;
 	};
-
-};
-
-#include "Component.h"
-#include "Hierarchy.h"
+}
 
 #endif

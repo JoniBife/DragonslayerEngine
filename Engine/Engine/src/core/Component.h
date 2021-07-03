@@ -48,13 +48,9 @@ namespace core {
 		virtual void onEnd() = 0;
 
 		friend class Hierarchy;
-		friend class GUI;
-
 	};
 
-};
-
-#include "GameObject.h"
+}
 
 #endif 
 

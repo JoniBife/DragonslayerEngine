@@ -1,4 +1,6 @@
 #include "Hierarchy.h"
+#include "GameObject.h"
+#include "Component.h"
 
 using namespace core;
 

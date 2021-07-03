@@ -30,6 +30,6 @@ namespace core {
 		void onEnd() override;
 	};
 
-};
+}
 
 #endif

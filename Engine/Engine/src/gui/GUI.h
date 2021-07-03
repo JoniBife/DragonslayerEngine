@@ -1,10 +1,9 @@
 #ifndef GUI_H
 #define GUI_H
 
-
 #include "../view/Camera.h"
-
-#include <GLFW/glfw3.h>
+#include "HierarchyPanel.h"
+#include "ObjectPanel.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -15,6 +14,8 @@ class GUI {
 
 private: 
 	ImGuiIO& imGuiIO;
+	HierarchyPanel* hierarchyPanel = nullptr;
+	ObjectPanel* objectPanel = nullptr;
 	
 	void setDefaultTheme();
 	void setDefaultStyle();

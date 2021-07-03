@@ -34,6 +34,8 @@
     <ClCompile Include="src\core\Renderer3D.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
+    <ClCompile Include="src\gui\HierarchyPanel.cpp" />
+    <ClCompile Include="src\gui\ObjectPanel.cpp" />
     <ClCompile Include="src\math\Mat2.cpp" />
     <ClCompile Include="src\math\Mat3.cpp" />
     <ClCompile Include="src\math\Mat4.cpp" />
@@ -89,6 +91,8 @@
     <ClInclude Include="src\core\Transform.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\gui\GUI.h" />
+    <ClInclude Include="src\gui\HierarchyPanel.h" />
+    <ClInclude Include="src\gui\ObjectPanel.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\meshes\SkyBox.h" />
     <ClInclude Include="src\scripts\CubeController.h" />

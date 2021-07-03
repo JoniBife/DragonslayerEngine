@@ -1,6 +1,8 @@
 #include "GameObject.h"
 
 #include <type_traits>
+#include "Component.h"
+#include "Hierarchy.h"
 
 using namespace core;
 

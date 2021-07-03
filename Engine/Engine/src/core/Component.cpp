@@ -1,4 +1,5 @@
 #include "Component.h"
+#include "GameObject.h"
 
 using namespace core;
 
