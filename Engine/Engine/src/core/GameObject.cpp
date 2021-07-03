@@ -46,6 +46,8 @@ bool GameObject::addComponent(Component* component)
 	if (component->getGameObject() != nullptr)
 		return false;
 
+	// TODO Singular components
+
 	if (std::find(components.begin(), components.end(), component) == components.end()
 		&& component->setGameObject(this)) {
 		components.push_back(component);
@@ -88,6 +90,22 @@ unsigned int GameObject::numberOfChildren() const {
 std::vector<Component*> GameObject::getAttachedComponents() const
 {
 	return components;
+}
+
+bool core::GameObject::removeComponent(Component* component)
+{
+	if (component->getGameObject() != this)
+		return false;
+
+	int idxToRemove = 0;
+	for (auto i = components.begin(); i != components.end(); ++i) {
+		if (*i._Ptr == component) {
+			components.erase(i);
+			break;
+		}
+	}
+
+	return true;
 }
 
 void GameObject::setParent(GameObject* gameObject)

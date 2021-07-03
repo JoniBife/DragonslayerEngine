@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "../core/Component.h"
+#include "../core/MeshRenderer.h"
 
 ObjectPanel::ObjectPanel()
 {
@@ -34,17 +35,42 @@ void ObjectPanel::onGUI()
 		{
 			gameObject->getTransform()->onGUI();
 		}
-		ImGui::Dummy(ImVec2(0.0f, 2.5f));
+		ImGui::Dummy(ImVec2(0.0f, spacingBetweenComponents));
 
+		bool enableCloseButton = true;
 
 		for (Component* component : gameObject->getAttachedComponents()) {
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 
-			if (ImGui::CollapsingHeader(component->getName().c_str(), flags))
+			if (ImGui::CollapsingHeader(component->getName().c_str(), &enableCloseButton, flags))
 			{
 				component->onGUI();
 			}
-			ImGui::Dummy(ImVec2(0.0f, 2.5f));
+
+			if (!enableCloseButton) {
+				// TODO Not working for newly added duplicate component
+				gameObject->removeComponent(component);
+				enableCloseButton = true;
+			}
+
+			ImGui::Dummy(ImVec2(0.0f, spacingBetweenComponents));
+		}
+
+		if (ImGui::BeginPopupContextWindow())
+		{
+			
+			if (ImGui::BeginMenu("Add component"))
+			{
+				if (ImGui::MenuItem("MeshRenderer")) {
+					gameObject->addComponent(new MeshRenderer());
+				}
+
+				
+				ImGui::EndMenu();
+			}
+			
+			if (ImGui::MenuItem("Close")) {}
+			ImGui::EndPopup();
 		}
 	}
 

@@ -9,6 +9,7 @@ class ObjectPanel {
 
 private:
 	GameObject* gameObject = nullptr;
+	float spacingBetweenComponents = 2.5f;
 
 public:
 	ObjectPanel();

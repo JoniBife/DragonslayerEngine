@@ -28,6 +28,10 @@ namespace core {
 		void onStart() override;
 		void onFrameUpdate() override;
 		void onEnd() override;
+
+		//static MeshRenderer* cube();
+
+		virtual inline bool isSingular() const override;
 	};
 
 }

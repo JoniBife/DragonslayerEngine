@@ -13,6 +13,9 @@ namespace core {
 
 		// Inherited via Component
 		bool getType() const override;
+
+		bool isSingular() const override;
+
 	};
 
 }

@@ -14,20 +14,10 @@ void HierarchyPanel::drawHierarchyRecursively(std::list<GameObject*> gameObjects
 		if (gameObject == selected)
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-		// If there it does not have children then use selectable
 		if (gameObject->numberOfChildren() == 0) {
 
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 			bool open = ImGui::TreeNodeEx(gameObject->getName().c_str(), treeNodeFlags);
-
-			if (ImGui::BeginPopupContextItem())
-			{
-				if (ImGui::MenuItem("Delete GameObject")) {
-
-				}
-				if (ImGui::MenuItem("Close")) {}
-				ImGui::EndPopup();
-			}
 
 			if (ImGui::IsItemClicked()) {
 				if (gameObject == selected) {

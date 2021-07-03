@@ -59,7 +59,7 @@ public:
 
 	GLuint getUboBindingPoint();
 
-	void OnGUI();
+	void onGUI();
 };
 
 #endif

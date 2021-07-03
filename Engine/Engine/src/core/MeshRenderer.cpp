@@ -66,3 +66,8 @@ void MeshRenderer::onFrameUpdate()
 void core::MeshRenderer::onEnd()
 {
 }
+
+bool core::MeshRenderer::isSingular() const
+{
+	return true;
+}

@@ -192,7 +192,7 @@ static void showSceneView(GLuint id, Camera& camera) {
 static void showEditorCameraPanel(Camera& camera) {
 	ImGui::Begin("Editor camera configs");
 	{
-		camera.OnGUI();
+		camera.onGUI();
 	}
 	ImGui::End();
 }
@@ -214,7 +214,7 @@ void GUI::drawUI(GLuint id, Camera& camera)
 	setDefaultStyle();
 
 	showTempUI(id, camera);
-	bool open = true;
+	bool open = false;
 	ImGui::ShowDemoWindow(&open);
 
 	hierarchyPanel->onGUI();

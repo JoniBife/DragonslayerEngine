@@ -14,6 +14,8 @@ namespace core {
 	class Component {
 
 	public:
+		/* Indicates whether the game object can contain a single component of this type*/
+		virtual inline bool isSingular() const = 0;
 		virtual bool getType() const = 0;
 		std::string getName() const { return name; }
 		float getElapsedTime() const { return elapsedTime; }

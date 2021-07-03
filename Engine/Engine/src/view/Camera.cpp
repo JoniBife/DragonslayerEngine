@@ -160,7 +160,7 @@ void Camera::addCameraController(ICameraController* cameraController) {
 // UboBp Getter
 GLuint Camera::getUboBindingPoint() { return uboBp; }
 
-void Camera::OnGUI()
+void Camera::onGUI()
 {
 	/*
 	Vec3 getCameraPosition() const;

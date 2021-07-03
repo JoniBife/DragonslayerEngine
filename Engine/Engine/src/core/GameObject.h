@@ -82,6 +82,9 @@ namespace core {
 
 		std::vector<Component*> getAttachedComponents() const;
 
+		/* Removes the component if it is attached to this gameobject*/
+		bool removeComponent(Component* component);
+
 		//////////////SCENE GRAPH/////////////////////
 
 		/* Adds child to GameObject, returns false if it is already a child else true */

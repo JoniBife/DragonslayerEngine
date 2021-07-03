@@ -11,3 +11,8 @@ bool core::Controller::getType() const
 {
 	return false;
 }
+
+bool core::Controller::isSingular() const
+{
+	return false;
+}
