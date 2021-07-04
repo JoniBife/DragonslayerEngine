@@ -1224,6 +1224,7 @@ namespace ImGuizmo
          drawList->AddCircle(worldToPos(gContext.mModel.v.position, gContext.mViewProjection), gContext.mRadiusSquareCenter + 4.0f, colors[0], 64, 3.f);
       }
 
+      
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsRotateType(type))
       {
          ImVec2 circlePos[halfCircleSegmentCount + 1];
@@ -1242,11 +1243,11 @@ namespace ImGuizmo
          drawList->AddConvexPolyFilled(circlePos, halfCircleSegmentCount, IM_COL32(0xFF, 0x80, 0x10, 0x80));
          drawList->AddPolyline(circlePos, halfCircleSegmentCount, IM_COL32(0xFF, 0x80, 0x10, 0xFF), true, 2);
 
-         ImVec2 destinationPosOnScreen = circlePos[1];
+         /* ImVec2 destinationPosOnScreen = circlePos[1];
          char tmps[512];
          ImFormatString(tmps, sizeof(tmps), rotationInfoMask[type - MT_ROTATE_X], (gContext.mRotationAngle / ZPI) * 180.f, gContext.mRotationAngle);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
-         drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
+         drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);*/
       }
    }
 
@@ -1347,10 +1348,10 @@ namespace ImGuizmo
       // draw screen cirle
       //drawList->AddCircleFilled(gContext.mScreenSquareCenter, 6.f, colors[0], 32);
 
-      if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsScaleType(type))
-      {
+      /*if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsScaleType(type))
+      {*/
          //ImVec2 sourcePosOnScreen = worldToPos(gContext.mMatrixOrigin, gContext.mViewProjection);
-         ImVec2 destinationPosOnScreen = worldToPos(gContext.mModel.v.position, gContext.mViewProjection);
+         //ImVec2 destinationPosOnScreen = worldToPos(gContext.mModel.v.position, gContext.mViewProjection);
          /*vec_t dif(destinationPosOnScreen.x - sourcePosOnScreen.x, destinationPosOnScreen.y - sourcePosOnScreen.y);
          dif.Normalize();
          dif *= 5.f;
@@ -1358,13 +1359,13 @@ namespace ImGuizmo
          drawList->AddCircle(destinationPosOnScreen, 6.f, translationLineColor);
          drawList->AddLine(ImVec2(sourcePosOnScreen.x + dif.x, sourcePosOnScreen.y + dif.y), ImVec2(destinationPosOnScreen.x - dif.x, destinationPosOnScreen.y - dif.y), translationLineColor, 2.f);
          */
-         char tmps[512];
+         /*char tmps[512];
          //vec_t deltaInfo = gContext.mModel.v.position - gContext.mMatrixOrigin;
          int componentInfoIndex = (type - MT_SCALE_X) * 3;
          ImFormatString(tmps, sizeof(tmps), scaleInfoMask[type - MT_SCALE_X], scaleDisplay[translationInfoIndex[componentInfoIndex]]);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
-      }
+      }*/
    }
 
 
@@ -1438,7 +1439,7 @@ namespace ImGuizmo
 
       drawList->AddCircleFilled(gContext.mScreenSquareCenter, 6.f, colors[0], 32);
 
-      if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsTranslateType(type))
+      /*/if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsTranslateType(type))
       {
          ImVec2 sourcePosOnScreen = worldToPos(gContext.mMatrixOrigin, gContext.mViewProjection);
          ImVec2 destinationPosOnScreen = worldToPos(gContext.mModel.v.position, gContext.mViewProjection);
@@ -1455,7 +1456,7 @@ namespace ImGuizmo
          ImFormatString(tmps, sizeof(tmps), translationInfoMask[type - MT_MOVE_X], deltaInfo[translationInfoIndex[componentInfoIndex]], deltaInfo[translationInfoIndex[componentInfoIndex + 1]], deltaInfo[translationInfoIndex[componentInfoIndex + 2]]);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 15, destinationPosOnScreen.y + 15), IM_COL32_BLACK, tmps);
          drawList->AddText(ImVec2(destinationPosOnScreen.x + 14, destinationPosOnScreen.y + 14), IM_COL32_WHITE, tmps);
-      }
+      }*/
    }
 
    static bool CanActivate()
