@@ -8,6 +8,8 @@
 #include "../core/Component.h"
 #include "../core/MeshRenderer.h"
 
+#include "GUI.h"
+
 ObjectPanel::ObjectPanel()
 {
 }
@@ -22,7 +24,7 @@ void ObjectPanel::stopShowingObject()
 	this->gameObject = nullptr;
 }
 
-void ObjectPanel::onGUI()
+void ObjectPanel::onGUI(GUI& gui)
 {
 	ImGui::Begin("Object");
 
@@ -44,7 +46,7 @@ void ObjectPanel::onGUI()
 
 			if (ImGui::CollapsingHeader(component->getName().c_str(), &enableCloseButton, flags))
 			{
-				component->onGUI();
+				component->onGUI(gui);
 			}
 
 			if (!enableCloseButton) {

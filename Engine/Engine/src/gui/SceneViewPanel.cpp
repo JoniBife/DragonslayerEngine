@@ -76,8 +76,18 @@ void SceneViewPanel::onGUI()
 				float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 				ImGuizmo::DecomposeMatrixToComponents(modelMatrix, matrixTranslation, matrixRotation, matrixScale);
 
-				transform->position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };
-				transform->scale = { matrixScale[0], matrixScale[1], matrixScale[2] };
+				if (selectedOperation == ImGuizmo::TRANSLATE) {
+					transform->position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };
+				}
+				else if (selectedOperation == ImGuizmo::ROTATE) {
+					transform->rotation = {
+					degreesToRadians(matrixRotation[0])
+					,degreesToRadians(matrixRotation[1]),
+					degreesToRadians(matrixRotation[2]) };
+				}
+				else if (selectedOperation == ImGuizmo::SCALE) {
+					transform->scale = { matrixScale[0], matrixScale[1], matrixScale[2] };
+				}
 				
 				/*Qtrn currRotation =
 					Qtrn(transform->rotation.z, Vec3::Z)
@@ -99,10 +109,7 @@ void SceneViewPanel::onGUI()
 				newRotation.toAngleAxis(y, Vec3::Y);
 				newRotation.toAngleAxis(z, Vec3::Z);*/
 
-				transform->rotation = { 
-					degreesToRadians(matrixRotation[0])
-					,degreesToRadians(matrixRotation[1]),
-					degreesToRadians(matrixRotation[2]) };
+				
 				
 			}
 		}

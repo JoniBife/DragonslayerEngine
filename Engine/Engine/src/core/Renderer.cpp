@@ -10,11 +10,3 @@ bool Renderer::getType() const
 {
     return false;
 }
-
-void Renderer::onGUI()
-{
-}
-
-void Renderer::onFrameUpdate()
-{
-}

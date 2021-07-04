@@ -23,7 +23,7 @@ namespace core {
 		Mesh* getMesh() const;
 		Material* getMaterial() const;
 
-		void onGUI() override;
+		void onGUI(GUI& gui) override;
 
 		void onStart() override;
 		void onFrameUpdate() override;

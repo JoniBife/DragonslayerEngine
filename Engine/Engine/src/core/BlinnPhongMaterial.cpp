@@ -1,5 +1,10 @@
 #include "BlinnPhongMaterial.h"
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <stdio.h>
+
 using namespace core;
 
 unsigned int BlinnPhongMaterial::getShininess() const
@@ -42,6 +47,16 @@ void BlinnPhongMaterial::sendParametersToShader(const Vec3& viewPosition, const 
     shaderProgram->setUniform(modelMatrixLocation, modelMatrix);
     shaderProgram->setUniform(normalMatrixLocation, normalMatrix);
     shaderProgram->setUniform(viewPositionLocation, viewPosition);
+}
+
+void core::BlinnPhongMaterial::onGUI()
+{
+    ImGui::DragFloat("Ambient strength", &ambientStrength, 0.05f, 0.0f, 1.0f);
+    ImGui::DragFloat("Diffuse strength", &diffuseStrength, 0.05f, 0.0f, 1.0f);
+    ImGui::DragFloat("Specular strength", &specularStrength, 0.05f, 0.0f, 1.0f);
+    unsigned int min = 0;
+    unsigned int max = 1000;
+    ImGui::DragScalar("Shininess", ImGuiDataType_U32,&shininess, 2.0f, &min, &max);
 }
 
 void BlinnPhongMaterial::setAmbientStrength(float ambientStrength)

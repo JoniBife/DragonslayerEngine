@@ -14,7 +14,7 @@ public:
 	void onStart() override;
 	void onFrameUpdate() override;
 	void onEnd() override;
-	void onGUI() override;
+	void onGUI(GUI& gui) override;
 
 };
 

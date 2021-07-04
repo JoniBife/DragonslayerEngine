@@ -29,7 +29,7 @@ namespace core {
 		GameObject* getGameObject();
 
 		/* Called by the GUI to display the component */
-		virtual void onGUI() = 0;
+		virtual void onGUI(GUI& gui) = 0;
 
 	protected:
 		Component(const std::string& name);

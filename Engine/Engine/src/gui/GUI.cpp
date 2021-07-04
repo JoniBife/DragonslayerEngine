@@ -113,10 +113,16 @@ GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window, EditorCamera& editorCamera) : imG
 	objectPanel = new ObjectPanel();
 	hierarchyPanel = new HierarchyPanel(Hierarchy::getHierarchy(), *objectPanel);
 	sceneViewPanel = new SceneViewPanel(editorCamera, *hierarchyPanel);
+	materialPanel = new MaterialPanel();
 }
 
 GUI::~GUI()
 {
+	delete objectPanel;
+	delete hierarchyPanel;
+	delete sceneViewPanel;
+	delete materialPanel;
+
 	// ImGUI cleanup
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -203,8 +209,9 @@ void GUI::renderUI(Camera& camera)
 	ImGui::ShowDemoWindow(&open);
 
 	hierarchyPanel->onGUI();
-	objectPanel->onGUI();
+	objectPanel->onGUI(*this);
 	sceneViewPanel->onGUI();
+	materialPanel->onGUI();
 
 	// Rendering
 	ImGui::Render();
@@ -217,4 +224,9 @@ void GUI::renderUI(Camera& camera)
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}*/
+}
+
+MaterialPanel& GUI::getMaterialPanel() const
+{
+	return *materialPanel;
 }

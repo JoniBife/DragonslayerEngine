@@ -29,7 +29,7 @@ Material* core::MeshRenderer::getMaterial() const
 	return material;
 }
 
-void MeshRenderer::onGUI()
+void MeshRenderer::onGUI(GUI& gui)
 {
 	ImGui::TextWrapped("Mesh: "); ImGui::SameLine();
 
@@ -52,6 +52,10 @@ void MeshRenderer::onGUI()
 		materialName = "NOT SET";
 
 	ImGui::TextWrapped(materialName.c_str());
+
+	if (ImGui::IsItemClicked()) {
+		gui.getMaterialPanel().showMaterial(material);
+	}
 }
 
 void core::MeshRenderer::onStart()

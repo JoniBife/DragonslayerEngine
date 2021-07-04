@@ -32,6 +32,8 @@ namespace core {
 			const Mat4& modelMatrix, 
 			const Mat3& normalMatrix = Mat3::IDENTITY) = 0;
 
+		virtual void onGUI() = 0;
+
 		void use();
 
 		void stopUsing();

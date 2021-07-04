@@ -5,6 +5,7 @@
 #include "HierarchyPanel.h"
 #include "ObjectPanel.h"
 #include "SceneViewPanel.h"
+#include "MaterialPanel.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -18,6 +19,7 @@ private:
 	HierarchyPanel* hierarchyPanel = nullptr;
 	ObjectPanel* objectPanel = nullptr;
 	SceneViewPanel* sceneViewPanel = nullptr;
+	MaterialPanel* materialPanel = nullptr;
 	
 	void setDefaultTheme();
 	void setDefaultStyle();
@@ -28,6 +30,8 @@ public:
 	~GUI();
 
 	void renderUI(Camera& camera);
+
+	MaterialPanel& getMaterialPanel() const;
 };
 
 #endif

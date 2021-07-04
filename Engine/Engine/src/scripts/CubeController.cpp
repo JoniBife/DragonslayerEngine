@@ -34,6 +34,6 @@ void CubeController::onEnd()
 {
 }
 
-void CubeController::onGUI()
+void CubeController::onGUI(GUI& gui)
 {
 }

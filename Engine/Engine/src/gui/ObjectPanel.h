@@ -5,6 +5,8 @@
 
 using namespace core;
 
+class GUI;
+
 class ObjectPanel {
 
 private:
@@ -17,7 +19,7 @@ public:
 	void showObject(GameObject* gameObject);
 	void stopShowingObject();
 
-	void onGUI();
+	void onGUI(GUI& gui);
 };
 
 #endif
