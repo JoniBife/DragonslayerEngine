@@ -107,7 +107,7 @@ void Engine::setupGLEW() {
 
 ////////////////////////////////////////////// SCENE
 void Engine::setupScene() {
-	editorCamera = new Camera();
+	editorCamera = new EditorCamera();
 
 	sceneGraph = new SceneGraph(editorCamera);
 
@@ -120,7 +120,7 @@ void Engine::setupGUI()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& imGuiIO = ImGui::GetIO();(void)imGuiIO;
-	gui = new GUI(imGuiIO, window);
+	gui = new GUI(imGuiIO, window, *editorCamera);
 }
 
 ////////////////////////////////////////////// RESOURCES
@@ -154,7 +154,7 @@ GLFWwindow* Engine::getWindow() {
 SceneGraph* Engine::getSceneGraph() {
 	return sceneGraph;
 }
-Camera* Engine::getCamera() {
+EditorCamera* Engine::getCamera() {
 	return editorCamera;
 }
 GUI* Engine::getGui() {
@@ -184,12 +184,10 @@ void Engine::run() {
 
 	renderer3D->setup();
 
-	setupGUI();
 	setupScene();
+	setupGUI();
 
 	start();
-
-	hierarchy->updateScene();
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
@@ -210,8 +208,9 @@ void Engine::run() {
 
 		hierarchy->updateScene();
 
-		Texture2D& frameTexture = renderer3D->renderToTexture(*editorCamera, *hierarchy);
-		gui->drawUI(frameTexture.getId(), *editorCamera);// After everything from the scene is rendered, we render the UI;
+		renderer3D->renderToFrameBuffer(*editorCamera, *hierarchy, editorCamera->getFrameBuffer());
+
+		gui->renderUI(*editorCamera);
 
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary

@@ -19,6 +19,8 @@ private:
 public:
 	HierarchyPanel(Hierarchy& hierarchy, ObjectPanel& objectPanel);
 
+	GameObject* getSelectedGameObject() const;
+
 	void onGUI();
 };
 

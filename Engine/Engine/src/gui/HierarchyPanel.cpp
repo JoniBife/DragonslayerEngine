@@ -21,8 +21,8 @@ void HierarchyPanel::drawHierarchyRecursively(std::list<GameObject*> gameObjects
 
 			if (ImGui::IsItemClicked()) {
 				if (gameObject == selected) {
-					selected = nullptr;
 					selected->unselect();
+					selected = nullptr;
 					objectPanel.stopShowingObject();
 				}
 				else
@@ -72,6 +72,11 @@ void HierarchyPanel::drawHierarchyRecursively(std::list<GameObject*> gameObjects
 
 HierarchyPanel::HierarchyPanel(Hierarchy& hierarchy, ObjectPanel& objectPanel) : hierarchy(hierarchy), objectPanel(objectPanel)
 {
+}
+
+GameObject* HierarchyPanel::getSelectedGameObject() const
+{
+	return selected;
 }
 
 void HierarchyPanel::onGUI()

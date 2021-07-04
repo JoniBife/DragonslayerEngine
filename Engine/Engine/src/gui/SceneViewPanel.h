@@ -1,17 +1,19 @@
 #ifndef SCENE_VIEW_PANEL_H
 #define SCENE_VIEW_PANEL_H
 
-#include "../view/Camera.h"
+#include "../view/EditorCamera.h"
 #include "HierarchyPanel.h"
+#include <imGuizmo/ImGuizmo.h>
 
 class SceneViewPanel {
 
 private:
-	Camera& editorCamera;
+	EditorCamera& editorCamera;
 	HierarchyPanel& hierarchyPanel;
-
+	ImGuizmo::OPERATION selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+	
 public:
-	SceneViewPanel(Camera& camera, HierarchyPanel& hierarchyPanel);
+	SceneViewPanel(EditorCamera& camera, HierarchyPanel& hierarchyPanel);
 
 	void onGUI();
 

@@ -9,7 +9,10 @@ namespace core {
 
 	enum class KeyCode {
 		A = GLFW_KEY_A,
+		E = GLFW_KEY_E,
 		D = GLFW_KEY_D,
+		Q = GLFW_KEY_Q,
+		R = GLFW_KEY_R,
 		S = GLFW_KEY_S,
 		W = GLFW_KEY_W,
 	};

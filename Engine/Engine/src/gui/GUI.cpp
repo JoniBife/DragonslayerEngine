@@ -92,7 +92,7 @@ void GUI::loadFonts()
 	}
 }
 
-GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window) : imGuiIO(imGuiIO)
+GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window, EditorCamera& editorCamera) : imGuiIO(imGuiIO)
 {
 	imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//imGuiIO.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -112,6 +112,7 @@ GUI::GUI(ImGuiIO& imGuiIO, GLFWwindow* window) : imGuiIO(imGuiIO)
 
 	objectPanel = new ObjectPanel();
 	hierarchyPanel = new HierarchyPanel(Hierarchy::getHierarchy(), *objectPanel);
+	sceneViewPanel = new SceneViewPanel(editorCamera, *hierarchyPanel);
 }
 
 GUI::~GUI()
@@ -174,21 +175,6 @@ static void showDockspace() {
 	*/
 }
 
-static void showSceneView(GLuint id, Camera& camera) {
-	ImGui::Begin("SceneView");
-	{
-		ImGui::BeginChild("SceneRenderer");
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		camera.setViewportSize(viewportPanelSize.x, viewportPanelSize.y);
-
-		ImVec2 wsize = ImGui::GetWindowSize();
-
-		ImGui::Image((ImTextureID)id, wsize, ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::EndChild();
-	}
-	ImGui::End();
-}
-
 static void showEditorCameraPanel(Camera& camera) {
 	ImGui::Begin("Editor camera configs");
 	{
@@ -197,14 +183,13 @@ static void showEditorCameraPanel(Camera& camera) {
 	ImGui::End();
 }
 
-static void showTempUI(GLuint id, Camera& camera) {
+static void showTempUI(Camera& camera) {
 	showMainMenuBar();
     showDockspace();
-	showSceneView(id, camera);
 	showEditorCameraPanel(camera);
 }
 
-void GUI::drawUI(GLuint id, Camera& camera)
+void GUI::renderUI(Camera& camera)
 {
 	// Start the Dear ImGui frame
 	ImGui_ImplOpenGL3_NewFrame();
@@ -213,19 +198,18 @@ void GUI::drawUI(GLuint id, Camera& camera)
 
 	setDefaultStyle();
 
-	showTempUI(id, camera);
+	showTempUI(camera);
 	bool open = false;
 	ImGui::ShowDemoWindow(&open);
 
 	hierarchyPanel->onGUI();
 	objectPanel->onGUI();
+	sceneViewPanel->onGUI();
 
 	// Rendering
 	ImGui::Render();
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	
 
 	// Update and Render additional Platform Windows
 	/*if (imGuiIO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

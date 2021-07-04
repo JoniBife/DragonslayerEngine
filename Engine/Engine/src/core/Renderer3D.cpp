@@ -12,11 +12,6 @@ core::Renderer3D::Renderer3D()
 
 core::Renderer3D::~Renderer3D()
 {
-    if (frameTexture != nullptr && frameBuffer != nullptr) {
-        delete frameBuffer;
-        delete frameTexture;
-    }
-
 
 }
 
@@ -49,46 +44,9 @@ void core::Renderer3D::setup()
     GL_CALL(glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
 }
 
-Texture2D& core::Renderer3D::renderToTexture(const Camera& camera, Hierarchy& hierarchy)
+void core::Renderer3D::renderToFrameBuffer(const Camera& camera, Hierarchy& hierarchy, FrameBuffer& frameBuffer)
 {
-    if (frameTexture == nullptr && frameBuffer == nullptr) {
-        frameTexture = Texture2D::emptyTexture(camera.getViewportWidth(), camera.getViewportHeight());
-        frameBuffer = new FrameBuffer([&]() {
-
-            // Bind frameBuffer
-
-            frameTexture->bind(GL_TEXTURE0);
-            GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frameTexture->getId(), 0));
-            frameTexture->unBind(GL_TEXTURE0);
-
-            GL_CALL(glGenRenderbuffers(1, &rbo));
-            GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-            GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, camera.getViewportWidth(), camera.getViewportHeight()));
-            GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
-
-            GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
-
-            // Unbind frameBuffer
-        });
-    } 
-    
-    // TODO Consider resizing the the texture and renderbuffer sizes when window changes
-    // Currently not working properly
-
-    /*else if (camera.getViewportWidth() != frameTexture->getWidth() ||
-        camera.getViewportHeight() != frameTexture->getHeight()) {
-
-        // The camera width and height were changed so we resize both the texture
-        // and framebuffer
-
-        frameTexture->resize(camera.getViewportWidth(), camera.getViewportHeight());
-
-        GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-        GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, camera.getViewportWidth(), camera.getViewportHeight()));
-        GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
-    }*/
-
-    frameBuffer->bind();
+    frameBuffer.bind();
 
     GL_CALL(glClearColor(BACKGROUND_COLOR));
     GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)); // we're not using the stencil buffer now
@@ -96,9 +54,7 @@ Texture2D& core::Renderer3D::renderToTexture(const Camera& camera, Hierarchy& hi
 
     render(camera, hierarchy);
 
-    frameBuffer->unbind();
-
-    return *frameTexture;
+    frameBuffer.unbind();
 }
 
 void core::Renderer3D::render(const Camera& camera, Hierarchy& hierarchy)

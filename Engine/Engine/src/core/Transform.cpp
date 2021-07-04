@@ -37,7 +37,6 @@ void Transform::onGUI()
 	ImGui::SetNextItemWidth(inputFieldsWidth);
 	ImGui::InputFloat("##PositionZ", &(position.z));
 	
-
 	ImGui::Text("Rotation");
 
 	Vec3 rotationInDegrees = { 

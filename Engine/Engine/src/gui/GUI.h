@@ -4,6 +4,7 @@
 #include "../view/Camera.h"
 #include "HierarchyPanel.h"
 #include "ObjectPanel.h"
+#include "SceneViewPanel.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -16,16 +17,17 @@ private:
 	ImGuiIO& imGuiIO;
 	HierarchyPanel* hierarchyPanel = nullptr;
 	ObjectPanel* objectPanel = nullptr;
+	SceneViewPanel* sceneViewPanel = nullptr;
 	
 	void setDefaultTheme();
 	void setDefaultStyle();
 	void loadFonts();
 
 public:
-	GUI(ImGuiIO& imGuiIO, GLFWwindow* window);
+	GUI(ImGuiIO& imGuiIO, GLFWwindow* window, EditorCamera& editorCamera);
 	~GUI();
 
-	void drawUI(GLuint id, Camera& camera);
+	void renderUI(Camera& camera);
 };
 
 #endif

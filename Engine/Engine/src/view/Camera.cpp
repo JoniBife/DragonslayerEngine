@@ -18,6 +18,10 @@ Camera::Camera() {
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
+Camera::~Camera()
+{
+}
+
 void Camera::update(float elapsedTime) {
 
 	// Update camera controller if there is one

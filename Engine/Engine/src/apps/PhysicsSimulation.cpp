@@ -35,9 +35,6 @@ void PhysicsSimulation::start() {
 	gm = new GameObject("Cube");
 	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
 
-	GLuint sharedMatricesIndex = mat->getShaderProgram().getUniformBlockIndex("SharedMatrices");
-	mat->getShaderProgram().bindUniformBlock(sharedMatricesIndex, getCamera()->getUboBindingPoint());
-
 	MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
 	gm->addComponent(mr);
 	gm->getTransform()->rotation.x  = PI / 4.0f;

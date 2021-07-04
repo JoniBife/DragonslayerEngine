@@ -71,6 +71,7 @@
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\view\EditorCamera.cpp" />
     <ClCompile Include="src\view\Transformations.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +124,7 @@
     <ClInclude Include="src\utils\OpenGLUtils.h" />
     <ClInclude Include="src\vendor\imGuizmo\ImGuizmo.h" />
     <ClInclude Include="src\view\Camera.h" />
+    <ClInclude Include="src\view\EditorCamera.h" />
     <ClInclude Include="src\view\Transformations.h" />
   </ItemGroup>
   <ItemGroup>

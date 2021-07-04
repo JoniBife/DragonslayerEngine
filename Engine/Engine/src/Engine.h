@@ -8,7 +8,9 @@
 #include "gui/GUI.h"
 #include "meshes/SkyBox.h"
 #include "../core/Renderer3D.h"
+#include "view/EditorCamera.h"
 
+using namespace core;
 
 class Engine {
 
@@ -16,9 +18,9 @@ private:
 	// Only derived classed have access to this members
 	GLFWwindow* window = nullptr;
 	SceneGraph* sceneGraph = nullptr;
-	core::Hierarchy* hierarchy;
-	core::Renderer3D* renderer3D;
-	Camera* editorCamera = nullptr;
+	Hierarchy* hierarchy;
+	Renderer3D* renderer3D;
+	EditorCamera* editorCamera = nullptr;
 	GUI* gui = nullptr;
 	SkyBox* skybox = nullptr;
 	int windowWidth = 0;
@@ -60,7 +62,7 @@ private:
 protected:
 	GLFWwindow* getWindow(); 
 	SceneGraph* getSceneGraph();
-	Camera* getCamera();
+	EditorCamera* getCamera();
 	int getWindowWidth();
 	int getWindowHeight();
 	double getElapsedTime();

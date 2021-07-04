@@ -14,7 +14,7 @@ out vec4 fragPos;
 uniform mat3 normal;
 uniform mat4 model;
 
-uniform SharedMatrices {
+uniform sharedMatrices {
 	mat4 view;
 	mat4 projection;
 };

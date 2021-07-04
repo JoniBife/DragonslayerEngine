@@ -21,6 +21,11 @@ BlinnPhongMaterial::BlinnPhongMaterial() : Material( "Blinn-Phong Material") {
     modelMatrixLocation = shaderProgram->getUniformLocation("model");
     normalMatrixLocation = shaderProgram->getUniformLocation("normal");
     viewPositionLocation = shaderProgram->getUniformLocation("viewPosition");
+
+    shaderProgram->bindUniformBlock(
+        shaderProgram->getUniformBlockIndex("sharedMatrices"), 
+        0 // TODO Should not be hardcoded
+    );
 }
 
 BlinnPhongMaterial::~BlinnPhongMaterial()
