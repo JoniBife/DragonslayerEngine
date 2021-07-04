@@ -57,11 +57,11 @@ void SceneViewPanel::onGUI()
 
 			
 			// TODO Remove hardcoded keys
-			if (Input::isKeyDown(KeyCode::Q)) {
+			if (Input::isKeyDown(KeyCode::W)) {
 				selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
-			} else if (Input::isKeyDown(KeyCode::W)) {
-				selectedOperation = ImGuizmo::OPERATION::SCALE;
 			} else if (Input::isKeyDown(KeyCode::E)) {
+				selectedOperation = ImGuizmo::OPERATION::SCALE;
+			} else if (Input::isKeyDown(KeyCode::R)) {
 				selectedOperation = ImGuizmo::OPERATION::ROTATE;
 			}
 
@@ -79,7 +79,7 @@ void SceneViewPanel::onGUI()
 				transform->position = { matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] };
 				transform->scale = { matrixScale[0], matrixScale[1], matrixScale[2] };
 				
-				Qtrn currRotation =
+				/*Qtrn currRotation =
 					Qtrn(transform->rotation.z, Vec3::Z)
 					* Qtrn(transform->rotation.y, Vec3::Y)
 					* Qtrn(transform->rotation.x, Vec3::X);
@@ -97,9 +97,12 @@ void SceneViewPanel::onGUI()
 
 				newRotation.toAngleAxis(x, Vec3::X);
 				newRotation.toAngleAxis(y, Vec3::Y);
-				newRotation.toAngleAxis(z, Vec3::Z);
+				newRotation.toAngleAxis(z, Vec3::Z);*/
 
-				transform->rotation = {x,y,z};
+				transform->rotation = { 
+					degreesToRadians(matrixRotation[0])
+					,degreesToRadians(matrixRotation[1]),
+					degreesToRadians(matrixRotation[2]) };
 				
 			}
 		}

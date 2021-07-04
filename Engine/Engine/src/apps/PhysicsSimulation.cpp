@@ -25,7 +25,7 @@ GameObject* gm;
 void PhysicsSimulation::start() {
 
 	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
-	cubeMesh->paint(ColorRGBA::ORANGE);
+	cubeMesh->paint(ColorRGBA::GREY);
 	cubeMesh->init();
 
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");

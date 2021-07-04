@@ -15,6 +15,7 @@ struct ColorRGBA {
 	static Vec4 BLACK;
 	static Vec4 ORANGE;
 	static Vec4 PURPLE;
+	static Vec4 GREY;
 };
 
 #endif

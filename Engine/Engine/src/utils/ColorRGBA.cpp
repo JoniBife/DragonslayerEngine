@@ -11,3 +11,4 @@ Vec4 ColorRGBA::WHITE = { 1.0f, 1.0f, 1.0f, 1.0f };
 Vec4 ColorRGBA::BLACK = { 0.0f, 0.0f, 0.0f, 1.0f };
 Vec4 ColorRGBA::ORANGE = { 1.0f, 0.5f, 0.0f, 1.0f };
 Vec4 ColorRGBA::PURPLE = { 0.5f, 0.0f, 1.0f, 1.0f };
+Vec4 ColorRGBA::GREY = { 0.6f, 0.6f, 0.6f, 1.0f };

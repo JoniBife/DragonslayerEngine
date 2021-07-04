@@ -1221,7 +1221,7 @@ namespace ImGuizmo
       }
       if(hasRSC)
       {
-         drawList->AddCircle(worldToPos(gContext.mModel.v.position, gContext.mViewProjection), gContext.mRadiusSquareCenter, colors[0], 64, 3.f);
+         drawList->AddCircle(worldToPos(gContext.mModel.v.position, gContext.mViewProjection), gContext.mRadiusSquareCenter + 4.0f, colors[0], 64, 3.f);
       }
 
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsRotateType(type))
@@ -1281,6 +1281,8 @@ namespace ImGuizmo
          scaleDisplay = gContext.mScale;
       }
 
+      const ImVec2 origin = worldToPos(gContext.mModel.v.position, gContext.mViewProjection);
+
       for (unsigned int i = 0; i < 3; i++)
       {
          if(!Intersects(op, static_cast<OPERATION>(SCALE_X << i)))
@@ -1300,17 +1302,33 @@ namespace ImGuizmo
             ImVec2 worldDirSSpaceNoScale = worldToPos(dirAxis * markerScale * gContext.mScreenFactor, gContext.mMVP);
             ImVec2 worldDirSSpace = worldToPos((dirAxis * markerScale * scaleDisplay[i]) * gContext.mScreenFactor, gContext.mMVP);
 
+            // Arrow head begin
+            ImVec2 dir(origin - worldDirSSpace);
+
+            float d = sqrtf(ImLengthSqr(dir));
+            dir /= d; // Normalize
+            dir *= 4.5f;
+
+            ImVec2 ortogonalDir(dir.y, -dir.x); // Perpendicular vector
+            ImVec2 a(worldDirSSpace + dir);
+            ImVec2 b(worldDirSSpace - dir);
+
             if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID))
             {
                drawList->AddLine(baseSSpace, worldDirSSpaceNoScale, IM_COL32(0x40, 0x40, 0x40, 0xFF), 3.f);
-               drawList->AddCircleFilled(worldDirSSpaceNoScale, 6.f, IM_COL32(0x40, 0x40, 0x40, 0xFF));
+
+               drawList->AddQuadFilled(b + ortogonalDir, a + ortogonalDir, a - ortogonalDir, b - ortogonalDir, IM_COL32(0x40, 0x40, 0x40, 0xFF));
+
+               //drawList->AddCircleFilled(worldDirSSpaceNoScale, 6.f, IM_COL32(0x40, 0x40, 0x40, 0xFF));
             }
 
             if(!hasTranslateOnAxis || gContext.mbUsing)
             {
               drawList->AddLine(baseSSpace, worldDirSSpace, colors[i + 1], 3.f);
             }
-            drawList->AddCircleFilled(worldDirSSpace, 6.f, colors[i + 1]);
+
+            drawList->AddQuadFilled(b + ortogonalDir, a + ortogonalDir, a - ortogonalDir, b - ortogonalDir, colors[i + 1]);
+            //drawList->AddCircleFilled(worldDirSSpace, 6.f, colors[i + 1]);
 
             if (gContext.mAxisFactor[i] < 0.f)
             {
@@ -1319,8 +1337,15 @@ namespace ImGuizmo
          }
       }
 
+      ImVec2 topRight = gContext.mScreenSquareCenter + ImVec2(4.5f, 4.5f);
+      ImVec2 topLeft = gContext.mScreenSquareCenter + ImVec2(-4.5f, 4.5f);
+      ImVec2 bottomRight = gContext.mScreenSquareCenter + ImVec2(4.5f, -4.5f);
+      ImVec2 bottomLeft = gContext.mScreenSquareCenter + ImVec2(-4.5f, -4.5f);
+
+      drawList->AddQuadFilled(topRight, bottomRight, bottomLeft, topLeft, colors[0]);
+
       // draw screen cirle
-      drawList->AddCircleFilled(gContext.mScreenSquareCenter, 6.f, colors[0], 32);
+      //drawList->AddCircleFilled(gContext.mScreenSquareCenter, 6.f, colors[0], 32);
 
       if (gContext.mbUsing && (gContext.mActualID == -1 || gContext.mActualID == gContext.mEditingID) && IsScaleType(type))
       {
@@ -1387,6 +1412,7 @@ namespace ImGuizmo
 
             ImVec2 ortogonalDir(dir.y, -dir.x); // Perpendicular vector
             ImVec2 a(worldDirSSpace + dir);
+
             drawList->AddTriangleFilled(worldDirSSpace - dir, a + ortogonalDir, a - ortogonalDir, colors[i + 1]);
             // Arrow head end
 
