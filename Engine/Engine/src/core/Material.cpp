@@ -17,6 +17,14 @@ ShaderProgram& Material::getShaderProgram() const
 	return *shaderProgram;
 }
 
+void core::Material::bindTextures()
+{
+}
+
+void core::Material::unBindTextures()
+{
+}
+
 void Material::use()
 {
 	assert(shaderProgram != nullptr);

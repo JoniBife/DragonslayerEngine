@@ -180,6 +180,9 @@
     <ClCompile Include="src\gui\MaterialPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\PBRMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\Mat2.h">
@@ -338,6 +341,9 @@
     <ClInclude Include="src\gui\MaterialPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\PBRMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragmentShaderNM.glsl" />
@@ -369,5 +375,7 @@
     <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
     <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
     <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
+    <None Include="shaders\pbr\pbrFS.glsl" />
+    <None Include="shaders\pbr\pbrVS.glsl" />
   </ItemGroup>
 </Project>

@@ -88,7 +88,11 @@ void core::Renderer3D::render(const Camera& camera, Hierarchy& hierarchy)
             else
                 material->sendParametersToShader(camera.getPosition(), transform->getModelMatrix());
 
+            material->bindTextures();
+
             mesh->draw();
+
+            material->unBindTextures();
         }
         mesh->unBind();
         material->stopUsing();

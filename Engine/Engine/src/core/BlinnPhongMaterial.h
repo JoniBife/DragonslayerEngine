@@ -33,7 +33,6 @@ namespace core {
 		void sendParametersToShader(const Vec3& viewPosition, const Mat4& modelMatrix, const Mat3& normalMatrix = Mat3::IDENTITY) override;
 
 		void onGUI() override;
-
 	};
 
 }

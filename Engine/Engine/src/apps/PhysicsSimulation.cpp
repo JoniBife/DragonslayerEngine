@@ -9,6 +9,7 @@
 #include "../core/MeshRenderer.h"
 #include "../core/BlinnPhongMaterial.h"
 #include "../scripts/CubeController.h"
+#include "../core/PBRMaterial.h"
 
 using namespace core;
 
@@ -24,13 +25,15 @@ GameObject* gm;
 
 void PhysicsSimulation::start() {
 
-	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
-	cubeMesh->paint(ColorRGBA::GREY);
-	cubeMesh->init();
+	
 
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
 	sphereMesh->paint(ColorRGBA::BLUE);
 	sphereMesh->init();
+
+	/*cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
+	cubeMesh->paint(ColorRGBA::GREY);
+	cubeMesh->init();
 
 	gm = new GameObject("Cube");
 	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
@@ -42,12 +45,16 @@ void PhysicsSimulation::start() {
 	CubeController* cubeController = new CubeController();
 	gm->addComponent(cubeController);
 
-	GameObject* gm2 = new GameObject("Sphere");
+	GameObject* gm2 = new GameObject("Sphere Blinn-Phong");
 	MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
 	gm2->addComponent(mr2);
+	gm->addChildren(gm2);*/
 
-	gm->addChildren(gm2);
-	
+	PBRMaterial* pbrMat = new PBRMaterial();
+
+	GameObject* spherePbr = new GameObject("Sphere PBR");
+	MeshRenderer* mr3 = new MeshRenderer(sphereMesh, pbrMat);
+	spherePbr->addComponent(mr3);
 }
 
 void PhysicsSimulation::update() {

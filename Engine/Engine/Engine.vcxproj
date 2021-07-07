@@ -30,6 +30,7 @@
     <ClCompile Include="src\core\Input.cpp" />
     <ClCompile Include="src\core\Material.cpp" />
     <ClCompile Include="src\core\MeshRenderer.cpp" />
+    <ClCompile Include="src\core\PBRMaterial.cpp" />
     <ClCompile Include="src\core\Renderer.cpp" />
     <ClCompile Include="src\core\Renderer3D.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
@@ -84,6 +85,7 @@
     <ClInclude Include="src\core\BlinnPhongMaterial.h" />
     <ClInclude Include="src\core\Controller.h" />
     <ClInclude Include="src\core\Input.h" />
+    <ClInclude Include="src\core\PBRMaterial.h" />
     <ClInclude Include="src\core\Renderer3D.h" />
     <ClInclude Include="src\core\Component.h" />
     <ClInclude Include="src\core\GameObject.h" />
@@ -143,6 +145,8 @@
     <None Include="shaders\leaves\vertexShaderBlendingSM.glsl" />
     <None Include="shaders\lineFragmentShader.glsl" />
     <None Include="shaders\lineVertexShader.glsl" />
+    <None Include="shaders\pbr\pbrFS.glsl" />
+    <None Include="shaders\pbr\pbrVS.glsl" />
     <None Include="shaders\skybox\fragmentShaderSkyBox.glsl" />
     <None Include="shaders\skybox\vertexShaderSkyBox.glsl" />
     <None Include="shaders\uiFragmentShader.glsl" />

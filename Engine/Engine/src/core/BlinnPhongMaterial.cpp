@@ -46,6 +46,8 @@ void BlinnPhongMaterial::sendParametersToShader(const Vec3& viewPosition, const 
 
     shaderProgram->setUniform(modelMatrixLocation, modelMatrix);
     shaderProgram->setUniform(normalMatrixLocation, normalMatrix);
+    
+    // TODO Move this to the uniform block that contains the shared matrices
     shaderProgram->setUniform(viewPositionLocation, viewPosition);
 }
 
