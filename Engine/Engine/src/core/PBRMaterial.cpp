@@ -31,7 +31,6 @@ PBRMaterial::PBRMaterial() : Material("PBR Material")
     roughnessMapLocation = shaderProgram->getUniformLocation("roughnessMap");
     aoMapLocation = shaderProgram->getUniformLocation("aoMap");
   
-
     modelMatrixLocation = shaderProgram->getUniformLocation("model");
     normalMatrixLocation = shaderProgram->getUniformLocation("normal");
     viewPositionLocation = shaderProgram->getUniformLocation("viewPosition");

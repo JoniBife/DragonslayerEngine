@@ -20,6 +20,8 @@ void SceneViewPanel::onGUI()
 		ImGui::BeginChild("SceneRenderer");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		editorCamera.setViewportSize(viewportPanelSize.x, viewportPanelSize.y);
+		
+		ImVec2 min = ImGui::GetWindowContentRegionMin();
 
 		ImVec2 wsize = ImGui::GetWindowSize();
 
@@ -55,21 +57,22 @@ void SceneViewPanel::onGUI()
 				projectionMatrix,
 				identityMatrix, 100.f);*/
 
-			
 			// TODO Remove hardcoded keys
 			if (Input::isKeyDown(KeyCode::W)) {
 				selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
-			} else if (Input::isKeyDown(KeyCode::E)) {
+			}
+			else if (Input::isKeyDown(KeyCode::E)) {
 				selectedOperation = ImGuizmo::OPERATION::SCALE;
-			} else if (Input::isKeyDown(KeyCode::R)) {
+			}
+			else if (Input::isKeyDown(KeyCode::R)) {
 				selectedOperation = ImGuizmo::OPERATION::ROTATE;
 			}
 
 			ImGuizmo::Manipulate(
-				viewMatrix, 
-				projectionMatrix, 
+				viewMatrix,
+				projectionMatrix,
 				selectedOperation,
-				ImGuizmo::WORLD, 
+				ImGuizmo::WORLD,
 				modelMatrix);
 
 			if (ImGuizmo::IsUsing()) {
@@ -88,13 +91,13 @@ void SceneViewPanel::onGUI()
 				else if (selectedOperation == ImGuizmo::SCALE) {
 					transform->scale = { matrixScale[0], matrixScale[1], matrixScale[2] };
 				}
-				
+
 				/*Qtrn currRotation =
 					Qtrn(transform->rotation.z, Vec3::Z)
 					* Qtrn(transform->rotation.y, Vec3::Y)
 					* Qtrn(transform->rotation.x, Vec3::X);
 
-				Qtrn rotationFromGizmo = 
+				Qtrn rotationFromGizmo =
 					Qtrn(degreesToRadians(matrixRotation[2]), Vec3::Z)
 					* Qtrn(degreesToRadians(matrixRotation[1]), Vec3::Y)
 					* Qtrn(degreesToRadians(matrixRotation[0]), Vec3::X);
@@ -109,8 +112,6 @@ void SceneViewPanel::onGUI()
 				newRotation.toAngleAxis(y, Vec3::Y);
 				newRotation.toAngleAxis(z, Vec3::Z);*/
 
-				
-				
 			}
 		}
 

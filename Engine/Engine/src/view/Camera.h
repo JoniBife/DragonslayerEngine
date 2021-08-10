@@ -9,7 +9,7 @@
 
 class Camera {
 
-private:
+protected:
 	Mat4 view;
 	Mat4 projection; // TODO Create a projection class
 	GLuint vbo;
@@ -34,7 +34,7 @@ public:
 	Camera();
 	virtual ~Camera();
 
-	void update(float elapsedTime);
+	virtual void update(float elapsedTime);
 
 	void setPosition(const Vec3& position);
 	void setTarget(const Vec3& target);

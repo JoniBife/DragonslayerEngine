@@ -41,7 +41,7 @@ void Camera::update(float elapsedTime) {
 
 	if (dirty) {
 		dirty = false;
-		front = target - position;
+		//front = target - position;
 		view = lookAt(position, position + front, up);
 		projection = perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
 	}
