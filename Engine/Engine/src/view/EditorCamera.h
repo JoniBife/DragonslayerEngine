@@ -13,7 +13,9 @@ private:
 	FrameBuffer* frameBuffer = nullptr;
 	GLuint rbo = 0;
 	float movementSpeed = 3.0f; // In units (meters) per second
-	float rotationSpeed = 30.0f; // In degrees per second
+	float rotationSpeed = 20.0f; // In degrees per second
+	float dragSpeed = 2.0f;
+	float zoomSpeed = 700.0f;
 	float pitch = 0.0f;
 	float yaw = -90.0f;
 	Vec2 lastMousePosition = { 0.0f , 0.0f };

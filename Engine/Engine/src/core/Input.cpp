@@ -2,9 +2,12 @@
 
 using namespace core;
 
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 Input::Input(GLFWwindow* window) : window(window) {
 	// There can only be one instance of input
 	assert(instance == nullptr);
+	glfwSetScrollCallback(window, scroll_callback);
 }
 
 Input::~Input() { }
@@ -70,6 +73,25 @@ Vec2 core::Input::getMousePosition()
 	double xpos, ypos;
 	glfwGetCursorPos(instance->window, &xpos, &ypos);
 	return { (float)xpos, (float)ypos };
+}
+
+void core::Input::setMousePosition(const Vec2& position)
+{
+	//	TODO Ensure cursor is within screen limits
+	glfwSetCursorPos(instance->window, position.x, position.y);
+}
+
+static float scrollYOffset = 0.0f;
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	scrollYOffset = yoffset;
+}
+
+float core::Input::getMouseScroll()
+{
+	float currScrollYOffset = scrollYOffset;
+	scrollYOffset = 0.0f;
+	return currScrollYOffset;
 }
 
 

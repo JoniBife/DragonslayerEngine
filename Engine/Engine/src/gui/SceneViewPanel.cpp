@@ -20,6 +20,12 @@ void SceneViewPanel::onGUI()
 		ImGui::BeginChild("SceneRenderer");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		editorCamera.setViewportSize(viewportPanelSize.x, viewportPanelSize.y);
+
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		ImVec2 mousePos = ImGui::GetCursorPos();
+
+		std::cout << "Window: " << windowPos.x << "," << windowPos.y << std::endl;
+		std::cout << "Cursor: " << mousePos.x << "," << mousePos.y << std::endl;
 		
 		ImVec2 min = ImGui::GetWindowContentRegionMin();
 

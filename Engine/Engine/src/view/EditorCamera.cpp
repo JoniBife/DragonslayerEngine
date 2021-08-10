@@ -50,11 +50,14 @@ EditorCamera::~EditorCamera()
 
 void EditorCamera::update(float elapsedTime)
 {
-    
+    static Vec2 startingDragPosition = { 0,0 };
+    static bool freeModeEnabled = false;
+    static bool dragModeEnabled = false;
 
     Vec2 currMousePosition = Input::getMousePosition();
     if (Input::isMouseButtonDown(MouseButtonCode::RIGHT)) {
        
+        freeModeEnabled = true;
         Input::setCursorVisibility(false);
 
         Vec3 positionUpdate = Vec3::ZERO;
@@ -103,6 +106,8 @@ void EditorCamera::update(float elapsedTime)
             // Minus because the origin of the coordinates is at the top left corner
             pitch -= mouseMovement.y * elapsedTime * rotationSpeed;
 
+            yaw = fmodf(yaw, 360.0f);
+
             // Cannot move camera above or below origin
             pitch = std::clamp(pitch, -89.0f, 89.0f);
 
@@ -120,7 +125,11 @@ void EditorCamera::update(float elapsedTime)
     } 
     else if (Input::isMouseButtonDown(MouseButtonCode::MIDDLE)) {
 
-        // TODO Replace mouse at start position
+        dragModeEnabled = true;
+
+        if (startingDragPosition.x == 0.0f && startingDragPosition.y == 0.0f) {
+            startingDragPosition = currMousePosition;
+        }
 
         Input::setCursorVisibility(false);
 
@@ -128,18 +137,39 @@ void EditorCamera::update(float elapsedTime)
         mouseMovement.y *= -1;
 
         if (mouseMovement.magnitude() > 0.0f) {
-            position.x -= mouseMovement.x * elapsedTime * movementSpeed;
-            position.y -= mouseMovement.y * elapsedTime * movementSpeed;
+
+            Vec3 cameraRight = cross(front, up).normalize();
+            Vec3 cameraUp = cross(cameraRight, front).normalize();
+
+            // TODO Improve the way the cursor follows the drag motion, currently
+            // if the drag is too quick the cursor will not follow correctly
+
+            position -= cameraRight * mouseMovement.x * elapsedTime * dragSpeed;
+            position -= cameraUp * mouseMovement.y * elapsedTime * dragSpeed;
             dirty = true;
         }
     } 
-    else {
+    else if (float scroll = Input::getMouseScroll()) {
+    
+        fov -= scroll * elapsedTime * zoomSpeed;
+        fov = std::clamp(fov, 0.001f, 179.0f);
+    
+        dirty = true;
+    }
+    else if (freeModeEnabled || dragModeEnabled) {
         Input::setCursorVisibility(true);
+
+        if (dragModeEnabled) {
+            Input::setMousePosition(currMousePosition);
+            startingDragPosition = { 0,0 };
+        }
+
+        freeModeEnabled = false;
+        dragModeEnabled = false;
     }
 
     lastMousePosition = currMousePosition;
-    
-
+   
     Camera::update(elapsedTime);
 }
 

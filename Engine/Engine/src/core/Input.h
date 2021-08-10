@@ -83,6 +83,9 @@ namespace core {
 
 		/* Position is relative to the upper left corner of the main glfw window*/
 		static Vec2 getMousePosition();
+		static void setMousePosition(const Vec2& position);
+
+		static float getMouseScroll();
 
 		// TODO Extend with more functions
 

@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClCompile Include="src\apps\PhysicsSimulation.cpp" />
     <ClCompile Include="src\controllers\FreeCameraController.cpp" />
-    <ClCompile Include="src\controllers\SphericalCameraController.cpp" />
     <ClCompile Include="src\core\BlinnPhongMaterial.cpp" />
     <ClCompile Include="src\core\Component.cpp" />
     <ClCompile Include="src\core\Controller.cpp" />
@@ -81,7 +80,6 @@
     <ClInclude Include="src\Configurations.h" />
     <ClInclude Include="src\controllers\ICameraController.h" />
     <ClInclude Include="src\controllers\FreeCameraController.h" />
-    <ClInclude Include="src\controllers\SphericalCameraController.h" />
     <ClInclude Include="src\core\BlinnPhongMaterial.h" />
     <ClInclude Include="src\core\Controller.h" />
     <ClInclude Include="src\core\Input.h" />
