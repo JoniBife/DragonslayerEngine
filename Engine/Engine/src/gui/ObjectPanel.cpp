@@ -35,7 +35,12 @@ void ObjectPanel::onGUI(GUI& gui)
 
 		if (ImGui::CollapsingHeader("Transform", flags))
 		{
-			gameObject->getTransform()->onGUI();
+			GameObject* parent = gameObject->getParent();
+			if (parent) {
+				gameObject->getTransform()->onGUI(*parent->getTransform());
+			} else {
+				gameObject->getTransform()->onGUI();
+			}
 		}
 		ImGui::Dummy(ImVec2(0.0f, spacingBetweenComponents));
 

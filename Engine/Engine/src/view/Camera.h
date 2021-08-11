@@ -7,6 +7,8 @@
 #include "../controllers/ICameraController.h"
 #include <assert.h>
 
+#define SWAP_IF_DIFFERENT(X,Y, dirty) if (X != Y) { X = Y; dirty=true; }
+
 class Camera {
 
 protected:
@@ -60,7 +62,7 @@ public:
 
 	GLuint getUboBindingPoint();
 
-	void onGUI();
+	virtual void onGUI();
 };
 
 #endif

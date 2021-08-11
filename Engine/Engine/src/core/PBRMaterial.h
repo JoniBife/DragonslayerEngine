@@ -11,8 +11,8 @@ namespace core {
 	private:
 		Vec3  albedoTint = { 0.0f, 0.0f, 0.0f }; GLint albedoTintLocation = -1;
 		float normalStrength = 1.0f; GLint normalStrengthLocation = -1;
-		float metallic = 0.0f; GLint metallicLocation = -1;
-		float roughness = 0.0f; GLint roughnessLocation = -1;
+		float metallic = 1.0f; GLint metallicLocation = -1;
+		float roughness = 1.0f; GLint roughnessLocation = -1;
 		float ao = 1.0f; GLint aoLocation = -1; // ambient occlusion
 		Texture2D* albedoMap = nullptr; GLint albedoMapLocation = -1;
 		Texture2D* normalMap = nullptr; GLint normalMapLocation = -1;

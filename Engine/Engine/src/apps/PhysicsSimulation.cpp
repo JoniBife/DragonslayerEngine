@@ -31,7 +31,7 @@ void PhysicsSimulation::start() {
 	sphereMesh->paint(ColorRGBA::BLUE);
 	sphereMesh->init();
 
-	/*cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
+	cubeMesh = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
 	cubeMesh->paint(ColorRGBA::GREY);
 	cubeMesh->init();
 
@@ -48,7 +48,7 @@ void PhysicsSimulation::start() {
 	GameObject* gm2 = new GameObject("Sphere Blinn-Phong");
 	MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
 	gm2->addComponent(mr2);
-	gm->addChildren(gm2);*/
+	gm->addChildren(gm2);
 
 	PBRMaterial* pbrMat = new PBRMaterial();
 

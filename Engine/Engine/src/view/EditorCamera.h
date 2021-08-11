@@ -13,15 +13,15 @@ private:
 	FrameBuffer* frameBuffer = nullptr;
 	GLuint rbo = 0;
 	float movementSpeed = 3.0f; // In units (meters) per second
-	float rotationSpeed = 20.0f; // In degrees per second
-	float dragSpeed = 2.0f;
-	float zoomSpeed = 700.0f;
+	float rotationSpeed = 30.0f; // In degrees per second
+	float dragSpeed = 6.0f;
+	float zoomSpeed = 60.0f;
 	float pitch = 0.0f;
 	float yaw = -90.0f;
 	bool editorWindowFocused = false; // Indicates whether the editor window is selected or not
 
 	Vec2 lastMousePosition = { 0.0f , 0.0f };
-	Vec2 startingDragPosition = { 0,0 };
+	Vec2 startingDragPosition = { 0.0f , 0.0f };
 	bool freeModeEnabled = false;
 	bool dragModeEnabled = false;
 
@@ -37,14 +37,20 @@ public:
 	void setEditorWindowFocus(bool editorWindowFocused);
 	void setMovementSpeed(float movementSpeed);
 	void setRotationSpeed(float rotationSpeed);
+	void setDragSpeed(float dragSpeed);
+	void setZoomSpeed(float zoomSpeed);
 
 	float getMovementSpeed() const;
 	float getRotationSpeed() const;
+	float getDragSpeed() const;
+	float getZoomSpeed() const;
 
 	void update(float elapsedTime) override;
 
 	Texture2D& getFrameTexture() const;
 	FrameBuffer& getFrameBuffer() const;
+
+	void onGUI() override;
 
 };
 

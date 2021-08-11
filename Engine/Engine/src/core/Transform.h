@@ -25,6 +25,7 @@ namespace core {
 		Mat4 getModelMatrix();
 
 		void onGUI();
+		void onGUI(const Transform& parent);
 
 		/* Updates the position rotation and scale to be relative from the parent */
 		void onFrameUpdate(const Mat4& parentModel);

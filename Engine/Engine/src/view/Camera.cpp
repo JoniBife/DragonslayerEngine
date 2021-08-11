@@ -180,13 +180,21 @@ void Camera::onGUI()
 	Vec2 getViewportSize() const;
 	*/
 
-	ImGui::InputFloat("Near plane", &near);
-	ImGui::InputFloat("Far plane", &far);
+	float editedNear = near;
+	float editedFar = far;
+
+	ImGui::InputFloat("Near plane", &editedNear);
+	ImGui::InputFloat("Far plane", &editedFar);
+
+	SWAP_IF_DIFFERENT(near, editedNear, dirty)
+	SWAP_IF_DIFFERENT(far, editedFar, dirty)
 
 	float min = 0.01f;
 	float max = 179.0f; 
-	ImGui::SliderScalar("Fov", ImGuiDataType_Float, &fov, &min, &max);
+	float editedFov = fov;
+	ImGui::SliderScalar("Fov", ImGuiDataType_Float, &editedFov, &min, &max);
 
-	dirty = true;
+	SWAP_IF_DIFFERENT(fov, editedFov, dirty)
+	
 
 }

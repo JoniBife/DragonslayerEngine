@@ -23,7 +23,7 @@ void Transform::onGUI()
 {
 	float inputFieldsWidth = ImGui::GetContentRegionAvail().x * 0.25f;
 
-	ImGui::Text("Position");
+	ImGui::Text("Position (local to parent)");
 
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
@@ -37,7 +37,7 @@ void Transform::onGUI()
 	ImGui::SetNextItemWidth(inputFieldsWidth);
 	ImGui::InputFloat("##PositionZ", &(position.z));
 	
-	ImGui::Text("Rotation");
+	ImGui::Text("Rotation (local to parent)");
 
 	Vec3 rotationInDegrees = { 
 		radiansToDegrees(rotation.x), 
@@ -61,7 +61,7 @@ void Transform::onGUI()
 	rotation.y = degreesToRadians(rotationInDegrees.y);
 	rotation.z = degreesToRadians(rotationInDegrees.z);
 
-	ImGui::Text("Scale");
+	ImGui::Text("Scale (local to parent)");
 
 	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
 	ImGui::SetNextItemWidth(inputFieldsWidth);
@@ -77,16 +77,75 @@ void Transform::onGUI()
 	
 }
 
+void core::Transform::onGUI(const Transform& parent)
+{
+	float inputFieldsWidth = ImGui::GetContentRegionAvail().x * 0.25f;
+
+	ImGui::Text("Position (local to parent)");
+
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##PositionX", &(position.x)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 1, 0, 1), "Y"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##PositionY", &(position.y)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##PositionZ", &(position.z));
+
+	ImGui::Text("Rotation (local to parent)");
+
+	Vec3 rotationInDegrees = {
+		radiansToDegrees(rotation.x),
+		radiansToDegrees(rotation.y),
+		radiansToDegrees(rotation.z)
+	};
+
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##RotationX", &(rotationInDegrees.x)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 1, 0, 1), "Y"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##RotationY", &(rotationInDegrees.y)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##RotationZ", &(rotationInDegrees.z));
+
+	rotation.x = degreesToRadians(rotationInDegrees.x);
+	rotation.y = degreesToRadians(rotationInDegrees.y);
+	rotation.z = degreesToRadians(rotationInDegrees.z);
+
+	ImGui::Text("Scale (local to parent)");
+
+	ImGui::TextColored(ImVec4(1, 0, 0, 1), "X"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##ScaleX", &(scale.x)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 1, 0, 1), "Y"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##ScaleY", &(scale.y)); ImGui::SameLine();
+
+	ImGui::TextColored(ImVec4(0, 0, 1, 1), "Z"); ImGui::SameLine();
+	ImGui::SetNextItemWidth(inputFieldsWidth);
+	ImGui::InputFloat("##ScaleZ", &(scale.z));
+}
+
 void Transform::onFrameUpdate(const Mat4& parentModel)
 {
-	Mat4 qtrnRotation = (Qtrn(rotation.z, Vec3::Z) * Qtrn(rotation.y, Vec3::Y) * Qtrn(rotation.x, Vec3::X)).toRotationMatrix();
+	// Faster with quaternions, less matrix multiplications
+	Mat4 qtrnRotation = 
+		(Qtrn(rotation.z, Vec3::Z) * 
+			Qtrn(rotation.y, Vec3::Y) *
+			Qtrn(rotation.x, Vec3::X)).toRotationMatrix();
 
 	/*model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
 		Mat4::rotation(rotation.y, Vec3::Y) *
 		Mat4::rotation(rotation.x, Vec3::X) *
 		Mat4::scaling(scale);*/
-
-	// TODO Create quaternion method to calculate the rotation from yaw pitch and roll
 
 	model = Mat4::translation(position) * qtrnRotation * Mat4::scaling(scale);
 

@@ -81,7 +81,7 @@ bool EditorCamera::drag(float elapsedTime, Vec2 currMousePosition)
         startingDragPosition = currMousePosition;
     }
 
-    Input::setCursorVisibility(false);
+    //Input::setCursorVisibility(false);
 
     Vec2 mouseMovement = (currMousePosition - lastMousePosition);
     mouseMovement.y *= -1;
@@ -106,8 +106,9 @@ bool EditorCamera::zoom(float elapsedTime, float scroll)
 {
     if (scroll != 0.0f) {
 
-        fov -= scroll * elapsedTime * zoomSpeed;
-        fov = std::clamp(fov, 0.001f, 179.0f);
+        position += front.normalize() * scroll * elapsedTime * zoomSpeed;
+        /*fov -= scroll * elapsedTime * zoomSpeed;
+        fov = std::clamp(fov, 0.001f, 179.0f);*/
     
         return true;
     }
@@ -164,6 +165,30 @@ void EditorCamera::setEditorWindowFocus(bool editorWindowFocused)
     this->editorWindowFocused = editorWindowFocused;
 }
 
+void EditorCamera::setMovementSpeed(float movementSpeed)
+{
+    assert(movementSpeed > 0.0f && movementSpeed < 1000.0f);
+    this->movementSpeed = movementSpeed;
+}
+
+void EditorCamera::setRotationSpeed(float rotationSpeed)
+{
+    assert(rotationSpeed > 0.0f && rotationSpeed < 180.0f);
+    this->rotationSpeed = rotationSpeed;
+}
+
+void EditorCamera::setDragSpeed(float dragSpeed)
+{
+    assert(dragSpeed > 0.0f && dragSpeed < 50.0f);
+    this->dragSpeed = dragSpeed;
+}
+
+void EditorCamera::setZoomSpeed(float zoomSpeed)
+{
+    assert(zoomSpeed > 0.0f && zoomSpeed < 1000.0f);
+    this->zoomSpeed = zoomSpeed;
+}
+
 void EditorCamera::update(float elapsedTime)
 {
     if (editorWindowFocused) {
@@ -212,4 +237,53 @@ Texture2D& EditorCamera::getFrameTexture() const
 FrameBuffer& EditorCamera::getFrameBuffer() const
 {
     return *frameBuffer;
+}
+
+void EditorCamera::onGUI()
+{
+    float minMovementSpeed = 0.01f;
+    float maxMovementSpeed = 1000.0f;
+    float editedMovementSpeed = movementSpeed;
+    ImGui::SliderScalar("Movement Speed", ImGuiDataType_Float, &editedMovementSpeed, &minMovementSpeed, &maxMovementSpeed);
+    SWAP_IF_DIFFERENT(movementSpeed, editedMovementSpeed, dirty)
+
+    float minRotationSpeed = 0.01f;
+    float maxRotationSpeed = 180.0f;
+    float editedRotationSpeed = rotationSpeed;
+    ImGui::SliderScalar("Rotation Speed", ImGuiDataType_Float, &editedRotationSpeed, &minRotationSpeed, &maxRotationSpeed);
+    SWAP_IF_DIFFERENT(rotationSpeed, editedRotationSpeed, dirty)
+
+    float minDragSpeed = 0.01f;
+    float maxDragSpeed = 50.0f;
+    float editedDragSpeed = dragSpeed;
+    ImGui::SliderScalar("Drag Speed", ImGuiDataType_Float, &editedDragSpeed, &minDragSpeed, &maxDragSpeed);
+    SWAP_IF_DIFFERENT(dragSpeed, editedDragSpeed, dirty)
+
+    float minZoomSpeed = 0.01f;
+    float maxZoomSpeed = 1000.0f;
+    float editedZoomSpeed = zoomSpeed;
+    ImGui::SliderScalar("Zoom Speed", ImGuiDataType_Float, &editedZoomSpeed, &minZoomSpeed, &maxZoomSpeed);
+    SWAP_IF_DIFFERENT(zoomSpeed, editedZoomSpeed, dirty)
+
+    Camera::onGUI();
+}
+
+float EditorCamera::getMovementSpeed() const
+{
+    return movementSpeed;
+}
+
+float EditorCamera::getRotationSpeed() const
+{
+    return rotationSpeed;
+}
+
+float EditorCamera::getDragSpeed() const
+{
+    return dragSpeed;
+}
+
+float EditorCamera::getZoomSpeed() const
+{
+    return zoomSpeed;
 }
