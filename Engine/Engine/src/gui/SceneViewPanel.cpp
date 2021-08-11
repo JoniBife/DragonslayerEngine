@@ -15,19 +15,17 @@ SceneViewPanel::SceneViewPanel(EditorCamera& editorCamera, HierarchyPanel& hiera
 
 void SceneViewPanel::onGUI()
 {
+	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::Begin("SceneView");
 	{
 		ImGui::BeginChild("SceneRenderer");
+
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		editorCamera.setViewportSize(viewportPanelSize.x, viewportPanelSize.y);
 
-		ImVec2 windowPos = ImGui::GetWindowPos();
-		ImVec2 mousePos = ImGui::GetCursorPos();
+		bool isWindowFocused = ImGui::IsWindowFocused();
 
-		std::cout << "Window: " << windowPos.x << "," << windowPos.y << std::endl;
-		std::cout << "Cursor: " << mousePos.x << "," << mousePos.y << std::endl;
-		
-		ImVec2 min = ImGui::GetWindowContentRegionMin();
+		editorCamera.setEditorWindowFocus(isWindowFocused);
 
 		ImVec2 wsize = ImGui::GetWindowSize();
 
@@ -121,7 +119,22 @@ void SceneViewPanel::onGUI()
 			}
 		}
 
+		if (isWindowFocused) {
+			ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+			ImVec2 vMin = ImGui::GetWindowContentRegionMin();
+			ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+
+			vMin.x += ImGui::GetWindowPos().x;
+			vMin.y += ImGui::GetWindowPos().y;
+			vMax.x += ImGui::GetWindowPos().x;
+			vMax.y += ImGui::GetWindowPos().y;
+			
+			drawList->AddRect(vMin, vMax, IM_COL32(255, 0, 255, 255), 2.0f);
+		}
+
 		ImGui::EndChild();
 	}
 	ImGui::End();
+	//ImGui::PopStyleVar();
 }

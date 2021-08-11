@@ -18,12 +18,23 @@ private:
 	float zoomSpeed = 700.0f;
 	float pitch = 0.0f;
 	float yaw = -90.0f;
+	bool editorWindowFocused = false; // Indicates whether the editor window is selected or not
+
 	Vec2 lastMousePosition = { 0.0f , 0.0f };
+	Vec2 startingDragPosition = { 0,0 };
+	bool freeModeEnabled = false;
+	bool dragModeEnabled = false;
+
+	// Editor camera actions (return true if there was action) 
+	bool freeMovement(float elapsedTime, Vec2 currMousePosition);
+	bool drag(float elapsedTime, Vec2 currMousePosition);
+	bool zoom(float elapsedTime, float scroll);
 
 public:
 	EditorCamera();
 	~EditorCamera();
 
+	void setEditorWindowFocus(bool editorWindowFocused);
 	void setMovementSpeed(float movementSpeed);
 	void setRotationSpeed(float rotationSpeed);
 
