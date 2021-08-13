@@ -380,6 +380,32 @@ Mat3 Mat4::toMat3() const {
 			m[2][0], m[2][1], m[2][2] };
 }
 
+void Mat4::decompose(Vec3& scale, Vec3& rotation, Vec3& position) const
+{
+
+	// Decomposing matrix as explained here:
+	https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati/3554913
+
+	position = { m[0][3], m[1][3], m[2][3] };
+
+	Vec3 column0(m[0][0], m[1][0], m[2][0]);
+	Vec3 column1(m[0][1], m[1][1], m[2][1]);
+	Vec3 column2(m[0][2], m[1][2], m[2][2]);
+
+	scale = {
+		column0.magnitude(),
+		column1.magnitude(),
+		column2.magnitude()
+	};
+
+	// Columns of rotation matrix
+	column0 = column0.normalize();
+	column1 = column1.normalize();
+	column2 = column2.normalize();
+
+	rotation = { 0.0f, 0.0f, 0.0f };
+}
+
 /*
  * Print result example:
  * [ 1 , 0 , 0 , 0 ]

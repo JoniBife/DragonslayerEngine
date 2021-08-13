@@ -70,7 +70,7 @@ bool GameObject::addChildren(GameObject* gameObject) {
 	}
 
 	gameObject->setParent(this);
-	//gameObject->transform->makeChildOfTransform(transform);
+	gameObject->transform->makeChildOfTransform(transform);
 
 	children.push_back(gameObject);
 	return true;

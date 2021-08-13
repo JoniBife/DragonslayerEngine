@@ -62,6 +62,9 @@ struct Mat4 {
 
 	Mat3 toMat3() const; //removes last line and column
 
+	/* Decomposes a transformation matrix in each of its components */
+	void decompose(Vec3& scale, Vec3& rotation, Vec3& position) const;
+
 	friend std::ostream& operator<<(std::ostream& os, const Mat4& mat4);
 	friend std::istream& operator>>(std::istream& is, Mat4& mat4);
 

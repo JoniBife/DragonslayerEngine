@@ -154,14 +154,51 @@ void Transform::onFrameUpdate(const Mat4& parentModel)
 
 void Transform::makeChildOfTransform(Transform* transform)
 {
-	this->position += transform->position;
-	this->rotation += transform->rotation;
-	this->scale *= transform->scale;
+	// Faster with quaternions, less matrix multiplications
+	/*Mat4 qtrnRotation = (Qtrn(transform->rotation.z, Vec3::Z) *
+		Qtrn(transform->rotation.y, Vec3::Y) *
+		Qtrn(transform->rotation.x, Vec3::X)).inverse().toRotationMatrix();*/
+
+	/*model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
+		Mat4::rotation(rotation.y, Vec3::Y) *
+		Mat4::rotation(rotation.x, Vec3::X) *
+		Mat4::scaling(scale);*/
+
+	//Mat4 inverseModel = Mat4::translation(-1 * transform->position) * qtrnRotation * Mat4::scaling(-1 * transform->scale);
+	
+	Mat4 qtrnRotation =
+		(Qtrn(rotation.z, Vec3::Z) *
+			Qtrn(rotation.y, Vec3::Y) *
+			Qtrn(rotation.x, Vec3::X)).toRotationMatrix();
+
+	/*model = Mat4::translation(position) * Mat4::rotation(rotation.z, Vec3::Z) *
+		Mat4::rotation(rotation.y, Vec3::Y) *
+		Mat4::rotation(rotation.x, Vec3::X) *
+		Mat4::scaling(scale);*/
+
+	model = Mat4::translation(position) * qtrnRotation * Mat4::scaling(scale);
+
+	model =  transform->model * model;
+
+	model.decompose(scale, rotation, position);
 }
 
 void Transform::removeChildOfTransform(Transform* transform)
 {
-	this->position -= transform->position;
-	this->rotation -= transform->rotation;
-	this->scale /= transform->scale;
+	model = transform->model * model;
+}
+
+Vec3 core::Transform::getUp() const
+{
+	return model* Vec3(0.0f , 1.0f, 0.0f);
+}
+
+Vec3 core::Transform::getForward() const
+{
+	return model * Vec3(0.0f, 0.0f, 1.0f);
+}
+
+Vec3 core::Transform::getRight() const
+{
+	return model * Vec3(1.0f ,0.0f, 0.0f);
 }

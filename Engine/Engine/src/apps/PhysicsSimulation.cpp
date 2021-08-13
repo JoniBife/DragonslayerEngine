@@ -21,11 +21,7 @@ GLint cameraPosL;
 
 FreeCameraController* cameraController;
 
-GameObject* gm;
-
 void PhysicsSimulation::start() {
-
-	
 
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
 	sphereMesh->paint(ColorRGBA::BLUE);
@@ -35,20 +31,26 @@ void PhysicsSimulation::start() {
 	cubeMesh->paint(ColorRGBA::GREY);
 	cubeMesh->init();
 
-	gm = new GameObject("Cube");
 	BlinnPhongMaterial* mat = new BlinnPhongMaterial();
 
-	MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
-	gm->addComponent(mr);
-	gm->getTransform()->rotation.x  = PI / 4.0f;
-
-	CubeController* cubeController = new CubeController();
-	gm->addComponent(cubeController);
-
 	GameObject* gm2 = new GameObject("Sphere Blinn-Phong");
-	MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
-	gm2->addComponent(mr2);
-	gm->addChildren(gm2);
+	{
+		MeshRenderer* mr2 = new MeshRenderer(sphereMesh, mat);
+		gm2->addComponent(mr2);
+		gm2->getTransform()->position.x = 2.0f;
+	}
+
+	GameObject* gm = new GameObject("Cube");
+	{
+		MeshRenderer* mr = new MeshRenderer(cubeMesh, mat);
+		//CubeController* cubeController = new CubeController();
+		//gm->addComponent(cubeController);
+		gm->addComponent(mr);
+		gm->getTransform()->position.x = 1.0f;
+		gm->getTransform()->rotation.x = PI / 2.0f;
+		gm->getTransform()->scale.y = 2.0f;
+		gm->addChildren(gm2);
+	}
 
 	PBRMaterial* pbrMat = new PBRMaterial();
 
