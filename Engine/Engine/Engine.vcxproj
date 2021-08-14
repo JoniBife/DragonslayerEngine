@@ -48,6 +48,7 @@
     <ClCompile Include="src\math\Vec4.cpp" />
     <ClCompile Include="src\meshes\MeshLoader.cpp" />
     <ClCompile Include="src\meshes\SkyBox.cpp" />
+    <ClCompile Include="src\renderer\OpenGLState.cpp" />
     <ClCompile Include="src\scene\SceneGraph.cpp" />
     <ClCompile Include="src\scripts\CubeController.cpp" />
     <ClCompile Include="src\shaders\Shader.cpp" />
@@ -100,6 +101,8 @@
     <ClInclude Include="src\gui\SceneViewPanel.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\meshes\SkyBox.h" />
+    <ClInclude Include="src\renderer\OpenGLState.h" />
+    <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\scripts\CubeController.h" />
     <ClInclude Include="src\textures\CubeMap.h" />
     <ClInclude Include="src\textures\DepthMap.h" />
