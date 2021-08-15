@@ -8,6 +8,8 @@ namespace renderer {
 
     /*
     * Contains most of the active OpenGL state, avoids any unecessary state changes 
+    * Could not find confirmation anywhere but switching OpenGL state probably has 
+    * some cost
     */
 	class OpenGLState {
 		
