@@ -4,6 +4,7 @@
 #include "../view/Camera.h"
 #include "../textures/FrameBuffer.h"
 #include "RenderQueue.h"
+#include "Lights.h"
 
 namespace renderer {
 
@@ -32,9 +33,11 @@ namespace renderer {
 		*/
 		virtual bool enqueuePostProcessing(const PostProcessingCommand& postProcessingCommand);
 
-		virtual void render(const Camera& camera) = 0;
+		/* Render to the default frame buffer */
+		virtual void render(const Camera& camera, const Lights& lights) = 0;
 
-		virtual void renderToFramebuffer(const Camera& camera, const FrameBuffer& frameBuffer) = 0;
+		/* Render to a custom framebuffer */
+		virtual void renderToFramebuffer(const Camera& camera, const Lights& lights, const FrameBuffer& frameBuffer) = 0;
 	};
 
 }

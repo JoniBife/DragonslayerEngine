@@ -7,8 +7,7 @@ renderer::OpenGLState::OpenGLState()
 {
 	if (depthTesting) {
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-	}
-	else {
+	} else {
 		GL_CALL(glDisable(GL_DEPTH_TEST));
 	}
 
@@ -18,12 +17,14 @@ renderer::OpenGLState::OpenGLState()
 
 	if (faceCulling) {
 		GL_CALL(glEnable(GL_CULL_FACE));
-	}
-	else {
+	} else {
 		GL_CALL(glDisable(GL_CULL_FACE));
 	}
 	GL_CALL(glCullFace(cullFace));
 	GL_CALL(glFrontFace(frontFace));
+
+	GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
+	GL_CALL(glViewport(x, y, width, height));
 }
 
 OpenGLState* renderer::OpenGLState::createDefaultState()
@@ -119,6 +120,26 @@ void renderer::OpenGLState::setFrontFace(GLenum frontFace)
 	}
 }
 
+void renderer::OpenGLState::setClearColor(Vec4 clearColor)
+{
+	if (this->clearColor != clearColor) {
+		this->clearColor = clearColor;
+		GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
+	}
+}
+
+void renderer::OpenGLState::setViewPort(GLint x, GLint y, GLsizei width, GLsizei height)
+{
+	if (this->x != x || this->y != y || this->width != width || this->height != height)
+	{
+		this->x = x;
+		this->y = y;
+		this->width = width;
+		this->height = height;
+		GL_CALL(glViewport(x, y, width, height));
+	}
+}
+
 GLuint renderer::OpenGLState::getActiveShaderProgram() const
 {
 	return activeShaderProgram;
@@ -162,4 +183,17 @@ GLenum renderer::OpenGLState::getCullFace() const
 GLenum renderer::OpenGLState::getFrontFace() const
 {
 	return frontFace;
+}
+
+Vec4 renderer::OpenGLState::getClearColor() const
+{
+	return clearColor;
+}
+
+void renderer::OpenGLState::getViewPort(GLint& x, GLint& y, GLsizei& width, GLsizei& height) const
+{
+	x = this->x;
+	y = this->y;
+	width = this->width;
+	height = this->height;
 }

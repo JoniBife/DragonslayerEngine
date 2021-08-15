@@ -21,8 +21,13 @@ namespace renderer {
         GLclampd zNear = 0.0f;
         GLclampd zFar = 1.0f;
         bool faceCulling = true;
-        GLenum cullFace = GL_BACK;
+        GLenum cullFace = GL_BACK; 
         GLenum frontFace = GL_CCW;
+        Vec4 clearColor = { 0.8f, 0.8f, 0.8f, 1.0f }; // Interally uses GLclampf which translates to float so its fine using Vec4
+        GLint x = 0.0f;
+        GLint y = 0.0f;
+        GLsizei width = 1366.0f;
+        GLsizei height = 768.0f;
 
         OpenGLState();
 
@@ -40,6 +45,8 @@ namespace renderer {
         void setFaceCulling(bool enable);
         void setCullFace(GLenum face);
         void setFrontFace(GLenum frontFace);
+        void setClearColor(Vec4 clearColor);
+        void setViewPort(GLint x, GLint y, GLsizei width, GLsizei height);
         // TODO Add more state
 
         GLuint getActiveShaderProgram() const;
@@ -51,6 +58,8 @@ namespace renderer {
         bool getFaceCulling() const;
         GLenum getCullFace() const;
         GLenum getFrontFace() const;
+        Vec4 getClearColor() const;
+        void getViewPort(GLint& x, GLint& y, GLsizei& width, GLsizei& height) const;
 
 	};
 

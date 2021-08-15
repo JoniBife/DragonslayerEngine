@@ -10,7 +10,7 @@ FrameBuffer::FrameBuffer(const std::function<void()>& attachBuffers)
 
 	attachBuffers();
 
-	// Frame buffer MUST have attached buffers so we stop this in compile time
+	// Framebuffers MUST have attached buffers so we stop this in compile time
 	// we have to attach at least one buffer(color, depth or stencil buffer).
 	// there should be at least one color attachment.
 	// all attachments should be complete as well(reserved memory).
