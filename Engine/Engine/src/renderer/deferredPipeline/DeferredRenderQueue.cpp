@@ -1,4 +1,5 @@
 #include "DeferredRenderQueue.h"
+#include <assert.h>
 
 using namespace renderer;
 
@@ -40,9 +41,8 @@ inline bool renderer::DeferredRenderQueue::isGeometryEmpty()
 
 inline RenderCommand renderer::DeferredRenderQueue::dequeueGeometry()
 {
-	if (geometryQueue.empty()) 
-		throw "Could not dequeue! Geometry queue is empty, check with isGeometryEmpty() before dequeueing.";
-	
+	assert(geometryQueue.empty());
+
 	RenderCommand command= geometryQueue.front();
 	geometryQueue.pop();
 	return command;
@@ -55,8 +55,7 @@ inline bool renderer::DeferredRenderQueue::isShadowMapEmpty()
 
 inline RenderCommand renderer::DeferredRenderQueue::dequeueShadowMap()
 {
-	if (shadowMapQueue.empty())
-		throw "Could not dequeue! Shadow Mapping queue is empty, check with isShadowMapEmpty() before dequeueing.";;
+	assert(shadowMapQueue.empty());
 	
 	RenderCommand command = shadowMapQueue.front();
 	shadowMapQueue.pop();
@@ -70,9 +69,8 @@ inline bool renderer::DeferredRenderQueue::isAlphaTestEmpty()
 
 inline RenderCommand renderer::DeferredRenderQueue::dequeueAlphaTest()
 {
-	if (alphaTestQueue.empty())
-		throw "Could not dequeue! Alpha testing queue is empty, check with isAlphaTestEmpty() before dequeueing.";
-
+	assert(alphaTestQueue.empty());
+		
 	RenderCommand command = alphaTestQueue.front();
 	alphaTestQueue.pop();
 	return command;
@@ -85,9 +83,8 @@ inline bool renderer::DeferredRenderQueue::isCustomShadersEmpty()
 
 inline RenderCommand renderer::DeferredRenderQueue::dequeueCustomShaders()
 {
-	if (customShadersQueue.empty())
-		throw "Could not dequeue! Custom shaders queue is empty, check with isCustomShadersEmpty() before dequeueing.";
-
+	assert(customShadersQueue.empty());
+		
 	RenderCommand command = customShadersQueue.front();
 	customShadersQueue.pop();
 	return command;
@@ -100,8 +97,7 @@ inline bool renderer::DeferredRenderQueue::isPostProcessingEmpty()
 
 inline PostProcessingCommand renderer::DeferredRenderQueue::dequeuePostProcessing()
 {
-	if (postProcessingQueue.empty())
-		throw "Could not dequeue! Post processing queue is empty, check with isPostProcessingEmpty() before dequeueing.";
+	assert(postProcessingQueue.empty());
 
 	PostProcessingCommand command = postProcessingQueue.front();
 	postProcessingQueue.pop();

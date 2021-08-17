@@ -41,6 +41,19 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 
 
 	// 4. Creation of intermediate framebuffers
+	FrameBufferBuilder frameBufferBuilder;
+	
+	gBuffer = frameBufferBuilder
+		.setSize(1,1)
+		.attachColorBuffers(4, GL_FLOAT)
+		.attachDepthBuffer()
+		.attachStencilBuffer()
+		.build();
+
+	postProcessingBuffer = frameBufferBuilder
+		.setSize(1, 1)
+		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
+		.build();
 
 
 }

@@ -149,6 +149,8 @@
   <ItemGroup>
     <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
     <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
+    <None Include="shaders\deferred\geometryFS.glsl" />
+    <None Include="shaders\deferred\geometryVS.glsl" />
     <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
     <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
     <None Include="shaders\leaves\fragmentShaderBlending.glsl" />

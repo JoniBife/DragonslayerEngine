@@ -34,7 +34,7 @@ public:
 
 	~Texture2D();
 
-	static Texture2D* emptyTexture(unsigned int width, unsigned int height);
+	static Texture2D* emptyTexture(unsigned int width, unsigned int height, GLint internalFormat = GL_RGB, GLenum format = GL_RGB, GLenum type = GL_UNSIGNED_BYTE);
 
 	void bind(unsigned int unitNumber) override;
 

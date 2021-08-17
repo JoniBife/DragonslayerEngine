@@ -1,15 +1,12 @@
 #version 330 core
 
-in vec4 position;
-in vec3 normal;
-in vec4 color;
-in vec2 textCoord;
+in vec4 inPosition;
+in vec3 inNormal;
+in vec2 inTextCoord;
 
-out vec4 exPosition;
-out vec3 exNormal;
-out vec4 exColor;
-out vec2 exTextCoord;
-out vec4 fragPos;
+out vec4 fragPosition;
+out vec3 fragNormal;
+out vec2 fragTextCoord;
 
 uniform mat3 normal;
 uniform mat4 model;
@@ -21,11 +18,9 @@ uniform sharedMatrices {
 
 void main(void)
 {
-	exPosition = inPosition;
-	exColor = inColor;
-	exTextCoord = inTextCoord;
-	exNormal = normal * inNormal;
-	fragPos = model * inPosition;
+	fragPosition = model * inPosition;
+	fragNormal = normal * inNormal;
+	fragTextCoord = inTextCoord;
 
 	gl_Position =  projection* view * model * inPosition;
 }

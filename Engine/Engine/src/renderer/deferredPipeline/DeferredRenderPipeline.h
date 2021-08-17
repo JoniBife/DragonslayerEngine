@@ -15,6 +15,7 @@ namespace renderer {
 		Shader* shadowMapShader;
 
 		FrameBuffer* gBuffer;
+		std::vector<FrameBuffer*> shadowMapBuffers;
 		FrameBuffer* postProcessingBuffer;
 
 	public:
