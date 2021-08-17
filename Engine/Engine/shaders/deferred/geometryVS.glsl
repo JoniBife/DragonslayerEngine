@@ -1,26 +1,38 @@
 #version 330 core
 
-in vec4 inPosition;
-in vec3 inNormal;
-in vec2 inTextCoord;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 textCoord;
+layout (location = 3) in vec3 tangent;
+layout (location = 4) in vec3 bitangent;
 
-out vec4 fragPosition;
+out vec3 fragPosition;
 out vec3 fragNormal;
 out vec2 fragTextCoord;
+out mat3 TBNMatrix;
 
-uniform mat3 normal;
-uniform mat4 model;
+uniform vec3 viewPosition;
+uniform mat3 normalMatrix;
+uniform mat4 modelMatrix;
 
 uniform sharedMatrices {
-	mat4 view;
-	mat4 projection;
+	mat4 viewMatrix;
+	mat4 projectionMatrix;
 };
 
 void main(void)
 {
-	fragPosition = model * inPosition;
-	fragNormal = normal * inNormal;
-	fragTextCoord = inTextCoord;
+	fragPosition = mat3(modelMatrix) * position;
+	fragNormal = normalMatrix * normal;
+	fragTextCoord = textCoord;
 
-	gl_Position =  projection* view * model * inPosition;
+	vec3 N = normalize(mat3(normalMatrix) * normal);
+    vec3 T = normalize(mat3(modelMatrix) * tangent);
+    T = normalize(T - dot(N, T) * N);
+	vec3 B = normalize(cross(T,N));
+
+	// This matrix moves a tangent space vector to world space
+	TBNMatrix = mat3(T,B,N);
+
+	gl_Position =  projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
 }

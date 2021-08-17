@@ -28,22 +28,22 @@ void Camera::update(float elapsedTime) {
 	if (cameraController)
 		cameraController->processInputAndMove(elapsedTime);
 
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vbo));
-	{
-		float viewOpenGLFormat[16];
-		float projectionOpenGLFormat[16];
-		view.toOpenGLFormat(viewOpenGLFormat);
-		projection.toOpenGLFormat(projectionOpenGLFormat);
-		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(viewOpenGLFormat), viewOpenGLFormat));
-		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
-	}
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-
 	if (dirty) {
 		dirty = false;
 		//front = target - position;
 		view = lookAt(position, position + front, up);
 		projection = perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
+
+		GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vbo));
+		{
+			float viewOpenGLFormat[16];
+			float projectionOpenGLFormat[16];
+			view.toOpenGLFormat(viewOpenGLFormat);
+			projection.toOpenGLFormat(projectionOpenGLFormat);
+			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(viewOpenGLFormat), viewOpenGLFormat));
+			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
+		}
+		GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 	}
 }
 

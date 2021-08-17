@@ -16,7 +16,10 @@ namespace renderer {
 
 		FrameBuffer* gBuffer;
 		std::vector<FrameBuffer*> shadowMapBuffers;
+		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
+
+		unsigned int maxShadowMaps = 3;
 
 	public:
 		/* Performs all initialization operations:

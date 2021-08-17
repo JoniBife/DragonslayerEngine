@@ -18,7 +18,6 @@ static void printOpenGLInfo()
 
 renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new DeferredRenderQueue())
 {
-
 	// 1. Creation of OpenGL context and loading all OpenGL functions 
 	glewExperimental = GL_TRUE;
 	// Allow extension entry points to be loaded even if the extension isn't 
@@ -45,7 +44,22 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	
 	gBuffer = frameBufferBuilder
 		.setSize(1,1)
-		.attachColorBuffers(4, GL_FLOAT)
+		.attachColorBuffers(3, GL_FLOAT)
+		.attachDepthBuffer()
+		.attachStencilBuffer()
+		.build();
+
+	for (int i = 0; i < maxShadowMaps; ++i) {
+		// TODO ShadowMap depth texture has different properties
+		shadowMapBuffers.push_back(frameBufferBuilder
+			.setSize(1, 1)
+			.attachDepthBuffer()
+			.build());
+	}
+
+	prePostProcessingBuffer = frameBufferBuilder
+		.setSize(1, 1)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.attachStencilBuffer()
 		.build();

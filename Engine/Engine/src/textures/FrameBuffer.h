@@ -15,13 +15,13 @@ private:
 
 	// Attachments that can be sampled from (i.e. they are textures)
 	std::vector<Texture2D*> colorAttachments;
-	Texture2D* stencilDepthAttachment;
-	Texture2D* depthAttachment;
+	Texture2D* stencilDepthAttachment = nullptr;
+	Texture2D* depthAttachment = nullptr;
 
 	// Attachments that cannot be sampled from (i.e. they are render buffer objects)
 	std::vector<GLuint> colorAttachmentsRBO;
-	GLuint stencilDepthAttachmentRBO;
-	GLuint depthAttachmentRBO;
+	GLuint stencilDepthAttachmentRBO; bool attachedStencilDepth = false;
+	GLuint depthAttachmentRBO; bool attachedDepth = false;
 
 	FrameBuffer();
 

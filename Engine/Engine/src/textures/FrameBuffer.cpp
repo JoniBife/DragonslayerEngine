@@ -4,6 +4,10 @@
 #include "../utils/OpenGLUtils.h"
 #include "../Configurations.h"
 
+FrameBuffer::FrameBuffer()
+{
+}
+
 FrameBuffer::FrameBuffer(const std::function<void()>& attachBuffers)
 {	
 	GL_CALL(glGenFramebuffers(1, &id));
@@ -24,6 +28,25 @@ FrameBuffer::FrameBuffer(const std::function<void()>& attachBuffers)
 FrameBuffer::~FrameBuffer()
 {
 	GL_CALL(glDeleteBuffers(1, &id));
+
+	for (Texture2D* texture : colorAttachments) {
+		delete texture;
+	}
+
+	if (stencilDepthAttachment != nullptr)
+		delete stencilDepthAttachment;
+	else if (depthAttachment != nullptr)
+		delete depthAttachment;
+
+	// vectors stores its elements in contiguous memory so it's safe to pass a pointer to the first element
+	if (colorAttachmentsRBO.size() > 0)
+		GL_CALL(glDeleteRenderbuffers(colorAttachmentsRBO.size(), &colorAttachmentsRBO[0]));
+
+	if (attachedStencilDepth) 
+		GL_CALL(glDeleteRenderbuffers(1, &stencilDepthAttachmentRBO));
+	else if (attachedDepth) 
+		GL_CALL(glDeleteRenderbuffers(1, &depthAttachmentRBO));
+
 }
 
 void FrameBuffer::resize(unsigned int width, unsigned int height)
@@ -129,7 +152,9 @@ FrameBuffer* FrameBufferBuilder::build()
 	frameBuffer->height = height;
 
 	GL_CALL(glGenFramebuffers(1, &frameBuffer->id));
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer->id));
+	
+	frameBuffer->bind();
+
 
 	// 1. First do all color attachments (if there are any)
 	for (int i = 0; i < numberOfColorAttachments; ++i) {
@@ -195,6 +220,8 @@ FrameBuffer* FrameBufferBuilder::build()
 			GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
 			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 		}
+
+		frameBuffer->attachedStencilDepth = true;
 	}
 	else if (hasDepthBuffer) {
 		if (allowSampleDepth) {
@@ -211,7 +238,11 @@ FrameBuffer* FrameBufferBuilder::build()
 			GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 		}
+
+		frameBuffer->attachedDepth = true;
 	}
+
+	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	// 3. Finally reset the FrameBufferBuilder for any future builds
 	reset();
