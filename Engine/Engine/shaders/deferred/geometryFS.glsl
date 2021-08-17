@@ -6,7 +6,7 @@ layout (location = 2) out vec4 gBufferAlbedoAmbientOcclusion; // Contains both t
 
 in vec3 fragPosition;
 in vec3 fragNormal;
-in vec2 fragTextCoord;
+in vec2 fragTextCoords;
 in mat3 TBNMatrix;
 
 uniform sampler2D albedoMap;
@@ -20,19 +20,19 @@ void main()
     // Position = (X,Y,Z) and Metalliz = W
     gBufferPositionMetallic = vec4(
         fragPosition,
-        texture(metallicMap, fragTextCoord).r
+        texture(metallicMap, fragTextCoords).r
     );
 
-    // Normal = (X,Y,Z) and Roughness = W
+    // Normal = (X,Y,Z) and Roughness = Ws
     gBufferNormalRoughness = vec4(
-        normalize(TBNMatrix * texture(normalMap, fragTextCoord).rgb),
-        texture(roughnessMap, fragTextCoord).r
+        normalize(TBNMatrix * texture(normalMap, fragTextCoords).rgb),
+        texture(roughnessMap, fragTextCoords).r
     );
 
     // Albedo = (X,Y,Z) and Ambient Occlusion = W
     gBufferAlbedoAmbientOcclusion = vec4(
-        texture(albedoMap, fragTextCoord).rgb,
-        texture(ambientOcclusionMap, fragTextCoord).r
+        texture(albedoMap, fragTextCoords).rgb,
+        texture(ambientOcclusionMap, fragTextCoords).r
     );
 
     // gBuffer depth and stencil are done by OpenGL

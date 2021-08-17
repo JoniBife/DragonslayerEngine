@@ -1,24 +1,15 @@
 #version 330 core
 
-in vec4 position;
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 textCoords;
 
-out vec4 fragPosition;
+out vec2 fragTextCoords;
 
-uniform mat3 normal;
-uniform mat4 model;
-
-uniform sharedMatrices {
-	mat4 view;
-	mat4 projection;
-};
-
-void main(void)
+void main()
 {
-	exPosition = inPosition;
-	exColor = inColor;
-	exTextCoord = inTextCoord;
-	exNormal = normal * inNormal;
-	fragPos = model * inPosition;
+    fragTextCoords = textCoords;
 
-	gl_Position =  projection* view * model * inPosition;
-}
+    // We are drawing directly in clip space so no need to apply any transformations
+    // The input vertices are already normalized device coordinates (i.e. in the range of -1 to 1)
+    gl_Position = vec4(position, 0.0, 1.0); 
+} 

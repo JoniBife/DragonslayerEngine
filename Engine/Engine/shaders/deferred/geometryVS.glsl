@@ -8,7 +8,7 @@ layout (location = 4) in vec3 bitangent;
 
 out vec3 fragPosition;
 out vec3 fragNormal;
-out vec2 fragTextCoord;
+out vec2 fragTextCoords;
 out mat3 TBNMatrix;
 
 uniform vec3 viewPosition;
@@ -24,7 +24,7 @@ void main(void)
 {
 	fragPosition = mat3(modelMatrix) * position;
 	fragNormal = normalMatrix * normal;
-	fragTextCoord = textCoord;
+	fragTextCoords = textCoord;
 
 	vec3 N = normalize(mat3(normalMatrix) * normal);
     vec3 T = normalize(mat3(modelMatrix) * tangent);
