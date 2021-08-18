@@ -166,24 +166,28 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
 	
-	/*lightBuffer->bind();
-	//lightBuffer->drawBuffers();
+	lightBuffer->bind();
+	lightBuffer->drawBuffers();
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
-	/*pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("viewPosition"), camera.getPosition());
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("albedoTint"), Vec3(1.0f,1.0f,1.0f) );
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("viewPosition"), camera.getPosition());
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("albedoTint"), Vec3(0.0f,0.0f,0.0f) );
 	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("normalStrength"), 1.0f);
 	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("metallicFactor"), 1.0f);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("roughnessFactor"), 1.0f);
 	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("aoFactor"), 1.0f);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 0);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferPositionMetallic"), 1);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferNormalRoughness"), 2);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 3);*/
-	/*quadNDC->bind();
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferPositionMetallic"), 0);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferNormalRoughness"), 1);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 2);
+	gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
+	gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
+
+	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
 	pbrShaderProgram->stopUsing();
-	lightBuffer->unbind();*/
+	lightBuffer->unbind();
 
 	// 3. Apply any post processing
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
@@ -191,7 +195,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	postProcessingShaderProgram->setUniform(
 		postProcessingShaderProgram->getUniformLocation("previousRenderTexture"),
 		0);
-	gBuffer->getColorAttachment(2).bind(GL_TEXTURE0);
+	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();

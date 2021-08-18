@@ -6,6 +6,7 @@ layout (location = 2) in vec2 textCoord;
 layout (location = 3) in vec3 tangent;
 
 out vec3 fragPosition;
+out vec3 fragNormal;
 out vec2 fragTextCoords;
 out mat3 TBNMatrix;
 
@@ -20,6 +21,7 @@ uniform sharedMatrices {
 void main(void)
 {
 	fragPosition = (modelMatrix * position).xyz;
+	fragNormal = normalMatrix * normal;
 	fragTextCoords = textCoord;
 
 	vec3 N = normalize(mat3(normalMatrix) * normal);
