@@ -11,28 +11,37 @@ namespace renderer {
 	private:
 		OpenGLState* openGLState;
 
-		Shader* geometryShader;
-		Shader* shadowMapShader;
+		DeferredRenderQueue* deferredRenderQueue;
+
+		ShaderProgram* geometryShaderProgram;
+		ShaderProgram* shadowMapShaderProgram;
+		ShaderProgram* pbrShaderProgram;
+		ShaderProgram* postProcessingShaderProgram;
 
 		FrameBuffer* gBuffer;
 		std::vector<FrameBuffer*> shadowMapBuffers;
 		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
 
+		Mesh* quadNDC;
+
 		unsigned int maxShadowMaps = 3;
 
-	public:
 		/* Performs all initialization operations:
 		* - Creation of OpenGL context
 		* - Setting all default OpenGL states (face culling etc..)
 		* - Loading and compilation of shaders
 		* - Creation of intermediate framebuffers for each of the passes
 		*/
-		DeferredRenderPipeline();
+		DeferredRenderPipeline(DeferredRenderQueue* deferredRenderQueue);
+
+		static DeferredRenderPipeline* create();
+
+	public:
 		~DeferredRenderPipeline() override;
 
 		void render(const Camera& camera, const Lights& lights) override;
-		void renderToFramebuffer(const Camera& camera, const Lights& lights, const FrameBuffer& frameBuffer) override;
+		void renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget) override;
 	};
 
 }

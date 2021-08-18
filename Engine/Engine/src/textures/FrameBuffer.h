@@ -3,6 +3,8 @@
 
 #include <GL/glew.h>
 #include "Texture2D.h"
+#include <vector>
+#include <functional>
 
 class FrameBufferBuilder;
 
@@ -34,6 +36,16 @@ public:
 	* Resizes if all the attachments are textures, otherwise does not resize
 	*/
 	void resize(unsigned int width, unsigned int height);
+
+	void drawBuffers();
+
+	Texture2D& getColorAttachment(unsigned int idx) const;
+	Texture2D& getStencilDepthAttachment() const;
+	Texture2D& getDepthAttachment() const;
+	
+	GLuint getColotAttachmentRBO(unsigned int idx) const;
+	GLuint getStencilDepthAttachmentRBO() const;
+	GLuint getDepthAttachmentRBO() const;
 
 	void bind();
 

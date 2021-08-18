@@ -24,6 +24,7 @@ namespace renderer {
         GLenum cullFace = GL_BACK; 
         GLenum frontFace = GL_CCW;
         Vec4 clearColor = { 0.8f, 0.8f, 0.8f, 1.0f }; // Interally uses GLclampf which translates to float so its fine using Vec4
+        bool blending = false;
         GLint x = 0.0f;
         GLint y = 0.0f;
         GLsizei width = 1366.0f;
@@ -47,6 +48,7 @@ namespace renderer {
         void setFrontFace(GLenum frontFace);
         void setClearColor(Vec4 clearColor);
         void setViewPort(GLint x, GLint y, GLsizei width, GLsizei height);
+        void setBlending(bool enable);
         // TODO Add more state
 
         GLuint getActiveShaderProgram() const;
@@ -60,6 +62,7 @@ namespace renderer {
         GLenum getFrontFace() const;
         Vec4 getClearColor() const;
         void getViewPort(GLint& x, GLint& y, GLsizei& width, GLsizei& height) const;
+        bool getBlending() const;
 
 	};
 

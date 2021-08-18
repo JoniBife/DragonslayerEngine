@@ -64,6 +64,61 @@ void FrameBuffer::resize(unsigned int width, unsigned int height)
 		depthAttachment->resize(width, height);
 }
 
+void FrameBuffer::drawBuffers()
+{
+	assert(colorAttachments.size() > 0 || colorAttachmentsRBO.size() > 0);
+
+	std::vector<GLuint> attachments;
+	if (colorAttachments.size() > 0) {
+		for (int i = GL_COLOR_ATTACHMENT0; i < GL_COLOR_ATTACHMENT0 + colorAttachments.size(); ++i) {
+			attachments.push_back(i);
+		}
+	} else if (colorAttachmentsRBO.size() > 0) {
+		for (int i = GL_COLOR_ATTACHMENT0; i < GL_COLOR_ATTACHMENT0 + colorAttachmentsRBO.size(); ++i) {
+			attachments.push_back(i);
+		}
+	}
+
+	// Vectors store its elements in contiguous memory so its safe to pass a pointer to the first element
+	GL_CALL(glDrawBuffers(attachments.size(), &attachments[0]));
+}
+
+Texture2D& FrameBuffer::getColorAttachment(unsigned int idx) const
+{
+	assert(colorAttachments.size() > 0 && colorAttachments.size() < idx);
+	return *colorAttachments[idx];
+}
+
+Texture2D& FrameBuffer::getStencilDepthAttachment() const
+{
+	assert(stencilDepthAttachment != nullptr);
+	return *stencilDepthAttachment;
+}
+
+Texture2D& FrameBuffer::getDepthAttachment() const
+{
+	assert(depthAttachment != nullptr);
+	return *depthAttachment;
+}
+
+GLuint FrameBuffer::getColotAttachmentRBO(unsigned int idx) const
+{
+	assert(colorAttachmentsRBO.size() > 0 && colorAttachmentsRBO.size() < idx);
+	return colorAttachmentsRBO[idx];
+}
+
+GLuint FrameBuffer::getStencilDepthAttachmentRBO() const
+{
+	assert(attachedStencilDepth);
+	return stencilDepthAttachmentRBO;
+}
+
+GLuint FrameBuffer::getDepthAttachmentRBO() const
+{
+	assert(attachedDepth);
+	return depthAttachmentRBO;
+}
+
 void FrameBuffer::bind()
 {
 	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, id));

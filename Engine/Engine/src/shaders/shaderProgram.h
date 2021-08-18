@@ -48,7 +48,7 @@ private:
 	GLuint id;
 
 public:
-	// In the future we should add other constructors to support other types of shaders
+	// TODO In the future we should add other constructors to support other types of shaders
 	ShaderProgram(Shader& vertexShader, Shader& fragmentShader, bool locationInShader = false);
 	ShaderProgram(Shader& vertexShader, Shader& geometryShader, Shader& fragmentShader);
 	~ShaderProgram();

@@ -5,6 +5,7 @@
 #include "../textures/FrameBuffer.h"
 #include "RenderQueue.h"
 #include "Lights.h"
+#include "RenderTarget.h"
 
 namespace renderer {
 
@@ -14,15 +15,21 @@ namespace renderer {
 	* render pipelines and swap between them with ease
 	*/
 	class RenderPipeline {
-		
-	private:
+
+	protected:
 		RenderQueue* renderQueue;
+
+		unsigned int renderWidth;
+		unsigned int renderHeight;
 
 	public:
 		RenderPipeline(RenderQueue* renderQueue);
 		virtual ~RenderPipeline(); // Deletes the renderQueue
 
 		RenderQueue& getRenderQueue() const;
+
+		void setRenderSize(unsigned int width, unsigned int height);
+		Vec2 getRenderSize() const;
 
 		/* Enqueues a render command to be executed in the next rendered frame, 
 		* returns false if it fails to enqueue the command, when it is invalid (i.e null mesh or material)
@@ -36,8 +43,8 @@ namespace renderer {
 		/* Render to the default frame buffer */
 		virtual void render(const Camera& camera, const Lights& lights) = 0;
 
-		/* Render to a custom framebuffer */
-		virtual void renderToFramebuffer(const Camera& camera, const Lights& lights, const FrameBuffer& frameBuffer) = 0;
+		/* Render to a custom render target (with a custom frame buffer attached) */
+		virtual void renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget) = 0;
 	};
 
 }

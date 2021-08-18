@@ -23,6 +23,12 @@ renderer::OpenGLState::OpenGLState()
 	GL_CALL(glCullFace(cullFace));
 	GL_CALL(glFrontFace(frontFace));
 
+	if (blending) {
+		GL_CALL(glEnable(GL_BLEND));
+	} else {
+		GL_CALL(glDisable(GL_BLEND));
+	}
+
 	GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
 	GL_CALL(glViewport(x, y, width, height));
 }
@@ -140,6 +146,18 @@ void renderer::OpenGLState::setViewPort(GLint x, GLint y, GLsizei width, GLsizei
 	}
 }
 
+void renderer::OpenGLState::setBlending(bool enable)
+{
+	if (blending != enable) {
+		blending = enable;
+		if (blending) {
+			GL_CALL(glEnable(GL_BLEND));
+		} else {
+			GL_CALL(glDisable(GL_BLEND));
+		}
+	}
+}
+
 GLuint renderer::OpenGLState::getActiveShaderProgram() const
 {
 	return activeShaderProgram;
@@ -196,4 +214,9 @@ void renderer::OpenGLState::getViewPort(GLint& x, GLint& y, GLsizei& width, GLsi
 	y = this->y;
 	width = this->width;
 	height = this->height;
+}
+
+bool renderer::OpenGLState::getBlending() const
+{
+	return blending;
 }

@@ -16,6 +16,17 @@ RenderQueue& renderer::RenderPipeline::getRenderQueue() const
 	return *renderQueue;
 }
 
+void renderer::RenderPipeline::setRenderSize(unsigned int width, unsigned int height)
+{
+	renderWidth = width;
+	renderHeight = height;
+}
+
+Vec2 renderer::RenderPipeline::getRenderSize() const
+{
+	return Vec2(renderWidth, renderHeight);
+}
+
 bool renderer::RenderPipeline::enqueueRender(const RenderCommand& renderCommand)
 {
 	return renderQueue->enqueueRender(renderCommand);

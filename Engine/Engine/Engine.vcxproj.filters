@@ -195,6 +195,9 @@
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\Mat2.h">
@@ -389,6 +392,12 @@
     <ClInclude Include="src\renderer\Lights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shaders\deferred\pbrFS.glsl">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\RenderTarget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragmentShaderNM.glsl" />
@@ -424,5 +433,10 @@
     <None Include="shaders\pbr\pbrVS.glsl" />
     <None Include="shaders\deferred\geometryVS.glsl" />
     <None Include="shaders\deferred\geometryFS.glsl" />
+    <None Include="shaders\deferred\pbrVS.glsl" />
+    <None Include="shaders\deferred\depthVS.glsl" />
+    <None Include="shaders\deferred\depthFS.glsl" />
+    <None Include="shaders\deferred\postProcessingVS.glsl" />
+    <None Include="shaders\deferred\postProcessingFS.glsl" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -53,6 +53,7 @@
     <ClCompile Include="src\renderer\deferredPipeline\OpenGLState.cpp" />
     <ClCompile Include="src\renderer\RenderPipeline.cpp" />
     <ClCompile Include="src\renderer\RenderQueue.cpp" />
+    <ClCompile Include="src\renderer\RenderTarget.cpp" />
     <ClCompile Include="src\scene\SceneGraph.cpp" />
     <ClCompile Include="src\scripts\CubeController.cpp" />
     <ClCompile Include="src\shaders\Shader.cpp" />
@@ -81,6 +82,7 @@
     <ClCompile Include="src\view\Transformations.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="shaders\deferred\pbrFS.glsl" />
     <ClInclude Include="src\apps\PhysicsSimulation.h" />
     <ClInclude Include="src\Configurations.h" />
     <ClInclude Include="src\controllers\ICameraController.h" />
@@ -116,6 +118,7 @@
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\RenderPipeline.h" />
     <ClInclude Include="src\renderer\RenderQueue.h" />
+    <ClInclude Include="src\renderer\RenderTarget.h" />
     <ClInclude Include="src\renderer\SpotLight.h" />
     <ClInclude Include="src\scripts\CubeController.h" />
     <ClInclude Include="src\textures\CubeMap.h" />
@@ -149,8 +152,13 @@
   <ItemGroup>
     <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
     <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
+    <None Include="shaders\deferred\depthFS.glsl" />
+    <None Include="shaders\deferred\depthVS.glsl" />
     <None Include="shaders\deferred\geometryFS.glsl" />
     <None Include="shaders\deferred\geometryVS.glsl" />
+    <None Include="shaders\deferred\pbrVS.glsl" />
+    <None Include="shaders\deferred\postProcessingFS.glsl" />
+    <None Include="shaders\deferred\postProcessingVS.glsl" />
     <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
     <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
     <None Include="shaders\leaves\fragmentShaderBlending.glsl" />

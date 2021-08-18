@@ -1,13 +1,8 @@
 #version 330 core
 
-// INPUT
-in vec4 exPosition;
-in vec3 exNormal;
-in vec2 exTextCoord;
-in vec4 exColor;
-in vec4 fragPos;
+layout (location = 0) out vec4 fragmentColor;
 
-out vec4 fragmentColor;
+in vec2 fragTextCoords;
 
 uniform vec3 lightPosition = { 0.0, 0.0, 10.0};
 uniform vec3 viewPosition;
@@ -23,16 +18,15 @@ uniform float aoFactor;
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
+uniform sampler2D shadowMap;
 
 const float PI = 3.1415927;
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
 
-float DistributionGGX(vec3 N, vec3 H, float roughness)
-{
+float DistributionGGX(vec3 N, vec3 H, float roughness) {
     float a      = roughness*roughness;
     float a2     = a*a;
     float NdotH  = max(dot(N, H), 0.0);
@@ -45,8 +39,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     return num / denom;
 }
 
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
+float GeometrySchlickGGX(float NdotV, float roughness) {
     float r = (roughness + 1.0);
     float k = (r*r) / 8.0;
 
@@ -56,8 +49,7 @@ float GeometrySchlickGGX(float NdotV, float roughness)
     return num / denom;
 }
 
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
     float ggx2  = GeometrySchlickGGX(NdotV, roughness);
@@ -66,15 +58,8 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-void main(void)
-{
-    vec3 albedo     = pow(texture(albedoMap, exTextCoord).rgb, vec3(2.2)) + albedoTint;
-    float metallic  = texture(metallicMap, exTextCoord).r * metallicFactor;
-    float roughness = texture(roughnessMap, exTextCoord).r * roughnessFactor;
-    float ao        = texture(aoMap, exTextCoord).r * aoFactor;
-
-	vec3 N = getNormalFromMap();
-    vec3 V = normalize(viewPosition - fragPos.xyz);
+vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughness, float ambientOcclusion) {
+    vec3 V = normalize(viewPosition - position);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -85,19 +70,19 @@ void main(void)
     vec3 Lo = vec3(0.0);
 
     // calculate per-light radiance
-    vec3 L = normalize(lightPosition - fragPos.xyz);
+    vec3 L = normalize(lightPosition - position);
     vec3 H = normalize(V + L);
-    float distance = length(lightPosition - fragPos.xyz);
+    float distance = length(lightPosition - position);
     float attenuation = 1.0 / (distance * distance);
     vec3 radiance = lightColor * attenuation;
 
     // Cook-Torrance BRDF
-    float NDF = DistributionGGX(N, H, roughness);   
-    float G   = GeometrySmith(N, V, L, roughness);      
+    float NDF = DistributionGGX(normal, H, roughness);   
+    float G   = GeometrySmith(normal, V, L, roughness);      
     vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
            
     vec3 numerator    = NDF * G * F; 
-    float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+    float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
     vec3 specular = numerator / denominator;
         
     // kS is equal to Fresnel
@@ -112,17 +97,72 @@ void main(void)
     kD *= 1.0 - metallic;	  
 
     // scale light by NdotL
-    float NdotL = max(dot(N, L), 0.0);        
+    float NdotL = max(dot(normal, L), 0.0);        
 
     // add to outgoing radiance Lo
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     
-    
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.03) * albedo * ambientOcclusion;
     
     vec3 color = ambient + Lo;
+
+    return color;
+}
+
+float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
+	// Perspective division
+	vec3 projCoords = fragPosLightSpace.xyz/fragPosLightSpace.w; // Actually meaningless since the proj matrix used for light space is orthographic
+	// Moving the coords to [0,1] which is the range of the depth map
+	projCoords = projCoords * 0.5 + 0.5;
+	// Closest depth from the light's point of view
+	float closestDepth = texture(shadowMap, projCoords.xy).r;   
+	// Current depth from the light's point of view
+	float currentDepth = projCoords.z;  
+
+	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+
+	// PCF Filter
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+		}    
+	}
+	shadow /= 9.0;
+
+	if(currentDepth > 1.0)
+        return 0.0f;
+
+	return shadow;
+}
+
+void main(void)
+{
+
+    // 1. Extract position, metallic map, normal, roughness map, albedo and ambient occlusion map values
+    // from each of the buffers that compose the gBuffer
+    vec4 positionMetallic = texture(gBufferPositionMetallic, fragTextCoords);
+    vec4 normalRoughness = texture(gBufferNormalRoughness, fragTextCoords);
+    vec4 albedoAmbientOcclusion = texture(gBufferAlbedoAmbientOcclusion, fragTextCoords);
+    
+    vec3 position = positionMetallic.xyz; 
+    float metallic = positionMetallic.w * metallicFactor;
+    vec3 normal = normalRoughness.xyz; 
+    float roughness = normalRoughness.w * roughnessFactor;
+    vec3 albedo = pow(albedoAmbientOcclusion.xyz, vec3(2.2)) + albedoTint; 
+    float ambientOcclusion = albedoAmbientOcclusion.w * aoFactor;
+
+    // 2. Calculate color using PBR
+    vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
+
+    // 3. Combine with shadow map
+    // TODO
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
