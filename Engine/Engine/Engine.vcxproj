@@ -51,8 +51,10 @@
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderPipeline.cpp" />
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderQueue.cpp" />
     <ClCompile Include="src\renderer\deferredPipeline\OpenGLState.cpp" />
+    <ClCompile Include="src\renderer\Material2.cpp" />
+    <ClCompile Include="src\renderer\PostProcessingCommand.cpp" />
+    <ClCompile Include="src\renderer\RenderCommand.cpp" />
     <ClCompile Include="src\renderer\RenderPipeline.cpp" />
-    <ClCompile Include="src\renderer\RenderQueue.cpp" />
     <ClCompile Include="src\renderer\RenderTarget.cpp" />
     <ClCompile Include="src\scene\SceneGraph.cpp" />
     <ClCompile Include="src\scripts\CubeController.cpp" />
@@ -82,7 +84,6 @@
     <ClCompile Include="src\view\Transformations.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shaders\deferred\pbrFS.glsl" />
     <ClInclude Include="src\apps\PhysicsSimulation.h" />
     <ClInclude Include="src\Configurations.h" />
     <ClInclude Include="src\controllers\ICameraController.h" />
@@ -115,6 +116,8 @@
     <ClInclude Include="src\renderer\Material.h" />
     <ClInclude Include="src\renderer\deferredPipeline\OpenGLState.h" />
     <ClInclude Include="src\renderer\PointLight.h" />
+    <ClInclude Include="src\renderer\PostProcessingCommand.h" />
+    <ClInclude Include="src\renderer\RenderCommand.h" />
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\RenderPipeline.h" />
     <ClInclude Include="src\renderer\RenderQueue.h" />
@@ -148,46 +151,6 @@
     <ClInclude Include="src\view\Camera.h" />
     <ClInclude Include="src\view\EditorCamera.h" />
     <ClInclude Include="src\view\Transformations.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
-    <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
-    <None Include="shaders\deferred\depthFS.glsl" />
-    <None Include="shaders\deferred\depthVS.glsl" />
-    <None Include="shaders\deferred\geometryFS.glsl" />
-    <None Include="shaders\deferred\geometryVS.glsl" />
-    <None Include="shaders\deferred\pbrVS.glsl" />
-    <None Include="shaders\deferred\postProcessingFS.glsl" />
-    <None Include="shaders\deferred\postProcessingVS.glsl" />
-    <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
-    <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
-    <None Include="shaders\leaves\fragmentShaderBlending.glsl" />
-    <None Include="shaders\cylinder\cylinderFragmentShader.glsl" />
-    <None Include="shaders\cylinder\cylinderGeometryShader.geom" />
-    <None Include="shaders\cylinder\cylinderGeometryShaderSM.geom" />
-    <None Include="shaders\cylinder\cylinderVertexShader.glsl" />
-    <None Include="shaders\leaves\fragmentShaderBlendingSM.glsl" />
-    <None Include="shaders\leaves\vertexShaderBlendingSM.glsl" />
-    <None Include="shaders\lineFragmentShader.glsl" />
-    <None Include="shaders\lineVertexShader.glsl" />
-    <None Include="shaders\pbr\pbrFS.glsl" />
-    <None Include="shaders\pbr\pbrVS.glsl" />
-    <None Include="shaders\skybox\fragmentShaderSkyBox.glsl" />
-    <None Include="shaders\skybox\vertexShaderSkyBox.glsl" />
-    <None Include="shaders\uiFragmentShader.glsl" />
-    <None Include="shaders\uiVertexShader.glsl" />
-    <None Include="shaders\fragmentShaderLighting.glsl" />
-    <None Include="shaders\fragmentShaderNM.glsl" />
-    <None Include="shaders\fragmentShaderShadows.glsl" />
-    <None Include="shaders\fragmentShaderSM.glsl" />
-    <None Include="shaders\simpleFragmentShader.glsl" />
-    <None Include="shaders\simpleVertexShader.glsl" />
-    <None Include="shaders\leaves\vertexShaderBlending.glsl" />
-    <None Include="shaders\textFragmentShader.glsl" />
-    <None Include="shaders\textVertexShader.glsl" />
-    <None Include="shaders\vertexShaderNM.glsl" />
-    <None Include="shaders\vertexShaderShadows.glsl" />
-    <None Include="shaders\vertexShaderSM.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -296,6 +259,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\lib-vc2019;$(SolutionDir)Dependencies\glew-2.1.0\lib_;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3dll.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

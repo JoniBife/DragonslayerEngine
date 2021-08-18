@@ -7,12 +7,6 @@
 #include <assert.h>
 #include <vector>
 
-#define VERTICES 0
-#define NORMALS 1
-#define COLORS 2
-#define TEXTCOORDS 3
-#define TANGENTS 4
-
 Mesh::Mesh(const std::string& fileName) : fileName(fileName) {}
 
 Mesh::Mesh(const Mesh& mesh) {
@@ -50,11 +44,6 @@ Mesh::~Mesh() {
 
 	// Bind the the vao so that we can disable the vertex attrib array
 	GL_CALL(glBindVertexArray(vaoId));
-	GL_CALL(glDisableVertexAttribArray(VERTICES));
-	GL_CALL(glDisableVertexAttribArray(NORMALS));
-	GL_CALL(glDisableVertexAttribArray(COLORS));
-	GL_CALL(glDisableVertexAttribArray(TEXTCOORDS));
-	GL_CALL(glDisableVertexAttribArray(TANGENTS));
 	GL_CALL(glDeleteBuffers(1, &vboId));
 	if (!normals.empty())
 		GL_CALL(glDeleteBuffers(1, &vboNormalsId));
@@ -99,22 +88,27 @@ void Mesh::init() {
 			idxNormals = numberOfBuffers;
 			++numberOfBuffers;
 		}
+
 		if (!colors.empty()) {
 			idxColors = numberOfBuffers;
 			++numberOfBuffers;
 		}
+
 		if (!textCoords.empty()) {
 			idxTextCoords = numberOfBuffers;
 			++numberOfBuffers;
 		}
-		if (!indices.empty()) {
-			idxIndices = numberOfBuffers;
-			++numberOfBuffers;
-		}
+
 		if (!tangents.empty()) {
 			idxTangents = numberOfBuffers;
 			++numberOfBuffers;
 		}
+
+		if (!indices.empty()) {
+			idxIndices = numberOfBuffers;
+			++numberOfBuffers;
+		}
+		
 
 		// Allocated on the heap because the numberOfBuffers is only known on run-time
 		GLuint* bufferIds = new GLuint[numberOfBuffers];
@@ -135,8 +129,8 @@ void Mesh::init() {
 			GL_CALL(glBufferData(GL_ARRAY_BUFFER,
 				verticesBufferSize == -1 ? vertices.size() * sizeof(Vec4) : verticesBufferSize * sizeof(Vec4),
 				vertices.size() == 0 ? NULL : &vertices[0], verticesBufferType));
-			GL_CALL(glEnableVertexAttribArray(VERTICES));
-			GL_CALL(glVertexAttribPointer(VERTICES, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
+			GL_CALL(glEnableVertexAttribArray(0));
+			GL_CALL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
 		}
 
 		if (!normals.empty()) {
@@ -145,8 +139,8 @@ void Mesh::init() {
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboNormalsId));
 			{
 				GL_CALL(glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW));
-				GL_CALL(glEnableVertexAttribArray(NORMALS));
-				GL_CALL(glVertexAttribPointer(NORMALS, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
+				GL_CALL(glEnableVertexAttribArray(idxNormals));
+				GL_CALL(glVertexAttribPointer(idxNormals, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
 			}
 		}
 
@@ -157,8 +151,8 @@ void Mesh::init() {
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColorsId));
 			{
 				GL_CALL(glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(Vec4), &colors[0], GL_STATIC_DRAW));
-				GL_CALL(glEnableVertexAttribArray(COLORS));
-				GL_CALL(glVertexAttribPointer(COLORS, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
+				GL_CALL(glEnableVertexAttribArray(idxColors));
+				GL_CALL(glVertexAttribPointer(idxColors, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
 			}
 		}
 
@@ -168,8 +162,20 @@ void Mesh::init() {
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboTextCoordsId));
 			{
 				GL_CALL(glBufferData(GL_ARRAY_BUFFER, textCoords.size() * sizeof(Vec2), &textCoords[0], GL_STATIC_DRAW));
-				GL_CALL(glEnableVertexAttribArray(TEXTCOORDS));
-				GL_CALL(glVertexAttribPointer(TEXTCOORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), 0));
+				GL_CALL(glEnableVertexAttribArray(idxTextCoords));
+				GL_CALL(glVertexAttribPointer(idxTextCoords, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), 0));
+			}
+		}
+
+
+		if (!tangents.empty()) {
+			vboTangentsId = bufferIds[idxTangents];
+
+			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboTangentsId));
+			{
+				GL_CALL(glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(Vec3), &tangents[0], GL_STATIC_DRAW));
+				GL_CALL(glEnableVertexAttribArray(idxTangents));
+				GL_CALL(glVertexAttribPointer(idxTangents, 2, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
 			}
 		}
 
@@ -182,16 +188,6 @@ void Mesh::init() {
 			}
 		}
 
-		if (!tangents.empty()) {
-			vboTangentsId = bufferIds[idxTangents];
-
-			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboTangentsId));
-			{
-				GL_CALL(glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(Vec3), &tangents[0], GL_STATIC_DRAW));
-				GL_CALL(glEnableVertexAttribArray(TANGENTS));
-				GL_CALL(glVertexAttribPointer(TANGENTS, 2, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
-			}
-		}
 
 		// BufferIds was allocated on the heap therefore we delete it because we no longer need it
 		delete[] bufferIds;
@@ -278,6 +274,15 @@ Mesh* Mesh::square(const float width) {
 		{-width / 2, width / 2, 0.0f, 1.0f}, // top left vertex
 		{-width / 2, -width / 2, 0.0f, 1.0f}, // bottom left vertex
 		{width / 2, width / 2, 0.0f, 1.0f} // top right vertex
+	};
+
+	square->textCoords = {
+		{0.0f, 1.0f},
+		{0.0f, 0.0f},
+		{1.0f, 0.0f},
+		{0.0f, 1.0f},
+		{1.0f, 0.0f},
+		{1.0f, 1.0f}
 	};
 
 	return square;
@@ -390,8 +395,8 @@ void Mesh::updateVertices(const std::vector<Vec4>& vertices) {
 				GL_CALL(glBufferData(GL_ARRAY_BUFFER,
 					verticesBufferSize == -1 ? this->vertices.size() * sizeof(Vec4) : verticesBufferSize * sizeof(Vec4),
 					&this->vertices[0], verticesBufferType));
-				GL_CALL(glEnableVertexAttribArray(VERTICES));
-				GL_CALL(glVertexAttribPointer(VERTICES, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
+				GL_CALL(glEnableVertexAttribArray(0));
+				GL_CALL(glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
 			}
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		}

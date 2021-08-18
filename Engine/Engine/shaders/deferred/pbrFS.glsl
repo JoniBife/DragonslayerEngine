@@ -169,7 +169,7 @@ void main(void)
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
 
-    fragmentColor = vec4(color, 1.0);
+    fragmentColor = vec4(0,0,1, 1.0);
 }
 
 

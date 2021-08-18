@@ -34,70 +34,70 @@ bool renderer::DeferredRenderQueue::enqueuePostProcessing(PostProcessingCommand 
 	return true;
 }
 
-inline bool renderer::DeferredRenderQueue::isGeometryEmpty()
+bool renderer::DeferredRenderQueue::isGeometryEmpty()
 {
 	return geometryQueue.empty();
 }
 
-inline RenderCommand renderer::DeferredRenderQueue::dequeueGeometry()
+RenderCommand renderer::DeferredRenderQueue::dequeueGeometry()
 {
-	assert(geometryQueue.empty());
+	assert(!geometryQueue.empty());
 
 	RenderCommand command= geometryQueue.front();
 	geometryQueue.pop();
 	return command;
 }
 
-inline bool renderer::DeferredRenderQueue::isShadowMapEmpty()
+bool renderer::DeferredRenderQueue::isShadowMapEmpty()
 {
 	return shadowMapQueue.empty();
 }
 
-inline RenderCommand renderer::DeferredRenderQueue::dequeueShadowMap()
+RenderCommand renderer::DeferredRenderQueue::dequeueShadowMap()
 {
-	assert(shadowMapQueue.empty());
+	assert(!shadowMapQueue.empty());
 	
 	RenderCommand command = shadowMapQueue.front();
 	shadowMapQueue.pop();
 	return command;
 }
 
-inline bool renderer::DeferredRenderQueue::isAlphaTestEmpty()
+bool renderer::DeferredRenderQueue::isAlphaTestEmpty()
 {
 	return alphaTestQueue.empty();
 }
 
-inline RenderCommand renderer::DeferredRenderQueue::dequeueAlphaTest()
+RenderCommand renderer::DeferredRenderQueue::dequeueAlphaTest()
 {
-	assert(alphaTestQueue.empty());
+	assert(!alphaTestQueue.empty());
 		
 	RenderCommand command = alphaTestQueue.front();
 	alphaTestQueue.pop();
 	return command;
 }
 
-inline bool renderer::DeferredRenderQueue::isCustomShadersEmpty()
+bool renderer::DeferredRenderQueue::isCustomShadersEmpty()
 {
 	return customShadersQueue.empty();
 }
 
-inline RenderCommand renderer::DeferredRenderQueue::dequeueCustomShaders()
+RenderCommand renderer::DeferredRenderQueue::dequeueCustomShaders()
 {
-	assert(customShadersQueue.empty());
+	assert(!customShadersQueue.empty());
 		
 	RenderCommand command = customShadersQueue.front();
 	customShadersQueue.pop();
 	return command;
 }
 
-inline bool renderer::DeferredRenderQueue::isPostProcessingEmpty()
+bool renderer::DeferredRenderQueue::isPostProcessingEmpty()
 {
 	return postProcessingQueue.empty();
 }
 
-inline PostProcessingCommand renderer::DeferredRenderQueue::dequeuePostProcessing()
+PostProcessingCommand renderer::DeferredRenderQueue::dequeuePostProcessing()
 {
-	assert(postProcessingQueue.empty());
+	assert(!postProcessingQueue.empty());
 
 	PostProcessingCommand command = postProcessingQueue.front();
 	postProcessingQueue.pop();

@@ -9,8 +9,10 @@
 #include "meshes/SkyBox.h"
 #include "../core/Renderer3D.h"
 #include "view/EditorCamera.h"
+#include "renderer/deferredPipeline/DeferredRenderPipeline.h"
 
 using namespace core;
+using namespace renderer;
 
 class Engine {
 

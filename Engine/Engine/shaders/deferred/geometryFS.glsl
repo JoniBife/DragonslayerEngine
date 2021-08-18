@@ -5,7 +5,6 @@ layout (location = 1) out vec4 gBufferNormalRoughness; // Contains both the norm
 layout (location = 2) out vec4 gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
 
 in vec3 fragPosition;
-in vec3 fragNormal;
 in vec2 fragTextCoords;
 in mat3 TBNMatrix;
 

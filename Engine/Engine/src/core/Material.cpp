@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "Material.h"
+#include "..\renderer\Material.h"
 
 using namespace core;
 

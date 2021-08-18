@@ -22,20 +22,20 @@ namespace renderer {
 		bool enqueueRender(RenderCommand renderCommand) override;
 		bool enqueuePostProcessing(PostProcessingCommand postProcessingCommand) override;
 
-		inline bool isGeometryEmpty();
-		inline RenderCommand dequeueGeometry();
+		bool isGeometryEmpty();
+		RenderCommand dequeueGeometry();
 
-		inline bool isShadowMapEmpty();
-		inline RenderCommand dequeueShadowMap();
+		bool isShadowMapEmpty();
+		RenderCommand dequeueShadowMap();
 
-		inline bool isAlphaTestEmpty();
-		inline RenderCommand dequeueAlphaTest();
+		bool isAlphaTestEmpty();
+		RenderCommand dequeueAlphaTest();
 
-		inline bool isCustomShadersEmpty();
-		inline RenderCommand dequeueCustomShaders();
+		bool isCustomShadersEmpty();
+		RenderCommand dequeueCustomShaders();
 
-		inline bool isPostProcessingEmpty();
-		inline PostProcessingCommand dequeuePostProcessing();
+		bool isPostProcessingEmpty();
+		PostProcessingCommand dequeuePostProcessing();
 
 		void clear() override;
 

@@ -85,7 +85,7 @@ void FrameBuffer::drawBuffers()
 
 Texture2D& FrameBuffer::getColorAttachment(unsigned int idx) const
 {
-	assert(colorAttachments.size() > 0 && colorAttachments.size() < idx);
+	assert(colorAttachments.size() > 0 &&  idx < colorAttachments.size());
 	return *colorAttachments[idx];
 }
 
@@ -103,7 +103,7 @@ Texture2D& FrameBuffer::getDepthAttachment() const
 
 GLuint FrameBuffer::getColotAttachmentRBO(unsigned int idx) const
 {
-	assert(colorAttachmentsRBO.size() > 0 && colorAttachmentsRBO.size() < idx);
+	assert(colorAttachmentsRBO.size() > 0 && idx < colorAttachmentsRBO.size());
 	return colorAttachmentsRBO[idx];
 }
 
@@ -145,7 +145,7 @@ FrameBufferBuilder::FrameBufferBuilder()
 
 FrameBufferBuilder& FrameBufferBuilder::setSize(unsigned width, unsigned height)
 {
-	this, width = width;
+	this->width = width;
 	this->height = height;
 	return *this;
 }
@@ -296,6 +296,9 @@ FrameBuffer* FrameBufferBuilder::build()
 
 		frameBuffer->attachedDepth = true;
 	}
+
+	GL_CALL(GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
+	assert(status == GL_FRAMEBUFFER_COMPLETE);
 
 	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 

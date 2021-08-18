@@ -10,6 +10,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
+#include "meshes/MeshLoader.h"
 
 Engine* engine;
 
@@ -174,24 +175,41 @@ double Engine::getElapsedTime() {
 ////////////////////////////////////////////// MAIN LOOP
 void Engine::run() {
 
-	renderer3D = new core::Renderer3D();
+	//renderer3D = new core::Renderer3D();
 
 	// Setup (DO NOT CHANGE ORDER OF SETUP)
 	setupGLFW(); 
-	setupGLEW();  
+	DeferredRenderPipeline* deferredRenderPipeline = new DeferredRenderPipeline();
+	
+	//setupGLEW();  
 	
 	core::Input::initialize(window);
 
-	renderer3D->setup();
+	//renderer3D->setup();
 
-	setupScene();
-	setupGUI();
+	//setupScene();
+	//setupGUI();
 
-	start();
+	//start();
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
+	RenderCommand renderCommand;
+	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
+	renderer::Material* material = new renderer::Material();
+	renderCommand.material = material;
+	sphereMesh->calculateTangents();
+	sphereMesh->init();
+	renderCommand.mesh = sphereMesh;
+	renderCommand.model = Mat4::IDENTITY;
+
+	Lights lights;
+
+	editorCamera = new EditorCamera();
+
 	double lastTime = glfwGetTime();
+
+	editorCamera->setEditorWindowFocus(true);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -202,15 +220,20 @@ void Engine::run() {
 		elapsedTime = time - lastTime;
 		lastTime = time;
 
-		update();
-
 		editorCamera->update(elapsedTime);
 
-		hierarchy->updateScene();
+		deferredRenderPipeline->enqueueRender(renderCommand);
+		deferredRenderPipeline->render(*editorCamera, lights);
 
-		renderer3D->renderToFrameBuffer(*editorCamera, *hierarchy, editorCamera->getFrameBuffer());
+		//update();
 
-		gui->renderUI(*editorCamera);
+		
+
+		//hierarchy->updateScene();
+
+		//renderer3D->renderToFrameBuffer(*editorCamera, *hierarchy, editorCamera->getFrameBuffer());
+
+		//gui->renderUI(*editorCamera);
 
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary
@@ -218,7 +241,7 @@ void Engine::run() {
 
 	// Cleanup
 	freeResources();
-	end(); //Has to be called before glfwTerminate()
+	//end(); //Has to be called before glfwTerminate()
 	
 	core::Input::terminate();
 

@@ -11,6 +11,8 @@ namespace renderer {
 
 	class RenderTarget {
 
+	friend class DeferredRenderPipeline;
+
 	private:
 		FrameBuffer* frameBuffer;
 

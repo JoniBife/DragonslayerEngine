@@ -19,8 +19,8 @@ namespace renderer {
 	protected:
 		RenderQueue* renderQueue;
 
-		unsigned int renderWidth;
-		unsigned int renderHeight;
+		unsigned int renderWidth = 1366;
+		unsigned int renderHeight = 768;
 
 	public:
 		RenderPipeline(RenderQueue* renderQueue);

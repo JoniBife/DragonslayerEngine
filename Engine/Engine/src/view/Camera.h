@@ -23,7 +23,7 @@ protected:
 	Vec3 front = target - position;
 	Vec3 up = { 0.0f, 1.0f, 0.0f }; // up
 
-	float viewportWidth = 1366, viewportHeight = 720;
+	float viewportWidth = 1366, viewportHeight = 768;
 
 	float near = 0.01f;
 	float far = 100.0f;

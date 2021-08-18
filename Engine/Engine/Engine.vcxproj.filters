@@ -189,13 +189,19 @@
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer\RenderQueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\RenderTarget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\RenderCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\PostProcessingCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\Material2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -392,51 +398,14 @@
     <ClInclude Include="src\renderer\Lights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shaders\deferred\pbrFS.glsl">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\renderer\RenderTarget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shaders\fragmentShaderNM.glsl" />
-    <None Include="shaders\vertexShaderNM.glsl" />
-    <None Include="shaders\simpleFragmentShader.glsl" />
-    <None Include="shaders\simpleVertexShader.glsl" />
-    <None Include="shaders\fragmentShaderSM.glsl" />
-    <None Include="shaders\vertexShaderSM.glsl" />
-    <None Include="shaders\fragmentShaderShadows.glsl" />
-    <None Include="shaders\vertexShaderShadows.glsl" />
-    <None Include="shaders\fragmentShaderLighting.glsl" />
-    <None Include="shaders\textFragmentShader.glsl" />
-    <None Include="shaders\textVertexShader.glsl" />
-    <None Include="shaders\uiFragmentShader.glsl" />
-    <None Include="shaders\uiVertexShader.glsl" />
-    <None Include="shaders\lineVertexShader.glsl" />
-    <None Include="shaders\lineFragmentShader.glsl" />
-    <None Include="shaders\skybox\fragmentShaderSkyBox.glsl" />
-    <None Include="shaders\skybox\vertexShaderSkyBox.glsl" />
-    <None Include="shaders\leaves\fragmentShaderBlending.glsl" />
-    <None Include="shaders\cylinder\cylinderFragmentShader.glsl" />
-    <None Include="shaders\cylinder\cylinderGeometryShader.geom" />
-    <None Include="shaders\cylinder\cylinderGeometryShaderSM.geom" />
-    <None Include="shaders\cylinder\cylinderVertexShader.glsl" />
-    <None Include="shaders\leaves\vertexShaderBlending.glsl" />
-    <None Include="shaders\leaves\fragmentShaderBlendingSM.glsl" />
-    <None Include="shaders\leaves\vertexShaderBlendingSM.glsl" />
-    <None Include="shaders\framebuffer\sceneViewVertexShader.glsl" />
-    <None Include="shaders\framebuffer\sceneViewFragmentShader.glsl" />
-    <None Include="shaders\blinnPhong\blinnPhongFS.glsl" />
-    <None Include="shaders\blinnPhong\blinnPhongVS.glsl" />
-    <None Include="shaders\pbr\pbrFS.glsl" />
-    <None Include="shaders\pbr\pbrVS.glsl" />
-    <None Include="shaders\deferred\geometryVS.glsl" />
-    <None Include="shaders\deferred\geometryFS.glsl" />
-    <None Include="shaders\deferred\pbrVS.glsl" />
-    <None Include="shaders\deferred\depthVS.glsl" />
-    <None Include="shaders\deferred\depthFS.glsl" />
-    <None Include="shaders\deferred\postProcessingVS.glsl" />
-    <None Include="shaders\deferred\postProcessingFS.glsl" />
+    <ClInclude Include="src\renderer\RenderCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\PostProcessingCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

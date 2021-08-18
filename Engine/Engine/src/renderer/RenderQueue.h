@@ -3,25 +3,10 @@
 
 #include "../meshes/Mesh.h"
 #include "Material.h"
+#include "RenderCommand.h"
+#include "PostProcessingCommand.h"
 
 namespace renderer {
-
-	struct RenderCommand {
-		Mesh* mesh;
-		Material* material;
-		Mat4 model;
-		bool castShadows;
-		bool receiveShadows;
-		bool blending;
-
-		/* Check if the rendering command is valid (i.e. Mesh is not null nor material) */
-		bool isValid() const;
-	};
-
-	struct PostProcessingCommand {
-		
-		bool isValid() const;
-	};
 
 	class RenderQueue {
 

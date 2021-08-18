@@ -1,6 +1,6 @@
+#include <GL/glew.h>
 #include "DeferredRenderPipeline.h"
 #include "DeferredRenderQueue.h"
-#include <GL/glew.h>
 #include "../../utils/OpenGLUtils.h"
 
 using namespace renderer;
@@ -16,13 +16,7 @@ static void printOpenGLInfo()
     std::cout << "GLSL version " << glslVersion << std::endl;
 }
 
-DeferredRenderPipeline* renderer::DeferredRenderPipeline::create()
-{
-	return new DeferredRenderPipeline(new DeferredRenderQueue());
-}
-
-renderer::DeferredRenderPipeline::DeferredRenderPipeline(DeferredRenderQueue* deferredRenderQueue) {
-	this->deferredRenderQueue = deferredRenderQueue;
+renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new DeferredRenderQueue()) {
 
 	// 1. Creation of OpenGL context and loading all OpenGL functions 
 	glewExperimental = GL_TRUE;
@@ -62,7 +56,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline(DeferredRenderQueue* de
 	FrameBufferBuilder frameBufferBuilder;
 
 	gBuffer = frameBufferBuilder
-		.setSize(1, 1)
+		.setSize(renderWidth, renderHeight)
 		.attachColorBuffers(3, GL_FLOAT)
 		.attachDepthBuffer()
 		.attachStencilBuffer()
@@ -76,17 +70,28 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline(DeferredRenderQueue* de
 			.build());
 	}
 
+	lightBuffer = frameBufferBuilder
+		.setSize(renderWidth, renderHeight)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachDepthBuffer()
+		.attachStencilBuffer()
+		.build();
+
 	prePostProcessingBuffer = frameBufferBuilder
-		.setSize(1, 1)
+		.setSize(renderWidth, renderHeight)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.attachStencilBuffer()
 		.build();
 
 	postProcessingBuffer = frameBufferBuilder
-		.setSize(1, 1)
+		.setSize(renderWidth, renderHeight)
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
+
+	// 5. Creating the quad whose vertices will be used in most render passes
+	quadNDC = Mesh::rectangle(2.0f, 2.0f);
+	quadNDC->init();
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -114,40 +119,83 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	openGLState->setViewPort(0, 0, renderWidth, renderHeight);
 	openGLState->setDepthTesting(true);
-	openGLState->setDepthFunction(GL_LESS);
+	openGLState->setDepthFunction(GL_LEQUAL);
 	openGLState->setDepthRange(0.0, 1.0);
 	openGLState->setFaceCulling(true);
 	openGLState->setCullFace(GL_BACK);
 	openGLState->setFrontFace(GL_CCW);
 	openGLState->setBlending(false);
 
+	DeferredRenderQueue* deferredRenderQueue = dynamic_cast<DeferredRenderQueue*>(renderQueue);
+
 	// 1. Render all the geometry to the gBuffer
 	gBuffer->bind();
 	gBuffer->drawBuffers();
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	geometryShaderProgram->use();
-
+	geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
+	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("albedoMap"), 0);
+	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("normalMap"), 1);
+	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("metallicMap"), 2);
+	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("roughnessMap"), 3);
+	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("ambientOcclusionMap"), 4);
+	
 	RenderCommand renderCommand;
+
 	while (!deferredRenderQueue->isGeometryEmpty()) {
 		renderCommand = deferredRenderQueue->dequeueGeometry();
+		
+		renderCommand.material->albedoMap->bind(GL_TEXTURE0);
+		renderCommand.material->normalMap->bind(GL_TEXTURE1);
+		renderCommand.material->metallicMap->bind(GL_TEXTURE2);
+		renderCommand.material->roughnessMap->bind(GL_TEXTURE3);
+		renderCommand.material->aoMap->bind(GL_TEXTURE4);
 
-		renderCommand.material;
+		geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("modelMatrix"), renderCommand.model);
+		Mat3 inverse;
+		renderCommand.model.toMat3().inverse(inverse);
+		geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("normalMatrix"), inverse);
 
+		renderCommand.mesh->bind();
 		renderCommand.mesh->draw();
+		renderCommand.mesh->unBind();
 	}
 
 	geometryShaderProgram->stopUsing();
 	gBuffer->unbind();
 
-
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
-
-
+	
+	/*lightBuffer->bind();
+	//lightBuffer->drawBuffers();
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
+	pbrShaderProgram->use();
+	/*pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("viewPosition"), camera.getPosition());
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("albedoTint"), Vec3(1.0f,1.0f,1.0f) );
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("normalStrength"), 1.0f);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("metallicFactor"), 1.0f);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("aoFactor"), 1.0f);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 0);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferPositionMetallic"), 1);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferNormalRoughness"), 2);
+	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 3);*/
+	/*quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
+	pbrShaderProgram->stopUsing();
+	lightBuffer->unbind();*/
 
 	// 3. Apply any post processing
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
-	
+	postProcessingShaderProgram->setUniform(
+		postProcessingShaderProgram->getUniformLocation("previousRenderTexture"),
+		0);
+	gBuffer->getColorAttachment(2).bind(GL_TEXTURE0);
+	quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
 	postProcessingShaderProgram->stopUsing();
-
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)
