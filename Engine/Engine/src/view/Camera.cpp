@@ -9,13 +9,7 @@
 #include "../math/MathAux.h"
 
 Camera::Camera() {
-	GL_CALL(glGenBuffers(1, &vbo));
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vbo));
-	{
-		GL_CALL(glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 16 * 2, 0, GL_DYNAMIC_DRAW));
-		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, vbo));
-	}
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+
 }
 
 Camera::~Camera()
@@ -24,26 +18,14 @@ Camera::~Camera()
 
 void Camera::update(float elapsedTime) {
 
-	// Update camera controller if there is one
-	if (cameraController)
-		cameraController->processInputAndMove(elapsedTime);
-
 	if (dirty) {
 		dirty = false;
+		wasDirtyRecently = true;
 		//front = target - position;
 		view = lookAt(position, position + front, up);
 		projection = perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
-
-		GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vbo));
-		{
-			float viewOpenGLFormat[16];
-			float projectionOpenGLFormat[16];
-			view.toOpenGLFormat(viewOpenGLFormat);
-			projection.toOpenGLFormat(projectionOpenGLFormat);
-			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(viewOpenGLFormat), viewOpenGLFormat));
-			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
-		}
-		GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+	} else {
+		wasDirtyRecently = false;
 	}
 }
 
@@ -151,6 +133,11 @@ Vec2 Camera::getViewportSize() const
 	return Vec2(viewportWidth, viewportHeight);
 }
 
+bool Camera::wasDirty() const
+{
+	return wasDirtyRecently;
+}
+
 /*
 void Camera::addCameraController(ICameraController* cameraController) {
 	this->cameraController = cameraController;
@@ -160,9 +147,6 @@ void Camera::addCameraController(ICameraController* cameraController) {
 		setProjection(projection);
 	});
 }*/
-
-// UboBp Getter
-GLuint Camera::getUboBindingPoint() { return uboBp; }
 
 void Camera::onGUI()
 {

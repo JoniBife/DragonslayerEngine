@@ -159,6 +159,118 @@ void ShaderProgram::setUniform(const GLint location, const Mat4& value) {
     GL_CALL(glUniformMatrix4fv(location, 1, GL_FALSE, array));
 }
 
+void ShaderProgram::setUniform(const GLchar* name,const GLint value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    GL_CALL(glUniform1i(search->second, value));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const GLuint value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    GL_CALL(glUniform1ui(search->second, value));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const GLfloat value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    GL_CALL(glUniform1f(search->second, value));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Vec2& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    float array[2];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniform2fv(search->second, 1, array));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Vec3& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+
+    float array[2];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniform3fv(search->second, 1, array));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Vec4& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    float array[4];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniform4fv(search->second, 1, array));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Mat2& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    float array[4];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniformMatrix2fv(search->second, 1, GL_FALSE, array));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Mat3& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    float array[9];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniformMatrix3fv(search->second, 1, GL_FALSE, array));
+}
+
+void ShaderProgram::setUniform(const GLchar* name, const Mat4& value)
+{
+    auto search = locationCache.find(name);
+    if (search == locationCache.end()) {
+        GL_CALL(GLint location = glGetUniformLocation(id, name));
+        assert(location >= 0); // execution should stop if location is < 0
+        locationCache.insert({ name, location });
+    }
+    float array[16];
+    value.toOpenGLFormat(array);
+    GL_CALL(glUniformMatrix4fv(search->second, 1, GL_FALSE, array));
+}
+
 // Binds a uniform block
 void ShaderProgram::bindUniformBlock(const GLuint index, const GLuint bindingPoint) {
     GL_CALL(glUniformBlockBinding(id, index, bindingPoint));

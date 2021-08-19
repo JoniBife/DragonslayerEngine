@@ -10,6 +10,7 @@
 #include "../math/Mat2.h"
 #include "../math/Mat3.h"
 #include "../math/Mat4.h"
+#include <unordered_map>
 
 /*
 * Usage example:
@@ -47,6 +48,11 @@ class ShaderProgram {
 private:
 	GLuint id;
 
+	// Cache containing the location of any accessed uniform from this 
+	// Shader program to avoid uncessary calls to glGetUniformLocation
+	// which performs a full search in the shader program
+	std::unordered_map<const GLchar*, GLint> locationCache;
+
 public:
 	// TODO In the future we should add other constructors to support other types of shaders
 	ShaderProgram(Shader& vertexShader, Shader& fragmentShader, bool locationInShader = false);
@@ -72,6 +78,16 @@ public:
 	void setUniform(const GLint location, const Mat2& value);
 	void setUniform(const GLint location, const Mat3& value);
 	void setUniform(const GLint location, const Mat4& value);
+
+	void setUniform(const GLchar* name, const GLint value);
+	void setUniform(const GLchar* name, const GLuint value);
+	void setUniform(const GLchar* name, const GLfloat value);
+	void setUniform(const GLchar* name, const Vec2& value);
+	void setUniform(const GLchar* name, const Vec3& value);
+	void setUniform(const GLchar* name, const Vec4& value);
+	void setUniform(const GLchar* name, const Mat2& value);
+	void setUniform(const GLchar* name, const Mat3& value);
+	void setUniform(const GLchar* name, const Mat4& value);
 
 	// Binds a uniform block
 	void bindUniformBlock(const GLuint index, const GLuint bindingPoint);

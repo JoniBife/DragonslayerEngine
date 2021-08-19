@@ -56,7 +56,7 @@ SkyBox::SkyBox(const std::vector<std::string>& facesFilePath, Camera* camera) {
 	skyboxShader = new ShaderProgram(vs, fs);
     // Associating the shared matrix index with the binding point of the camera (0)
     GLuint sharedMatricesIndex = skyboxShader->getUniformBlockIndex("SharedMatrices");
-    skyboxShader->bindUniformBlock(sharedMatricesIndex, camera->getUboBindingPoint());
+    skyboxShader->bindUniformBlock(sharedMatricesIndex, 0);
 
     skyBoxLocation = skyboxShader->getUniformLocation("skybox");
     skyboxShader->use();

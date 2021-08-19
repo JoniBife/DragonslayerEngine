@@ -62,6 +62,11 @@ RenderCommand renderer::DeferredRenderQueue::dequeueShadowMap()
 	return command;
 }
 
+std::queue<RenderCommand> renderer::DeferredRenderQueue::getShadowMapQueue()
+{
+	return shadowMapQueue;
+}
+
 bool renderer::DeferredRenderQueue::isAlphaTestEmpty()
 {
 	return alphaTestQueue.empty();

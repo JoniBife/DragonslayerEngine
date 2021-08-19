@@ -2,6 +2,7 @@
 #define DEFERRED_RENDER_PIPELINE_H
 
 #include "../renderer/RenderPipeline.h"
+#include "DeferredRenderQueue.h"
 #include "OpenGLState.h"
 #include "../meshes/Mesh.h"
 
@@ -11,6 +12,8 @@ namespace renderer {
 
 	private:
 		OpenGLState* openGLState;
+
+		DeferredRenderQueue* deferredRenderQueue;
 
 		ShaderProgram* geometryShaderProgram;
 		ShaderProgram* shadowMapShaderProgram;
@@ -26,6 +29,12 @@ namespace renderer {
 		Mesh* quadNDC;
 
 		unsigned int maxShadowMaps = 3;
+
+		GLuint vboGlobalUniforms;
+
+		/* Creates empty global uniform buffer */
+		void createGlobalUniformsBuffer();
+		void updateGlobalUniformsBuffer(const Mat4& view, const Mat4& projection);
 
 	public:
 		/* Performs all initialization operations:

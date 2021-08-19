@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 0) in vec3 position;
+layout (location = 0) in vec4 position;
 
 uniform mat4 modelMatrix;
 
@@ -11,5 +11,5 @@ uniform sharedMatrices {
 
 void main()
 {	
-	gl_Position =  projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+	gl_Position =  projectionMatrix * viewMatrix * modelMatrix * position;
 }

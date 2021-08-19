@@ -16,7 +16,35 @@ static void printOpenGLInfo()
     std::cout << "GLSL version " << glslVersion << std::endl;
 }
 
+void renderer::DeferredRenderPipeline::createGlobalUniformsBuffer()
+{
+	GL_CALL(glGenBuffers(1, &vboGlobalUniforms));
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vboGlobalUniforms));
+	{
+		GL_CALL(glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 16 * 2, 0, GL_DYNAMIC_DRAW));
+		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, vboGlobalUniforms));
+	}
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+void renderer::DeferredRenderPipeline::updateGlobalUniformsBuffer(const Mat4& view, const Mat4& projection)
+{
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vboGlobalUniforms));
+	{
+		float viewOpenGLFormat[16];
+		float projectionOpenGLFormat[16];
+		view.toOpenGLFormat(viewOpenGLFormat);
+		projection.toOpenGLFormat(projectionOpenGLFormat);
+		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(viewOpenGLFormat), viewOpenGLFormat));
+		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
+	}
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
 renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new DeferredRenderQueue()) {
+
+	// Casting once when the pipeline is created instead of everyframe
+	deferredRenderQueue = dynamic_cast<DeferredRenderQueue*>(renderQueue);
 
 	// 1. Creation of OpenGL context and loading all OpenGL functions 
 	glewExperimental = GL_TRUE;
@@ -52,7 +80,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	Shader prostProcessingFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/postProcessingFS.glsl");
 	postProcessingShaderProgram = new ShaderProgram(postProcessingVS, prostProcessingFS);
 
-	// 4. Creating intermediate framebuffers
+	// 4. Creating intermediate framebuffers and global unifom buffer
 	FrameBufferBuilder frameBufferBuilder;
 
 	gBuffer = frameBufferBuilder
@@ -65,7 +93,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	for (int i = 0; i < maxShadowMaps; ++i) {
 		// TODO ShadowMap depth texture has different properties
 		shadowMapBuffers.push_back(frameBufferBuilder
-			.setSize(1, 1)
+			.setSize(2048, 2048)
 			.attachDepthBuffer()
 			.build());
 	}
@@ -89,9 +117,12 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
 
+	createGlobalUniformsBuffer();
+
 	// 5. Creating the quad whose vertices will be used in most render passes
 	quadNDC = Mesh::rectangle(2.0f, 2.0f);
 	quadNDC->init();
+	
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -115,7 +146,7 @@ renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
 
 void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights& lights)
 {
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 	openGLState->setViewPort(0, 0, renderWidth, renderHeight);
 	openGLState->setDepthTesting(true);
@@ -125,68 +156,81 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	openGLState->setCullFace(GL_BACK);
 	openGLState->setFrontFace(GL_CCW);
 	openGLState->setBlending(false);
-
-	DeferredRenderQueue* deferredRenderQueue = dynamic_cast<DeferredRenderQueue*>(renderQueue);
+	
+	// TODO Consider caching to avoid updating the buffer everyframe
+	updateGlobalUniformsBuffer(camera.getView(), camera.getProjection());
 
 	// 1. Render all the geometry to the gBuffer
 	gBuffer->bind();
-	gBuffer->drawBuffers();
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-	geometryShaderProgram->use();
-	geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
-	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("albedoMap"), 0);
-	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("normalMap"), 1);
-	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("metallicMap"), 2);
-	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("roughnessMap"), 3);
-	geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("ambientOcclusionMap"), 4);
-	
-	RenderCommand renderCommand;
+	{
+		gBuffer->drawBuffers();
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-	while (!deferredRenderQueue->isGeometryEmpty()) {
-		renderCommand = deferredRenderQueue->dequeueGeometry();
-		
-		renderCommand.material->albedoMap->bind(GL_TEXTURE0);
-		renderCommand.material->normalMap->bind(GL_TEXTURE1);
-		renderCommand.material->metallicMap->bind(GL_TEXTURE2);
-		renderCommand.material->roughnessMap->bind(GL_TEXTURE3);
-		renderCommand.material->aoMap->bind(GL_TEXTURE4);
+		geometryShaderProgram->use();
+		geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
 
-		geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("modelMatrix"), renderCommand.model);
-		Mat3 inverse;
-		renderCommand.model.toMat3().inverse(inverse);
-		geometryShaderProgram->setUniform(geometryShaderProgram->getUniformLocation("normalMatrix"), inverse);
+		RenderCommand renderCommand;
+		Mat3 normal;
+		while (!deferredRenderQueue->isGeometryEmpty()) {
+			renderCommand = deferredRenderQueue->dequeueGeometry();
 
-		renderCommand.mesh->bind();
-		renderCommand.mesh->draw();
-		renderCommand.mesh->unBind();
+			renderCommand.model.toMat3().inverse(normal);
+			renderCommand.material->getOpenGLMaterial().sendParametersToGeometryShaderProgram(renderCommand.model, normal);
+
+			renderCommand.mesh->bind();
+			renderCommand.mesh->draw();
+			renderCommand.mesh->unBind();
+		}
+
+		geometryShaderProgram->stopUsing();
 	}
-
-	geometryShaderProgram->stopUsing();
 	gBuffer->unbind();
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
+	auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
 	
-	lightBuffer->bind();
-	lightBuffer->drawBuffers();
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
-	pbrShaderProgram->use();
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("viewPosition"), camera.getPosition());
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("albedoTint"), Vec3(0.0f,0.0f,0.0f) );
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("normalStrength"), 1.0f);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("metallicFactor"), 1.0f);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("roughnessFactor"), 1.0f);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("aoFactor"), 1.0f);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferPositionMetallic"), 0);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferNormalRoughness"), 1);
-	pbrShaderProgram->setUniform(pbrShaderProgram->getUniformLocation("gBufferAlbedoAmbientOcclusion"), 2);
-	gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
-	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
-	gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
+	if (shadowMapCommands.size() > 0) {
+		
+		// TODO this should not be hardcoded
+		openGLState->setViewPort(0,0,2048,2048);
 
-	quadNDC->bind();
-	quadNDC->draw();
-	quadNDC->unBind();
-	pbrShaderProgram->stopUsing();
+		for (int i = 0; i < lights.directionalLights.size(); ++i) {
+			shadowMapBuffers[i]->bind();
+			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+			shadowMapShaderProgram->use();
+
+			for (const RenderCommand shadowMapCommand : shadowMapCommands._Get_container()) {
+				shadowMapCommand.mesh->bind();
+				shadowMapCommand.mesh->draw();
+				shadowMapCommand.mesh->unBind();
+			}
+
+			shadowMapShaderProgram->stopUsing();
+			shadowMapBuffers[i]->unbind();
+		}
+	}
+
+	// 3. Render with lighting
+	lightBuffer->bind();
+	{
+		lightBuffer->drawBuffers();
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
+		pbrShaderProgram->use();
+
+		pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
+		pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
+		pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
+		pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
+		gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+		gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
+		gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
+
+		quadNDC->bind();
+		quadNDC->draw();
+		quadNDC->unBind();
+
+		pbrShaderProgram->stopUsing();
+	}
 	lightBuffer->unbind();
 
 	// 3. Apply any post processing

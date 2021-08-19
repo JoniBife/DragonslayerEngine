@@ -11,7 +11,7 @@ namespace renderer {
 
 	/*
 	* Base class for any render pipeline (deferred, forward etc..)
-	* This way the render is abstracted from this structure and can save multiple
+	* This way the renderer is abstracted from this structure and can save multiple
 	* render pipelines and swap between them with ease
 	*/
 	class RenderPipeline {

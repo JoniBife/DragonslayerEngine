@@ -27,6 +27,7 @@ namespace renderer {
 
 		bool isShadowMapEmpty();
 		RenderCommand dequeueShadowMap();
+		std::queue<RenderCommand> getShadowMapQueue();
 
 		bool isAlphaTestEmpty();
 		RenderCommand dequeueAlphaTest();

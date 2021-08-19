@@ -9,12 +9,6 @@ uniform vec3 viewPosition;
 
 uniform vec3 lightColor = {150.0, 150.0, 150.0};
 
-uniform vec3  albedoTint;
-uniform float normalStrength;
-uniform float metallicFactor;
-uniform float roughnessFactor;
-uniform float aoFactor;
-
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
@@ -151,12 +145,12 @@ void main(void)
     vec4 normalRoughness = texture(gBufferNormalRoughness, fragTextCoords);
     vec4 albedoAmbientOcclusion = texture(gBufferAlbedoAmbientOcclusion, fragTextCoords);
     
-    vec3 position = positionMetallic.xyz; 
-    float metallic = positionMetallic.w * metallicFactor;
-    vec3 normal = normalRoughness.xyz * normalStrength; 
-    float roughness = normalRoughness.w * roughnessFactor;
-    vec3 albedo = pow(albedoAmbientOcclusion.xyz, vec3(2.2)) + albedoTint; 
-    float ambientOcclusion = albedoAmbientOcclusion.w * aoFactor;
+    vec3 position = positionMetallic.rgb; 
+    float metallic = positionMetallic.a;
+    vec3 normal = normalRoughness.rgb; 
+    float roughness = normalRoughness.a;
+    vec3 albedo = albedoAmbientOcclusion.rgb; 
+    float ambientOcclusion = albedoAmbientOcclusion.a;
 
     // 2. Calculate color using PBR
     vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
@@ -168,6 +162,8 @@ void main(void)
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
+
+    
 
     fragmentColor = vec4(color, 1.0);
 }

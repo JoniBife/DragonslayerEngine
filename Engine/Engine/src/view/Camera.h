@@ -14,9 +14,6 @@ class Camera {
 protected:
 	Mat4 view;
 	Mat4 projection; // TODO Create a projection class
-	GLuint vbo;
-	GLuint uboBp = 0;
-	ICameraController* cameraController;
 
 	Vec3 position = { 0.0f, 0.0f, 3.0f }; // eye
 	Vec3 target = { 0.0f, 0.0f, 0.0f }; // center
@@ -30,6 +27,7 @@ protected:
 
 	float fov = 60.0f;
 
+	bool wasDirtyRecently = false; // Indicates whether the camera was updated recently
 	bool dirty = true; // Indicates whether a setter was called
 
 public:
@@ -57,10 +55,9 @@ public:
 	float getViewportWidth() const;
 	float getViewportHeight() const;
 	Vec2 getViewportSize() const;
+	bool wasDirty() const; // Checks if the camera was dirty recently
 
 	//void addCameraController(ICameraController* cameraController);
-
-	GLuint getUboBindingPoint();
 
 	virtual void onGUI();
 };
