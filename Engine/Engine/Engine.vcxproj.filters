@@ -204,6 +204,9 @@
     <ClCompile Include="src\renderer\Material2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\deferredPipeline\GLPBRMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\Mat2.h">
@@ -405,6 +408,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\PostProcessingCommand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\deferredPipeline\GLMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\deferredPipeline\GLPBRMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

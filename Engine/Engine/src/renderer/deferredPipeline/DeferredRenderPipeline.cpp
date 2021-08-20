@@ -2,6 +2,8 @@
 #include "DeferredRenderPipeline.h"
 #include "DeferredRenderQueue.h"
 #include "../../utils/OpenGLUtils.h"
+#include "GLPBRMaterial.h"
+#include "../view/Transformations.h"
 
 using namespace renderer;
 
@@ -100,7 +102,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 
 	lightBuffer = frameBufferBuilder
 		.setSize(renderWidth, renderHeight)
-		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachColorBuffers(1, GL_HALF_FLOAT) // Attaching color buffers with GL_RGBA16F precision to avoid clamping to [0,1]
 		.attachDepthBuffer()
 		.attachStencilBuffer()
 		.build();
@@ -122,7 +124,13 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	// 5. Creating the quad whose vertices will be used in most render passes
 	quadNDC = Mesh::rectangle(2.0f, 2.0f);
 	quadNDC->init();
-	
+
+	// 6. Load default material textures
+	defaultAlbedoMap = new Texture2D("../Engine/textures/pbr/default/albedo.png");
+	defaultNormalMap = new Texture2D("../Engine/textures/pbr/default/normal.png");
+	defaultMetallicMap = new Texture2D("../Engine/textures/pbr/default/metallic.png");
+	defaultRoughnessMap = new Texture2D("../Engine/textures/pbr/default/roughness.png");
+	defaultAOMap = new Texture2D("../Engine/textures/pbr/default/ao.png");
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -146,6 +154,8 @@ renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
 
 void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights& lights)
 {
+	GL_CALL(glClearColor(0, 0, 0, 1));
+
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 	openGLState->setViewPort(0, 0, renderWidth, renderHeight);
@@ -162,28 +172,51 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	// 1. Render all the geometry to the gBuffer
 	gBuffer->bind();
-	{
-		gBuffer->drawBuffers();
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	
+	gBuffer->drawBuffers();
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-		geometryShaderProgram->use();
-		geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
+	geometryShaderProgram->use();
+	geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
 
-		RenderCommand renderCommand;
-		Mat3 normal;
-		while (!deferredRenderQueue->isGeometryEmpty()) {
-			renderCommand = deferredRenderQueue->dequeueGeometry();
+	RenderCommand renderCommand;
+	Mat3 normal;
+	GLPBRMaterial* material;
+	while (!deferredRenderQueue->isGeometryEmpty()) {
 
-			renderCommand.model.toMat3().inverse(normal);
-			renderCommand.material->getOpenGLMaterial().sendParametersToGeometryShaderProgram(renderCommand.model, normal);
+		renderCommand = deferredRenderQueue->dequeueGeometry();
+		material = renderCommand.material;
 
-			renderCommand.mesh->bind();
-			renderCommand.mesh->draw();
-			renderCommand.mesh->unBind();
-		}
+		material->getAlbedoMap().bind(GL_TEXTURE0);
+		material->getNormalMap().bind(GL_TEXTURE1);
+		material->getMetallicMap().bind(GL_TEXTURE2);
+		material->getRoughnessMap().bind(GL_TEXTURE3);
+		material->getAOMap().bind(GL_TEXTURE4);
 
-		geometryShaderProgram->stopUsing();
+		renderCommand.model.toMat3().inverse(normal);
+
+		geometryShaderProgram->setUniform("modelMatrix", renderCommand.model);
+		geometryShaderProgram->setUniform("normalMatrix", normal);
+		geometryShaderProgram->setUniform("albedoTint", material->getAlbedoTint());
+		geometryShaderProgram->setUniform("normalStrength", material->getNormalStrength());
+		geometryShaderProgram->setUniform("metallicFactor", material->getMetallic());
+		geometryShaderProgram->setUniform("roughnessFactor", material->getRoughness());
+		geometryShaderProgram->setUniform("aoFactor", material->getAO());
+
+		geometryShaderProgram->setUniform("albedoMap", 0);
+		geometryShaderProgram->setUniform("normalMap", 1);
+		geometryShaderProgram->setUniform("metallicMap", 2);
+		geometryShaderProgram->setUniform("roughnessMap", 3);
+		geometryShaderProgram->setUniform("ambientOcclusionMap", 4);
+
+
+		renderCommand.mesh->bind();
+		renderCommand.mesh->draw();
+		renderCommand.mesh->unBind();
 	}
+
+	geometryShaderProgram->stopUsing();
+	
 	gBuffer->unbind();
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
@@ -192,61 +225,74 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	if (shadowMapCommands.size() > 0) {
 		
 		// TODO this should not be hardcoded
-		openGLState->setViewPort(0,0,2048,2048);
+		openGLState->setViewPort(0, 0, 2048, 2048);
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
-			shadowMapBuffers[i]->bind();
+			//shadowMapBuffers[i]->bind();
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 			shadowMapShaderProgram->use();
+			Mat4 lightView = lookAt({ -2.0f, 4.0f, -1.0f }, Vec3::ZERO, Vec3::Y);
+			Mat4 projection = ortho(-100.0f, 100.0f, -100.0f, 100.0f, 0.1f, 30.0f);
 
+			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", projection * lightView);
+			
 			for (const RenderCommand shadowMapCommand : shadowMapCommands._Get_container()) {
+
+				shadowMapShaderProgram->setUniform("modelMatrix", shadowMapCommand.model);
 				shadowMapCommand.mesh->bind();
 				shadowMapCommand.mesh->draw();
 				shadowMapCommand.mesh->unBind();
 			}
 
 			shadowMapShaderProgram->stopUsing();
-			shadowMapBuffers[i]->unbind();
+			//shadowMapBuffers[i]->unbind();
 		}
 	}
 
 	// 3. Render with lighting
-	lightBuffer->bind();
-	{
-		lightBuffer->drawBuffers();
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
-		pbrShaderProgram->use();
+	/*lightBuffer->bind();
+	
+	lightBuffer->drawBuffers();
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
+	pbrShaderProgram->use();
 
-		pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
-		pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
-		pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
-		pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
-		gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
-		gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
-		gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
+	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
+	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
+	pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
+	pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
+	pbrShaderProgram->setUniform("shadowMap", 3);
 
-		quadNDC->bind();
-		quadNDC->draw();
-		quadNDC->unBind();
+	gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
+	gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
+	shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE3);
 
-		pbrShaderProgram->stopUsing();
-	}
+	quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
+
+	pbrShaderProgram->stopUsing();
+	
 	lightBuffer->unbind();
 
 	// 3. Apply any post processing
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
-	postProcessingShaderProgram->setUniform(
-		postProcessingShaderProgram->getUniformLocation("previousRenderTexture"),
-		0);
-	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
+	//lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	gBuffer->getStencilDepthAttachment().bind(GL_TEXTURE0);
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
-	postProcessingShaderProgram->stopUsing();
+	postProcessingShaderProgram->stopUsing();*/
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)
 {
 	
+}
+
+GLPBRMaterial* renderer::DeferredRenderPipeline::createMaterial()
+{
+	return new GLPBRMaterial(*defaultAlbedoMap,*defaultNormalMap, *defaultMetallicMap, *defaultRoughnessMap,*defaultAOMap);
 }

@@ -3,13 +3,9 @@
 layout (location = 0) in vec4 position;
 
 uniform mat4 modelMatrix;
-
-uniform sharedMatrices {
-	mat4 viewMatrix;
-	mat4 projectionMatrix;
-};
+uniform mat4 lightSpaceProjectionMatrix;
 
 void main()
 {	
-	gl_Position =  projectionMatrix * viewMatrix * modelMatrix * position;
+	gl_Position =  lightSpaceProjectionMatrix * modelMatrix * position;
 }

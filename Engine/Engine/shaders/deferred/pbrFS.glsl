@@ -152,9 +152,11 @@ void main(void)
     vec3 albedo = albedoAmbientOcclusion.rgb; 
     float ambientOcclusion = albedoAmbientOcclusion.a;
 
+    float shadow = texture(shadowMap, vec2(1,1)).r;  
+
     // 2. Calculate color using PBR
     vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
-
+   
     // 3. Combine with shadow map
     // TODO
 
@@ -167,20 +169,3 @@ void main(void)
 
     fragmentColor = vec4(color, 1.0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

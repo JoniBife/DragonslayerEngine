@@ -10,5 +10,5 @@ void main()
     vec4 color = texture(previousRenderTexture, fragTextCoords);
     // TODO Post processing
     //fragmentColor = vec4(1,1,0,1);
-    fragmentColor = color;
+    fragmentColor = vec4(color.r, color.r, color.r, 1);
 } 

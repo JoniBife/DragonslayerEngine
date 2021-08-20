@@ -26,6 +26,12 @@ namespace renderer {
 		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
 
+		Texture2D* defaultAlbedoMap;
+		Texture2D* defaultNormalMap;
+		Texture2D* defaultMetallicMap;
+		Texture2D* defaultRoughnessMap;
+		Texture2D* defaultAOMap;
+
 		Mesh* quadNDC;
 
 		unsigned int maxShadowMaps = 3;
@@ -48,6 +54,8 @@ namespace renderer {
 
 		void render(const Camera& camera, const Lights& lights) override;
 		void renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget) override;
+
+		GLPBRMaterial* createMaterial();
 	};
 
 }

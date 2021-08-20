@@ -2,13 +2,13 @@
 #define RENDER_COMMAND_H
 
 #include "../meshes/Mesh.h"
-#include "Material.h"
+#include "deferredPipeline/GLPBRMaterial.h"
 
 namespace renderer {
 
 	struct RenderCommand {
 		Mesh* mesh;
-		Material* material;
+		GLPBRMaterial* material;
 		Mat4 model;
 		bool castShadows;
 		bool receiveShadows;

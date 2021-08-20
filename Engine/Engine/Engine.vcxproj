@@ -50,6 +50,7 @@
     <ClCompile Include="src\meshes\SkyBox.cpp" />
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderPipeline.cpp" />
     <ClCompile Include="src\renderer\deferredPipeline\DeferredRenderQueue.cpp" />
+    <ClCompile Include="src\renderer\deferredPipeline\GLPBRMaterial.cpp" />
     <ClCompile Include="src\renderer\deferredPipeline\OpenGLState.cpp" />
     <ClCompile Include="src\renderer\Material2.cpp" />
     <ClCompile Include="src\renderer\PostProcessingCommand.cpp" />
@@ -111,6 +112,8 @@
     <ClInclude Include="src\renderer\AreaLight.h" />
     <ClInclude Include="src\renderer\deferredPipeline\DeferredRenderPipeline.h" />
     <ClInclude Include="src\renderer\deferredPipeline\DeferredRenderQueue.h" />
+    <ClInclude Include="src\renderer\deferredPipeline\GLMaterial.h" />
+    <ClInclude Include="src\renderer\deferredPipeline\GLPBRMaterial.h" />
     <ClInclude Include="src\renderer\DirectionalLight.h" />
     <ClInclude Include="src\renderer\Lights.h" />
     <ClInclude Include="src\renderer\Material.h" />

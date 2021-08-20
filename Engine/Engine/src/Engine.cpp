@@ -196,14 +196,37 @@ void Engine::run() {
 
 	RenderCommand renderCommand;
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
-	renderer::Material* material = new renderer::Material();
-	renderCommand.material = material;
 	sphereMesh->calculateTangents();
 	sphereMesh->init();
-	renderCommand.mesh = sphereMesh;
-	renderCommand.model = Mat4::IDENTITY;
 
+	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
+	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/alienslime/albedo.png");
+	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/alienslime/normal.png");
+	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/alienslime/metallic.png");
+	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/alienslime/roughness.png");
+	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/alienslime/ao.png");
+	material->setAlbedoMap(*albedoMap);
+	material->setNormalMap(*normalMap);
+	material->setMetallicMap(*metallicMap);
+	material->setRoughnessMap(*roughnessMap);
+	material->setAOMap(*aoMap);
+
+	renderCommand.mesh = sphereMesh;
+	renderCommand.material = material;
+	renderCommand.model = Mat4::IDENTITY;
+	
+	RenderCommand renderCommand2;
+	Mesh* mesh = MeshLoader::loadFromFile("../Engine/objs/plane.obj");
+	mesh->calculateTangents();
+	mesh->init();
+
+	renderCommand2.mesh = mesh;
+	renderCommand2.material = deferredRenderPipeline->createMaterial();
+	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
+	
 	Lights lights;
+	DirectionalLight light;
+	lights.directionalLights.push_back(light);
 
 	editorCamera = new EditorCamera();
 
@@ -215,7 +238,7 @@ void Engine::run() {
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
-
+		
 		double time = glfwGetTime();
 		elapsedTime = time - lastTime;
 		lastTime = time;
@@ -223,6 +246,7 @@ void Engine::run() {
 		editorCamera->update(elapsedTime);
 
 		deferredRenderPipeline->enqueueRender(renderCommand);
+		deferredRenderPipeline->enqueueRender(renderCommand2);
 		deferredRenderPipeline->render(*editorCamera, lights);
 
 		//update();
