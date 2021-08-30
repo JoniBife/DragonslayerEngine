@@ -229,14 +229,17 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		
 		// TODO this should not be hardcoded
 		openGLState->setViewPort(0, 0, 4096, 4096);
+		//openGLState->setCullFace(GL_FRONT);
+
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
 
 			shadowMapBuffers[i]->bind();
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+
 			shadowMapShaderProgram->use();
 			Mat4 lightView = lookAt(-1 * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
-			Mat4 projection = ortho(-20.0f, 20.0f, 20.0f, -20.0f, -15.0f, 20.0f);
+			Mat4 projection = ortho(-20.0f, 20.0f, -20.0f, 20.0f, -15.0f, 20.0f);
 
 			lightViewProjection = projection * lightView;
 
@@ -252,7 +255,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 			shadowMapShaderProgram->stopUsing();
 			shadowMapBuffers[i]->unbind();
+
+			
 		}
+
+		//openGLState->setCullFace(GL_BACK);
+		
 	}
 
 	// 3. Render with lighting

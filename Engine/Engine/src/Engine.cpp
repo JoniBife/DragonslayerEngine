@@ -200,7 +200,7 @@ void Engine::run() {
 	sphereMesh->init();
 
 	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
-	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/alienslime/albedo.png");
+	/*Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/alienslime/albedo.png");
 	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/alienslime/normal.png");
 	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/alienslime/metallic.png");
 	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/alienslime/roughness.png");
@@ -209,7 +209,7 @@ void Engine::run() {
 	material->setNormalMap(*normalMap);
 	material->setMetallicMap(*metallicMap);
 	material->setRoughnessMap(*roughnessMap);
-	material->setAOMap(*aoMap);
+	material->setAOMap(*aoMap);*/
 
 	renderCommand.mesh = sphereMesh;
 	renderCommand.material = material;
@@ -223,6 +223,15 @@ void Engine::run() {
 	renderCommand2.mesh = mesh;
 	renderCommand2.material = deferredRenderPipeline->createMaterial();
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
+
+	RenderCommand renderCommand3;
+	Mesh* mesh2 = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
+	mesh2->calculateTangents();
+	mesh2->init();
+
+	renderCommand3.mesh = mesh2;
+	renderCommand3.material = deferredRenderPipeline->createMaterial();
+	renderCommand3.model = Mat4::translation(-2.0f, 2.0f, 2.0f) * Mat4::rotation(PI / 4.0f, Vec3::Z);
 	
 	Lights lights;
 	DirectionalLight light;
@@ -247,6 +256,7 @@ void Engine::run() {
 
 		deferredRenderPipeline->enqueueRender(renderCommand);
 		deferredRenderPipeline->enqueueRender(renderCommand2);
+		deferredRenderPipeline->enqueueRender(renderCommand3);
 		deferredRenderPipeline->render(*editorCamera, lights);
 
 		//update();
