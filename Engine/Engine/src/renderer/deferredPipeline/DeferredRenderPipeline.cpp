@@ -96,6 +96,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		// TODO ShadowMap depth texture has different properties
 		shadowMapBuffers.push_back(frameBufferBuilder
 			.setSize(2048, 2048)
+			//.attachColorBuffers(1, GL_FLOAT)
 			.attachDepthBuffer()
 			.build());
 	}
@@ -160,8 +161,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	openGLState->setViewPort(0, 0, renderWidth, renderHeight);
 	openGLState->setDepthTesting(true);
-	openGLState->setDepthFunction(GL_LEQUAL);
-	openGLState->setDepthRange(0.0, 1.0);
+	openGLState->setDepthFunction(GL_LESS);
+	//openGLState->setDepthRange(0.0, 1.0);
 	openGLState->setFaceCulling(true);
 	openGLState->setCullFace(GL_BACK);
 	openGLState->setFrontFace(GL_CCW);
@@ -220,7 +221,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	gBuffer->unbind();
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
-	auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
+	/*auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
 	
 	if (shadowMapCommands.size() > 0) {
 		
@@ -228,11 +229,16 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		openGLState->setViewPort(0, 0, 2048, 2048);
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
-			//shadowMapBuffers[i]->bind();
+
+			shadowMapBuffers[i]->bind();
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 			shadowMapShaderProgram->use();
-			Mat4 lightView = lookAt({ -2.0f, 4.0f, -1.0f }, Vec3::ZERO, Vec3::Y);
-			Mat4 projection = ortho(-100.0f, 100.0f, -100.0f, 100.0f, 0.1f, 30.0f);
+			Mat4 lightView = camera.getView();
+			Mat4 projection = 
+				
+				//camera.getProjection();
+				
+				ortho(-10.0f, 10.0f, -10.0f, 10.0f,  1.0f, 7.5f);
 
 			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", projection * lightView);
 			
@@ -245,12 +251,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			}
 
 			shadowMapShaderProgram->stopUsing();
-			//shadowMapBuffers[i]->unbind();
+			shadowMapBuffers[i]->unbind();
 		}
-	}
+	}*/
 
 	// 3. Render with lighting
-	/*lightBuffer->bind();
+	lightBuffer->bind();
 	
 	lightBuffer->drawBuffers();
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
@@ -275,16 +281,18 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	lightBuffer->unbind();
 
+	glViewport(0,0,renderWidth, renderHeight);
+
 	// 3. Apply any post processing
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	//GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
-	//lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
-	gBuffer->getStencilDepthAttachment().bind(GL_TEXTURE0);
+	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	//shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE0);
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
-	postProcessingShaderProgram->stopUsing();*/
+	postProcessingShaderProgram->stopUsing();
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)

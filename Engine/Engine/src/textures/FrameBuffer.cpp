@@ -239,7 +239,7 @@ FrameBuffer* FrameBufferBuilder::build()
 
 		} else {
 			// TODO Is this the right approach, it does not
-			// feel intuitive no flexible
+			// feel intuitive nor flexible
 			GLint internalFormat = GL_RGBA;
 			if (colorAttachmentsPrecision[i] == GL_FLOAT) {
 				internalFormat = GL_RGBA32F;
@@ -286,6 +286,9 @@ FrameBuffer* FrameBufferBuilder::build()
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->getId(), 0));
 			frameBuffer->depthAttachment = texture;
+
+			GL_CALL(glDrawBuffer(GL_NONE));
+			GL_CALL(glReadBuffer(GL_NONE));
 		}
 		else {
 			GL_CALL(glGenRenderbuffers(1, &frameBuffer->depthAttachmentRBO));

@@ -12,7 +12,7 @@ renderer::OpenGLState::OpenGLState()
 	}
 
 	GL_CALL(glDepthFunc(depthFunction));
-	GL_CALL(glDepthMask(depthMask));
+	//GL_CALL(glDepthMask(depthMask));
 	GL_CALL(glDepthRange(zNear, zFar));
 
 	if (faceCulling) {

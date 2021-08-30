@@ -23,7 +23,9 @@ void Camera::update(float elapsedTime) {
 		wasDirtyRecently = true;
 		//front = target - position;
 		view = lookAt(position, position + front, up);
-		projection = perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
+		projection = ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 30.0f);
+			
+			//perspective(degreesToRadians(fov), viewportWidth / viewportHeight, near, far);
 	} else {
 		wasDirtyRecently = false;
 	}
