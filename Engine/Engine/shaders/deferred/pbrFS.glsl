@@ -4,10 +4,11 @@ layout (location = 0) out vec4 fragmentColor;
 
 in vec2 fragTextCoords;
 
-uniform vec3 lightPosition = { 0.0, 0.0, 10.0};
 uniform vec3 viewPosition;
 
-uniform vec3 lightColor = {150.0, 150.0, 150.0};
+uniform mat4 lightSpaceMatrix;
+
+uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
@@ -64,11 +65,9 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     vec3 Lo = vec3(0.0);
 
     // calculate per-light radiance
-    vec3 L = normalize(lightPosition - position);
+    vec3 L = -1 * normalize(vec3(-1.0, -1.0, 0.0)) * 10.0;
     vec3 H = normalize(V + L);
-    float distance = length(lightPosition - position);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = lightColor * attenuation;
+    vec3 radiance = lightColor;
 
     // Cook-Torrance BRDF
     float NDF = DistributionGGX(normal, H, roughness);   
@@ -105,20 +104,30 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     return color;
 }
 
-float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
-	// Perspective division
-	vec3 projCoords = fragPosLightSpace.xyz/fragPosLightSpace.w; // Actually meaningless since the proj matrix used for light space is orthographic
-	// Moving the coords to [0,1] which is the range of the depth map
-	projCoords = projCoords * 0.5 + 0.5;
-	// Closest depth from the light's point of view
-	float closestDepth = texture(shadowMap, projCoords.xy).r;   
-	// Current depth from the light's point of view
-	float currentDepth = projCoords.z;  
+float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix) {
+	
+    // Moving the current fragment to light space
+    vec4 fragmentLightSpace = lightViewProjectionMatrix * position;
 
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    // Obtaining the coordinates to extract the depth from the shadow map 
+    // and moving them to the range of [0,1] which is the range of the depth in the shadow map and the texture coordinates
+    // to sample from the shadow map
+	vec3 shadowMapCoords = fragmentLightSpace.xyz * 0.5 + 0.5;
+
+	// Extracting the closest depth from the light's point of view
+	float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy).r;   
+
+	// Extracting the depth of the current fragment from the light's point of view
+	float currentFragmentDepth = shadowMapCoords.z; 
+    
+    if (currentFragmentDepth > 1.0)
+        currentFragmentDepth = 1.0;
+
+
+	float bias = max(0.05 * (1.0 - dot(normal, normalize(vec3(-1.0, -1.0, 0.0)))), 0.005);
 
 	// PCF Filter
-	float shadow = 0.0;
+	/*float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 	for(int x = -1; x <= 1; ++x)
 	{
@@ -131,9 +140,11 @@ float calculateShadows(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
 	shadow /= 9.0;
 
 	if(currentDepth > 1.0)
-        return 0.0f;
+        return 0.0f;*/
 
-	return shadow;
+    // if the current fragment is closer than the fragment renderered from the lights perspective
+    // then the object is not in shadow, otherwise it is
+	return currentFragmentDepth < shadowMapDepth + bias ? 0.0 : 1.0;
 }
 
 void main(void)
@@ -152,10 +163,14 @@ void main(void)
     vec3 albedo = albedoAmbientOcclusion.rgb; 
     float ambientOcclusion = albedoAmbientOcclusion.a;
 
-    float shadow = texture(shadowMap, vec2(1,1)).r;  
+    float shadow = calculateShadows(vec4(position,1.0),normal, lightSpaceMatrix);
 
     // 2. Calculate color using PBR
     vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
+
+    if (shadow == 1) {
+        color *= 0.1;
+    }
    
     // 3. Combine with shadow map
     // TODO

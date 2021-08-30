@@ -15,7 +15,7 @@ protected:
 	Mat4 view;
 	Mat4 projection; // TODO Create a projection class
 
-	Vec3 position = { 0.0f, 5.0f, 10.0f }; // eye
+	Vec3 position = { 0.0f, 0.0f, 10.0f }; // eye
 	Vec3 target = { 0.0f, 0.0f, 0.0f }; // center
 	Vec3 front = target - position;
 	Vec3 up = { 0.0f, 1.0f, 0.0f }; // up

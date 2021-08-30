@@ -95,7 +95,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	for (int i = 0; i < maxShadowMaps; ++i) {
 		// TODO ShadowMap depth texture has different properties
 		shadowMapBuffers.push_back(frameBufferBuilder
-			.setSize(2048, 2048)
+			.setSize(4096, 4096)
 			//.attachColorBuffers(1, GL_FLOAT)
 			.attachDepthBuffer()
 			.build());
@@ -221,26 +221,26 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	gBuffer->unbind();
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
-	/*auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
+	auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
 	
+	Mat4 lightViewProjection;
+
 	if (shadowMapCommands.size() > 0) {
 		
 		// TODO this should not be hardcoded
-		openGLState->setViewPort(0, 0, 2048, 2048);
+		openGLState->setViewPort(0, 0, 4096, 4096);
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
 
 			shadowMapBuffers[i]->bind();
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
 			shadowMapShaderProgram->use();
-			Mat4 lightView = camera.getView();
-			Mat4 projection = 
-				
-				//camera.getProjection();
-				
-				ortho(-10.0f, 10.0f, -10.0f, 10.0f,  1.0f, 7.5f);
+			Mat4 lightView = lookAt(-1 * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
+			Mat4 projection = ortho(-20.0f, 20.0f, 20.0f, -20.0f, -15.0f, 20.0f);
 
-			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", projection * lightView);
+			lightViewProjection = projection * lightView;
+
+			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjection);
 			
 			for (const RenderCommand shadowMapCommand : shadowMapCommands._Get_container()) {
 
@@ -253,15 +253,18 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			shadowMapShaderProgram->stopUsing();
 			shadowMapBuffers[i]->unbind();
 		}
-	}*/
+	}
 
 	// 3. Render with lighting
 	lightBuffer->bind();
+
+	glViewport(0, 0, renderWidth, renderHeight);
 	
 	lightBuffer->drawBuffers();
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
 
+	pbrShaderProgram->setUniform("lightSpaceMatrix", lightViewProjection);
 	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
 	pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
@@ -284,7 +287,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	glViewport(0,0,renderWidth, renderHeight);
 
 	// 3. Apply any post processing
-	//GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
 	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
