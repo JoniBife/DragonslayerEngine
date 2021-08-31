@@ -4,6 +4,8 @@
 #include "../../utils/OpenGLUtils.h"
 #include "GLPBRMaterial.h"
 #include "../view/Transformations.h"
+#include <imgui/imgui.h>
+#include "../../gui/ImGuiExtensions.h"
 
 using namespace renderer;
 
@@ -95,8 +97,8 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	for (int i = 0; i < maxShadowMaps; ++i) {
 		// TODO ShadowMap depth texture has different properties
 		shadowMapBuffers.push_back(frameBufferBuilder
-			.setSize(4096, 4096)
-			//.attachColorBuffers(1, GL_FLOAT)
+			.setSize(1024, 1024)
+			.attachColorBuffers(1, GL_HALF_FLOAT)
 			.attachDepthBuffer()
 			.build());
 	}
@@ -227,21 +229,38 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	Mat4 lightViewProjection;
 
+	static float left = -20.0f;
+	static float right = 20.0f;
+	static float bottom = -20.0f;
+	static float top = 20.0f;
+	static float near = -15.0f;
+	static float far = 20.0f;
+
+	ImGui::Text("Light Orthographic Projection Settings");
+	ImGui::InputFloat("Left", &left);
+	ImGui::InputFloat("Right", &right);
+	ImGui::InputFloat("bottom", &bottom);
+	ImGui::InputFloat("top", &top);
+	ImGui::InputFloat("near", &near);
+	ImGui::InputFloat("far", &far);
+
+	Mat4 projection = ortho(left, right, bottom, top, near, far);
+
 	if (shadowMapCommands.size() > 0) {
 		
 		// TODO this should not be hardcoded
-		openGLState->setViewPort(0, 0, 4096, 4096);
-		//openGLState->setCullFace(GL_FRONT);
+		openGLState->setViewPort(0, 0, 1024, 1024);
+		openGLState->setFaceCulling(false);
 
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
 
 			shadowMapBuffers[i]->bind();
-			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
 			shadowMapShaderProgram->use();
 			Mat4 lightView = lookAt(-1 * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
-			Mat4 projection = ortho(-20.0f, 20.0f, -20.0f, 20.0f, -15.0f, 20.0f);
+			
 
 			lightViewProjection = projection * lightView;
 
@@ -258,19 +277,22 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			shadowMapShaderProgram->stopUsing();
 			shadowMapBuffers[i]->unbind();
 
+			ImGui::Image((ImTextureID)shadowMapBuffers[i]->getColorAttachment(0).getId(), ImVec2(400,400), ImVec2(0, 1), ImVec2(1, 0));
+
 			
 		}
 
+		// TODO Temporary solution to clean shadow queue
 		while (!deferredRenderQueue->isShadowMapEmpty()) {
 			deferredRenderQueue->dequeueShadowMap();
 		}
 
-		//openGLState->setCullFace(GL_BACK);
+		openGLState->setFaceCulling(true);
 		
 	}
 
 	// 3. Render with lighting
-	//lightBuffer->bind();
+	lightBuffer->bind();
 
 	glViewport(0, 0, renderWidth, renderHeight);
 	
@@ -284,6 +306,9 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
 	pbrShaderProgram->setUniform("shadowMap", 3);
+	static Vec3 pixelOffset;
+	ImGui::InputVec3("Pixel Offset", pixelOffset);
+	pbrShaderProgram->setUniform("pixelOffset", pixelOffset);
 
 	gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
@@ -296,12 +321,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	pbrShaderProgram->stopUsing();
 	
-	//lightBuffer->unbind();
+	lightBuffer->unbind();
 
 	//glViewport(0,0,renderWidth, renderHeight);
 
 	// 3. Apply any post processing
-	/*GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
 	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
@@ -309,7 +334,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
-	postProcessingShaderProgram->stopUsing();*/
+	postProcessingShaderProgram->stopUsing();
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)

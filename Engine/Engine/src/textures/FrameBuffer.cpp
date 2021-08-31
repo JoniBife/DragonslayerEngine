@@ -285,8 +285,10 @@ FrameBuffer* FrameBufferBuilder::build()
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->getId(), 0));
 			frameBuffer->depthAttachment = texture;
 
-			GL_CALL(glDrawBuffer(GL_NONE));
-			GL_CALL(glReadBuffer(GL_NONE));
+			if (numberOfColorAttachments == 0) {
+				GL_CALL(glDrawBuffer(GL_NONE));
+				GL_CALL(glReadBuffer(GL_NONE));
+			}
 		}
 		else {
 			GL_CALL(glGenRenderbuffers(1, &frameBuffer->depthAttachmentRBO));

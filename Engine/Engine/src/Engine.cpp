@@ -228,7 +228,7 @@ void Engine::run() {
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
 
 	RenderCommand renderCommand3;
-	Mesh* mesh2 = MeshLoader::loadFromFile("../Engine/objs/cube.obj");
+	Mesh* mesh2 = MeshLoader::loadFromFile("../Engine/objs/cylinder64.obj");
 	mesh2->calculateTangents();
 	mesh2->init();
 
@@ -286,14 +286,11 @@ void Engine::run() {
 
 		editorCamera->update(elapsedTime);
 
-		rotation += (PI / 6.0f) * elapsedTime;
-
-		renderCommand3.model = Mat4::translation(translation) * Mat4::rotation(rotation, Vec3::Z);
-
 		ImGui::ShowMetricsWindow();
 		ImGui::InputVec3("Translation", translation);
 		ImGui::InputVec3("Translation2", translation);
-
+		ImGui::InputFloat("Rotation", &rotation);
+		ImGui::InputVec3("Light Direction", lights.directionalLights[0].direction);
 
 		deferredRenderPipeline->enqueueRender(renderCommand);
 		deferredRenderPipeline->enqueueRender(renderCommand2);
@@ -304,6 +301,12 @@ void Engine::run() {
 		}
 
 		deferredRenderPipeline->render(*editorCamera, lights);
+
+		rotation += (PI / 6.0f) * elapsedTime;
+
+		
+
+		renderCommand3.model = Mat4::translation(translation) * Mat4::rotation(rotation, Vec3::Z);
 
 		//update();
 

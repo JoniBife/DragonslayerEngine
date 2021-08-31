@@ -10,6 +10,8 @@ uniform mat4 lightSpaceMatrix;
 
 uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
+uniform vec3 pixelOffset;
+
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
@@ -53,6 +55,48 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     return ggx1 * ggx2;
 }
 
+float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix) {
+	
+    // Moving the current fragment to light space
+    vec4 fragmentLightSpace = lightViewProjectionMatrix * position + vec4(pixelOffset,0.0);
+
+    // Obtaining the coordinates to extract the depth from the shadow map 
+    // and moving them to the range of [0,1] which is the range of the depth in the shadow map and the texture coordinates
+    // to sample from the shadow map
+	vec3 shadowMapCoords = fragmentLightSpace.xyz * 0.5 + 0.5;
+
+	// Extracting the closest depth from the light's point of view
+	//float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy).r;   
+
+	// Extracting the depth of the current fragment from the light's point of view
+	float currentFragmentDepth = shadowMapCoords.z; 
+    
+	float bias = max(0.05 * (1.0 - dot(normalize(normal),  -1 *normalize(vec3(-1.0, -1.0, 0.0)))), 0.005);
+
+	// PCF Filter
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+
+			float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy + vec2(x, y) * texelSize).r; 
+
+            // if the current fragment is closer than the fragment renderered from the lights perspective
+            // then the object is not in shadow, otherwise it is
+			shadow += currentFragmentDepth - bias > shadowMapDepth ? 1.0 : 0.0;        
+		}    
+	}
+	shadow /= 9;
+
+	if(currentFragmentDepth > 1.0)
+        return 0.0f;
+
+	return shadow;
+}
+
+
 vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughness, float ambientOcclusion) {
     vec3 V = normalize(viewPosition - position);
 
@@ -90,10 +134,12 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     kD *= 1.0 - metallic;	  
 
     // scale light by NdotL
-    float NdotL = max(dot(normal, L), 0.0);        
+    float NdotL = max(dot(normal, L), 0.0);     
+    
+   float shadow = calculateShadows(vec4(position,1.0),normal, lightSpaceMatrix);
 
     // add to outgoing radiance Lo
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
@@ -104,46 +150,6 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     return color;
 }
 
-float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix) {
-	
-    // Moving the current fragment to light space
-    vec4 fragmentLightSpace = lightViewProjectionMatrix * position;
-
-    // Obtaining the coordinates to extract the depth from the shadow map 
-    // and moving them to the range of [0,1] which is the range of the depth in the shadow map and the texture coordinates
-    // to sample from the shadow map
-	vec3 shadowMapCoords = fragmentLightSpace.xyz * 0.5 + 0.5;
-
-	// Extracting the closest depth from the light's point of view
-	//float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy).r;   
-
-	// Extracting the depth of the current fragment from the light's point of view
-	float currentFragmentDepth = shadowMapCoords.z; 
-    
-	float bias = max(0.05 * (1.0 - dot(normalize(normal), normalize(-1*vec3(-1.0, -1.0, 0.0)))), 0.005);
-
-	// PCF Filter
-	float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-	for(int x = -1; x <= 1; ++x)
-	{
-		for(int y = -1; y <= 1; ++y)
-		{
-
-			float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy + vec2(x, y) * texelSize).r; 
-
-            // if the current fragment is closer than the fragment renderered from the lights perspective
-            // then the object is not in shadow, otherwise it is
-			shadow += currentFragmentDepth - bias < shadowMapDepth ? 0.0 : 1.0;        
-		}    
-	}
-	shadow /= 9;
-
-	if(currentFragmentDepth > 1.0)
-        return 0.0f;
-
-	return shadow;
-}
 
 void main(void)
 {
@@ -161,14 +167,8 @@ void main(void)
     vec3 albedo = albedoAmbientOcclusion.rgb; 
     float ambientOcclusion = albedoAmbientOcclusion.a;
 
-    float shadow = calculateShadows(vec4(position,1.0),normal, lightSpaceMatrix);
-
     // 2. Calculate color using PBR
     vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
-
-    // 3. Combine with shadow map
-    if (shadow > 0.0)
-        color *= max((1 - shadow), 0.01);
 
     // HDR tonemapping
     color = color / (color + vec3(1.0));
