@@ -195,6 +195,16 @@ static void showTempUI(Camera& camera) {
 	showEditorCameraPanel(camera);
 }
 
+void GUI::preRenderUI()
+{
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	setDefaultStyle();
+}
+
 void GUI::renderUI(Camera& camera)
 {
 	// Start the Dear ImGui frame
@@ -224,6 +234,13 @@ void GUI::renderUI(Camera& camera)
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}*/
+}
+
+void GUI::postRenderUI()
+{
+	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 MaterialPanel& GUI::getMaterialPanel() const

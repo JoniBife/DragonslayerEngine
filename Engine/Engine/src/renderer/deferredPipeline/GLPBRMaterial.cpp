@@ -1,10 +1,10 @@
 #include "GLPBRMaterial.h"
 
-renderer::GLPBRMaterial::GLPBRMaterial(Texture2D& defaultAlbedoMap,
-	Texture2D& defaultNormalMap,
-	Texture2D& defaultMetallicMap,
-	Texture2D& defaultRoughnessMap,
-	Texture2D& defaultAOMap) :
+renderer::GLPBRMaterial::GLPBRMaterial(Texture2D* defaultAlbedoMap,
+	Texture2D* defaultNormalMap,
+	Texture2D* defaultMetallicMap,
+	Texture2D* defaultRoughnessMap,
+	Texture2D* defaultAOMap) :
 	albedoMap(defaultAlbedoMap), 
 	normalMap(defaultNormalMap), 
 	metallicMap(defaultMetallicMap),
@@ -38,54 +38,54 @@ void renderer::GLPBRMaterial::setAO(float ao)
 	this->ao = ao;
 }
 
-void renderer::GLPBRMaterial::setAlbedoMap(Texture2D& texture2D)
+void renderer::GLPBRMaterial::setAlbedoMap(Texture2D* texture2D)
 {
 	this->albedoMap= texture2D;
 }
 
-void renderer::GLPBRMaterial::setNormalMap(Texture2D& texture2D)
+void renderer::GLPBRMaterial::setNormalMap(Texture2D* texture2D)
 {
 	this->normalMap = texture2D;
 }
 
-void renderer::GLPBRMaterial::setMetallicMap(Texture2D& texture2D)
+void renderer::GLPBRMaterial::setMetallicMap(Texture2D* texture2D)
 {
 	this->metallicMap = texture2D;
 }
 
-void renderer::GLPBRMaterial::setRoughnessMap(Texture2D& texture2D)
+void renderer::GLPBRMaterial::setRoughnessMap(Texture2D* texture2D)
 {
 	this->roughnessMap = texture2D;
 }
 
-void renderer::GLPBRMaterial::setAOMap(Texture2D& texture2D)
+void renderer::GLPBRMaterial::setAOMap(Texture2D* texture2D)
 {
 	this->aoMap = texture2D;
 }
 
 Texture2D& renderer::GLPBRMaterial::getAlbedoMap() const
 {
-	return albedoMap;
+	return *albedoMap;
 }
 
 Texture2D& renderer::GLPBRMaterial::getNormalMap() const
 {
-	return normalMap;
+	return *normalMap;
 }
 
 Texture2D& renderer::GLPBRMaterial::getMetallicMap() const
 {
-	return metallicMap;
+	return *metallicMap;
 }
 
 Texture2D& renderer::GLPBRMaterial::getRoughnessMap() const
 {
-	return roughnessMap;
+	return *roughnessMap;
 }
 
 Texture2D& renderer::GLPBRMaterial::getAOMap() const
 {
-	return aoMap;
+	return *aoMap;
 }
 
 Vec3 renderer::GLPBRMaterial::getAlbedoTint() const

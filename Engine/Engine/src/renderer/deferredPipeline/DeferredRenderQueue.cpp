@@ -15,8 +15,9 @@ bool renderer::DeferredRenderQueue::enqueueRender(RenderCommand renderCommand)
 	if (renderCommand.castShadows)
 		shadowMapQueue.push(renderCommand);
 
-	if (renderCommand.blending) 
-		alphaTestQueue.push(renderCommand);
+	// TODO Uncomment when implementing alpha testing
+	/*if (renderCommand.blending)
+		alphaTestQueue.push(renderCommand);*/
 	
 	// TODO Custom shader support
 

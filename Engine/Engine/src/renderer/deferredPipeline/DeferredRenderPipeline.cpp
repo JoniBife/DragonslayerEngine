@@ -183,10 +183,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	RenderCommand renderCommand;
 	Mat3 normal;
 	GLPBRMaterial* material;
+	Mesh* mesh;
 	while (!deferredRenderQueue->isGeometryEmpty()) {
 
 		renderCommand = deferredRenderQueue->dequeueGeometry();
 		material = renderCommand.material;
+		mesh = renderCommand.mesh;
 
 		material->getAlbedoMap().bind(GL_TEXTURE0);
 		material->getNormalMap().bind(GL_TEXTURE1);
@@ -211,9 +213,9 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		geometryShaderProgram->setUniform("ambientOcclusionMap", 4);
 
 
-		renderCommand.mesh->bind();
-		renderCommand.mesh->draw();
-		renderCommand.mesh->unBind();
+		mesh->bind();
+		mesh->draw();
+		mesh->unBind();
 	}
 
 	geometryShaderProgram->stopUsing();
@@ -259,16 +261,20 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			
 		}
 
+		while (!deferredRenderQueue->isShadowMapEmpty()) {
+			deferredRenderQueue->dequeueShadowMap();
+		}
+
 		//openGLState->setCullFace(GL_BACK);
 		
 	}
 
 	// 3. Render with lighting
-	lightBuffer->bind();
+	//lightBuffer->bind();
 
 	glViewport(0, 0, renderWidth, renderHeight);
 	
-	lightBuffer->drawBuffers();
+	//lightBuffer->drawBuffers();
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
 
@@ -290,12 +296,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	pbrShaderProgram->stopUsing();
 	
-	lightBuffer->unbind();
+	//lightBuffer->unbind();
 
-	glViewport(0,0,renderWidth, renderHeight);
+	//glViewport(0,0,renderWidth, renderHeight);
 
 	// 3. Apply any post processing
-	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	/*GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
 	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
@@ -303,7 +309,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
-	postProcessingShaderProgram->stopUsing();
+	postProcessingShaderProgram->stopUsing();*/
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)
@@ -313,5 +319,5 @@ void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, cons
 
 GLPBRMaterial* renderer::DeferredRenderPipeline::createMaterial()
 {
-	return new GLPBRMaterial(*defaultAlbedoMap,*defaultNormalMap, *defaultMetallicMap, *defaultRoughnessMap,*defaultAOMap);
+	return new GLPBRMaterial(defaultAlbedoMap,defaultNormalMap, defaultMetallicMap, defaultRoughnessMap,defaultAOMap);
 }

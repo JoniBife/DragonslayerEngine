@@ -104,6 +104,34 @@ Texture2D* Texture2D::emptyTexture(unsigned int width, unsigned int height, GLin
 
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+	return emptyTexture;
+}
+
+Texture2D* Texture2D::depthTexture(unsigned int width, unsigned int height, GLenum type)
+{
+	// Texture must must be at least 1x1
+	assert(width > 0 && height > 0);
+
+	Texture2D* emptyTexture = new Texture2D();
+	emptyTexture->width = width;
+	emptyTexture->height = height;
+
+	// Generating the texture
+	GL_CALL(glGenTextures(1, &emptyTexture->id));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, emptyTexture->id));
+
+	// Empty texture
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, type, NULL));
+	emptyTexture->internalFormat = GL_DEPTH_COMPONENT;
+
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
 

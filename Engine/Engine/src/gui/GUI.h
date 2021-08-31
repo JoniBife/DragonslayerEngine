@@ -29,7 +29,9 @@ public:
 	GUI(ImGuiIO& imGuiIO, GLFWwindow* window, EditorCamera& editorCamera);
 	~GUI();
 
+	void preRenderUI();
 	void renderUI(Camera& camera);
+	void postRenderUI();
 
 	MaterialPanel& getMaterialPanel() const;
 };

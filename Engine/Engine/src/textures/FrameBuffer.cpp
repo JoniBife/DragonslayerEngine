@@ -280,9 +280,7 @@ FrameBuffer* FrameBufferBuilder::build()
 	}
 	else if (hasDepthBuffer) {
 		if (allowSampleDepth) {
-			// TODO Check if this attachment type is correct
-			Texture2D* texture =
-				Texture2D::emptyTexture(width, height, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
+			Texture2D* texture =Texture2D::depthTexture(width, height);
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->getId(), 0));
 			frameBuffer->depthAttachment = texture;

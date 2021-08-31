@@ -11,6 +11,8 @@
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
 #include "meshes/MeshLoader.h"
+#include "gui/ImGuiExtensions.h"
+#include <cstdlib>
 
 Engine* engine;
 
@@ -188,7 +190,7 @@ void Engine::run() {
 	//renderer3D->setup();
 
 	//setupScene();
-	//setupGUI();
+	setupGUI();
 
 	//start();
 
@@ -200,16 +202,16 @@ void Engine::run() {
 	sphereMesh->init();
 
 	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
-	/*Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/alienslime/albedo.png");
+	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/alienslime/albedo.png");
 	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/alienslime/normal.png");
 	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/alienslime/metallic.png");
 	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/alienslime/roughness.png");
 	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/alienslime/ao.png");
-	material->setAlbedoMap(*albedoMap);
-	material->setNormalMap(*normalMap);
-	material->setMetallicMap(*metallicMap);
-	material->setRoughnessMap(*roughnessMap);
-	material->setAOMap(*aoMap);*/
+	material->setAlbedoMap(albedoMap);
+	material->setNormalMap(normalMap);
+	material->setMetallicMap(metallicMap);
+	material->setRoughnessMap(roughnessMap);
+	material->setAOMap(aoMap);
 
 	renderCommand.mesh = sphereMesh;
 	renderCommand.material = material;
@@ -220,6 +222,7 @@ void Engine::run() {
 	mesh->calculateTangents();
 	mesh->init();
 
+	
 	renderCommand2.mesh = mesh;
 	renderCommand2.material = deferredRenderPipeline->createMaterial();
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
@@ -229,9 +232,33 @@ void Engine::run() {
 	mesh2->calculateTangents();
 	mesh2->init();
 
+	GLPBRMaterial* material2 = deferredRenderPipeline->createMaterial();
+	albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
+	normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
+	metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
+	roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron/roughness.png");
+	aoMap = new Texture2D("../Engine/textures/pbr/rustediron/ao.png");
+	material2->setAlbedoMap(albedoMap);
+	material2->setNormalMap(normalMap);
+	material2->setMetallicMap(metallicMap);
+	material2->setRoughnessMap(roughnessMap);
+	material2->setAOMap(aoMap);
+
 	renderCommand3.mesh = mesh2;
-	renderCommand3.material = deferredRenderPipeline->createMaterial();
+	renderCommand3.material = material2;
 	renderCommand3.model = Mat4::translation(-2.0f, 2.0f, 2.0f) * Mat4::rotation(PI / 4.0f, Vec3::Z);
+
+	std::vector<RenderCommand> renderCommands;
+
+	for (int i = 0; i < 0; ++i) {
+		RenderCommand rc;
+
+		rc.mesh = sphereMesh;
+		rc.model = Mat4::translation(rand() % 30 - 15, rand() % 5, rand() % 30 - 15) * Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
+		rc.material = material;
+
+		renderCommands.push_back(rc);
+	}
 	
 	Lights lights;
 	DirectionalLight light;
@@ -243,6 +270,9 @@ void Engine::run() {
 
 	editorCamera->setEditorWindowFocus(true);
 
+	float rotation = PI / 4.0f;
+	Vec3 translation(-2.0f, 2.0f, 2.0f);
+
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -252,16 +282,33 @@ void Engine::run() {
 		elapsedTime = time - lastTime;
 		lastTime = time;
 
+		gui->preRenderUI();
+
 		editorCamera->update(elapsedTime);
+
+		rotation += (PI / 6.0f) * elapsedTime;
+
+		renderCommand3.model = Mat4::translation(translation) * Mat4::rotation(rotation, Vec3::Z);
+
+		ImGui::ShowMetricsWindow();
+		ImGui::InputVec3("Translation", translation);
+		ImGui::InputVec3("Translation2", translation);
+
 
 		deferredRenderPipeline->enqueueRender(renderCommand);
 		deferredRenderPipeline->enqueueRender(renderCommand2);
 		deferredRenderPipeline->enqueueRender(renderCommand3);
+
+		for (RenderCommand rc : renderCommands) {
+			deferredRenderPipeline->enqueueRender(rc);
+		}
+
 		deferredRenderPipeline->render(*editorCamera, lights);
 
 		//update();
 
-		
+		//bool open = false;
+		//ImGui::ShowDemoWindow(&open);
 
 		//hierarchy->updateScene();
 
@@ -269,12 +316,14 @@ void Engine::run() {
 
 		//gui->renderUI(*editorCamera);
 
+		gui->postRenderUI();
+
 		glfwSwapBuffers(window);
 		checkForOpenGLErrors("ERROR: MAIN LOOP"); //TODO Prob not necessary
 	}
 
 	// Cleanup
-	freeResources();
+	//freeResources();
 	//end(); //Has to be called before glfwTerminate()
 	
 	core::Input::terminate();

@@ -35,6 +35,7 @@
     <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
     <ClCompile Include="src\gui\HierarchyPanel.cpp" />
+    <ClCompile Include="src\gui\ImGuiExtensions.cpp" />
     <ClCompile Include="src\gui\MaterialPanel.cpp" />
     <ClCompile Include="src\gui\ObjectPanel.cpp" />
     <ClCompile Include="src\gui\SceneViewPanel.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\gui\GUI.h" />
     <ClInclude Include="src\gui\HierarchyPanel.h" />
+    <ClInclude Include="src\gui\ImGuiExtensions.h" />
     <ClInclude Include="src\gui\MaterialPanel.h" />
     <ClInclude Include="src\gui\ObjectPanel.h" />
     <ClInclude Include="src\gui\SceneViewPanel.h" />
