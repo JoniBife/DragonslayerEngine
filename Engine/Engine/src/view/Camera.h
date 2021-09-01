@@ -19,6 +19,7 @@ protected:
 	Vec3 target = { 0.0f, 0.0f, 0.0f }; // center
 	Vec3 front = target - position;
 	Vec3 up = { 0.0f, 1.0f, 0.0f }; // up
+	Vec3 right = {1.0f, 0.0f, 0.0f};
 
 	float viewportWidth = 1366, viewportHeight = 768;
 
@@ -46,7 +47,9 @@ public:
 
 	Vec3 getPosition() const;
 	Vec3 getTarget() const;
+	Vec3 getFront() const;
 	Vec3 getUp() const;
+	Vec3 getRight() const;
 	float getNearPlane() const;
 	float getFarPlane() const;
 	float getFov() const;
@@ -57,6 +60,7 @@ public:
 	Vec2 getViewportSize() const;
 	bool wasDirty() const; // Checks if the camera was dirty recently
 	float getAspectRatio() const;
+	
 
 	//void addCameraController(ICameraController* cameraController);
 

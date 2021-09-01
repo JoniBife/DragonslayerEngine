@@ -187,6 +187,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	Mat4 normal;
 	GLPBRMaterial* material;
 	Mesh* mesh;
+
 	while (!deferredRenderQueue->isGeometryEmpty()) {
 
 		renderCommand = deferredRenderQueue->dequeueGeometry();
@@ -214,7 +215,6 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		geometryShaderProgram->setUniform("metallicMap", 2);
 		geometryShaderProgram->setUniform("roughnessMap", 3);
 		geometryShaderProgram->setUniform("ambientOcclusionMap", 4);
-
 
 		mesh->bind();
 		mesh->draw();
@@ -247,6 +247,9 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	Mat4 projection = ortho(left, right, bottom, top, near, far);
 
+	Vec4 bottomLeft;
+	Vec4 topRight;
+
 	if (shadowMapCommands.size() > 0) {
 		
 		// TODO this should not be hardcoded
@@ -260,19 +263,20 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
 			shadowMapShaderProgram->use();
-			Mat4 lightView = lookAt(-1 * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
+
+			Mat4 lightView = lookAt(Vec3::ZERO, lights.directionalLights[i].direction, Vec3::Y);
 
 			Mat4 inverseCameraView;
 			camera.getView().inverse(inverseCameraView);
-			Mat4 cascadeProjection = orthoCascade(
-				0.5f, 
-				7.0f, 
-				degreesToRadians(camera.getFov()), 
-				camera.getViewportHeight() / camera.getViewportWidth(), 
-				inverseCameraView, 
-				lightView);
+			Mat4 cascadeProjection = orthoCascade(camera,
+				0.05f,
+				7.0f,
+				degreesToRadians(camera.getFov()),
+				camera.getViewportHeight() / camera.getViewportWidth(),
+				inverseCameraView,
+				lightView, topRight, bottomLeft);
 			
-			lightViewProjection = projection * lightView;
+			lightViewProjection = cascadeProjection * lightView;
 
 			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjection);
 			
@@ -288,8 +292,6 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			shadowMapBuffers[i]->unbind();
 
 			ImGui::Image((ImTextureID)shadowMapBuffers[i]->getColorAttachment(0).getId(), ImVec2(400,400), ImVec2(0, 1), ImVec2(1, 0));
-
-			
 		}
 
 		// TODO Temporary solution to clean shadow queue
@@ -311,6 +313,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
 
+	pbrShaderProgram->setUniform("bottomLeft", bottomLeft);
+	pbrShaderProgram->setUniform("topRight", topRight);
 	pbrShaderProgram->setUniform("lightSpaceMatrix", lightViewProjection);
 	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);

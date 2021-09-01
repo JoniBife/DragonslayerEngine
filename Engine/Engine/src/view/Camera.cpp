@@ -21,6 +21,9 @@ void Camera::update(float elapsedTime) {
 	if (dirty) {
 		dirty = false;
 		wasDirtyRecently = true;
+		right = cross(front, Vec3::Y).normalize();
+		up = cross(right, front).normalize();
+
 		//front = target - position;
 		view = lookAt(position, position + front, up);
 		//projection = ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 30.0f);
@@ -94,6 +97,11 @@ Vec3 Camera::getUp() const
 	return up;
 }
 
+Vec3 Camera::getRight() const
+{
+	return right;
+}
+
 float Camera::getNearPlane() const
 {
 	return near;
@@ -142,6 +150,11 @@ bool Camera::wasDirty() const
 float Camera::getAspectRatio() const
 {
 	return viewportWidth / viewportHeight;
+}
+
+Vec3 Camera::getFront() const
+{
+	return front;
 }
 
 /*

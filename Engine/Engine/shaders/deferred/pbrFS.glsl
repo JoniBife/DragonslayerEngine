@@ -12,6 +12,9 @@ uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
 uniform vec3 pixelOffset;
 
+uniform vec4 bottomLeft;
+uniform vec4 topRight;
+
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
