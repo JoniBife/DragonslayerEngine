@@ -49,12 +49,12 @@ struct Mat3 {
 	float determinant() const;
 	Mat3 transpose() const;
 	/*
-	* Returns false if this is not invertible
-	* else true;
+	* Returns false if this is not invertible else true;
 	* @param inverse will contain the inverse matrix of this
 	*/
 	bool inverse(Mat3& inverse) const;
 	void toOpenGLFormat(float array[9]) const;
+	bool isOrthogonal() const;
 
 	friend std::ostream& operator<<(std::ostream& os, const Mat3& mat3);
 	friend std::istream& operator>>(std::istream& is, Mat3& mat3);

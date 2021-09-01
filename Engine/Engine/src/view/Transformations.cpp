@@ -1,6 +1,7 @@
 #include "Transformations.h"
 #include <math.h>
 #include <assert.h>
+#include <initializer_list>
 
 Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 
@@ -59,4 +60,49 @@ Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 			0.0f, 0.0f, -1.0f, 0.0f };
 	
 	return ret;
+}
+
+Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, Mat4 inverseCameraView, Mat4 lightView)
+{
+	assert(farViewSpace > nearViewSpace);
+
+	// First we find the coordinates of the min and max points that define the bounding box
+	// Trignometry explained here: https://ogldev.org/www/tutorial49/tutorial49.html
+	float halfFov = fovRad * 0.5f;
+	float x1 = tanf(halfFov) * nearViewSpace;
+	float x2 = tanf(halfFov) * farViewSpace;
+	float y1 = tanf(halfFov * inverseAspectRatio) * nearViewSpace;
+	float y2 = tanf(halfFov * inverseAspectRatio) * farViewSpace;
+
+	// Top right and top left corners of bounding box in view space
+	Vec4 topRight = { x2, y2, farViewSpace , 1.0f};
+	Vec4 bottomLeft = { -x1, -y1, nearViewSpace , 1.0f};
+
+	// The corners are now moved back to world space and then to light space
+	topRight = lightView * inverseCameraView * topRight;
+	bottomLeft = lightView * inverseCameraView * bottomLeft;
+
+	float far = topRight.z;
+	float near = bottomLeft.z;
+	float left = bottomLeft.x;
+	float right = topRight.x;
+	float bottom = bottomLeft.y;
+	float top = topRight.y;
+
+	if (topRight.z < bottomLeft.z) {
+		far = bottomLeft.z;
+		near = topRight.z;
+	}
+
+	if (topRight.x < bottomLeft.x) {
+		right = bottomLeft.x;
+		left = topRight.x;
+	}
+
+	if (topRight.y < bottomLeft.y) {
+		bottom = topRight.y;
+		top = bottomLeft.y;
+	}
+
+	return ortho(left, right, bottom, top, near, far);
 }

@@ -57,10 +57,16 @@ struct Mat4 {
 
 	float* operator[](const int lines);
 	
+	/*
+	* Returns false if this is not invertible else true;
+	* @param inverse will contain the inverse matrix of this
+	*/
+	bool inverse(Mat4& inverse) const;
 	Mat4 transpose() const;
 	void toOpenGLFormat(float array[16]) const;
 
 	Mat3 toMat3() const; //removes last line and column
+	bool isOrthogonal() const;
 
 	/* Decomposes a transformation matrix in each of its components */
 	void decompose(Vec3& scale, Vec3& rotation, Vec3& position) const;

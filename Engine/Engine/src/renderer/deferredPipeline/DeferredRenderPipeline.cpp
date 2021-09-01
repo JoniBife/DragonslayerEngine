@@ -6,6 +6,7 @@
 #include "../view/Transformations.h"
 #include <imgui/imgui.h>
 #include "../../gui/ImGuiExtensions.h"
+#include "../../math/MathAux.h"
 
 using namespace renderer;
 
@@ -183,7 +184,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	geometryShaderProgram->bindUniformBlock(geometryShaderProgram->getUniformBlockIndex("sharedMatrices"), 0);
 
 	RenderCommand renderCommand;
-	Mat3 normal;
+	Mat4 normal;
 	GLPBRMaterial* material;
 	Mesh* mesh;
 	while (!deferredRenderQueue->isGeometryEmpty()) {
@@ -198,10 +199,10 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		material->getRoughnessMap().bind(GL_TEXTURE3);
 		material->getAOMap().bind(GL_TEXTURE4);
 
-		renderCommand.model.toMat3().inverse(normal);
+		renderCommand.model.inverse(normal);
 
 		geometryShaderProgram->setUniform("modelMatrix", renderCommand.model);
-		geometryShaderProgram->setUniform("normalMatrix", normal);
+		geometryShaderProgram->setUniform("normalMatrix", normal.transpose().toMat3());
 		geometryShaderProgram->setUniform("albedoTint", material->getAlbedoTint());
 		geometryShaderProgram->setUniform("normalStrength", material->getNormalStrength());
 		geometryShaderProgram->setUniform("metallicFactor", material->getMetallic());
@@ -250,8 +251,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		
 		// TODO this should not be hardcoded
 		openGLState->setViewPort(0, 0, 1024, 1024);
-		openGLState->setFaceCulling(false);
-
+		//openGLState->setCullFace(GL_FRONT);
+		//openGLState->setFaceCulling(false);
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
 
@@ -260,8 +261,17 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 			shadowMapShaderProgram->use();
 			Mat4 lightView = lookAt(-1 * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
-			
 
+			Mat4 inverseCameraView;
+			camera.getView().inverse(inverseCameraView);
+			Mat4 cascadeProjection = orthoCascade(
+				0.5f, 
+				7.0f, 
+				degreesToRadians(camera.getFov()), 
+				camera.getViewportHeight() / camera.getViewportWidth(), 
+				inverseCameraView, 
+				lightView);
+			
 			lightViewProjection = projection * lightView;
 
 			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjection);
@@ -287,7 +297,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 			deferredRenderQueue->dequeueShadowMap();
 		}
 
-		openGLState->setFaceCulling(true);
+		//openGLState->setCullFace(GL_BACK);
+		//openGLState->setFaceCulling(true);
 		
 	}
 

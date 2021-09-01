@@ -254,6 +254,11 @@ void Mat2::toOpenGLFormat(float array[4]) const {
 	}
 }
 
+bool Mat2::isOrthogonal() const
+{
+	return *this * this->transpose() == Mat2::IDENTITY;
+}
+
 std::ostream& operator<<(std::ostream& os, const Mat2& mat2) {
 	for (int l = 0; l < 2; l++) {
 		os << "[ ";

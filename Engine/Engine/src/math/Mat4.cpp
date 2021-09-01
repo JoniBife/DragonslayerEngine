@@ -353,6 +353,151 @@ float* Mat4::operator[](const int lines) {
 	return m[lines];
 }
 
+bool Mat4::inverse(Mat4& inverse) const
+{
+	Mat4 transpose = this->transpose();
+
+	// If the matrix is orthogonal then the transpose is its inverse
+	if (*this * transpose == Mat4::IDENTITY) {
+		inverse = transpose;
+		return true;
+	}
+
+	Mat3 subMatrices[16];
+
+	//Mat3 m00 
+	subMatrices[0] = {
+		m[1][1], m[1][2], m[1][3],
+		m[2][1], m[2][2], m[2][3],
+		m[3][1], m[3][2], m[3][3]
+	};
+
+	//Mat3 m01 
+	subMatrices[1] = {
+		m[1][0], m[1][2], m[1][3],
+		m[2][0], m[2][2], m[2][3],
+		m[3][0], m[3][2], m[3][3]
+	};
+
+	//Mat3 m02 
+	subMatrices[2] = {
+		m[1][0], m[1][1], m[1][3],
+		m[2][0], m[2][1], m[2][3],
+		m[3][0], m[3][1], m[3][3]
+	};
+
+	//Mat3 m03 
+	subMatrices[3] = {
+		m[1][0], m[1][1], m[1][2], 
+		m[2][0], m[2][1], m[2][2], 
+		m[3][0], m[3][1], m[3][2]
+	};
+
+	//Mat3 m10 
+	subMatrices[4] = {
+		m[0][1], m[0][2], m[0][3],
+		m[2][1], m[2][2], m[2][3],
+		m[3][1], m[3][2], m[3][3]
+	};
+
+	//Mat3 m11 
+	subMatrices[5] = {
+		m[0][0], m[0][2], m[0][3],
+		m[2][0], m[2][2], m[2][3],
+		m[3][0], m[3][2], m[3][3]
+	};
+
+	//Mat3 m12 
+	subMatrices[6] = {
+		m[0][0], m[0][1], m[0][3],
+		m[2][0], m[2][1], m[2][3],
+		m[3][0], m[3][1], m[3][3]
+	};
+
+	//Mat3 m13 
+	subMatrices[7] = {
+		m[0][0], m[0][1], m[0][2],
+		m[2][0], m[2][1], m[2][2],
+		m[3][0], m[3][1], m[3][2]
+	};
+
+	//Mat3 m20 
+	subMatrices[8] = {
+		m[0][1], m[0][2], m[0][3],
+		m[1][1], m[1][2], m[1][3],
+		m[3][1], m[3][2], m[3][3]
+	};
+
+	//Mat3 m21 
+	subMatrices[9] = {
+		m[0][0], m[0][2], m[0][3],
+		m[1][0], m[1][2], m[1][3],
+		m[3][0], m[3][2], m[3][3]
+	};
+
+	//Mat3 m22 
+	subMatrices[10] = {
+		m[0][0], m[0][1], m[0][3],
+		m[1][0], m[1][1], m[1][3],
+		m[3][0], m[3][1], m[3][3]
+	};
+
+	//Mat3 m23 
+	subMatrices[11] = {
+		m[0][0], m[0][1], m[0][2],
+		m[1][0], m[1][1], m[1][2],
+		m[3][0], m[3][1], m[3][2]
+	};
+
+	//Mat3 m30 
+	subMatrices[12] = {
+		m[0][1], m[0][2], m[0][3],
+		m[1][1], m[1][2], m[1][3],
+		m[2][1], m[2][2], m[2][3],
+	};
+
+	//Mat3 m31 
+	subMatrices[13] = {
+		m[0][0], m[0][2], m[0][3],
+		m[1][0], m[1][2], m[1][3],
+		m[2][0], m[2][2], m[2][3],
+	};
+
+	//Mat3 m32 
+	subMatrices[14] = {
+		m[0][0], m[0][1], m[0][3],
+		m[1][0], m[1][1], m[1][3],
+		m[2][0], m[2][1], m[2][3],
+	};
+
+	//Mat3 m33 
+	subMatrices[15] = {
+		m[0][0], m[0][1], m[0][2],
+		m[1][0], m[1][1], m[1][2],
+		m[2][0], m[2][1], m[2][2],
+	};
+
+	float determinant = m[0][0] * subMatrices[0].determinant()
+		- m[1][0] * subMatrices[4].determinant()
+		+ m[2][0] * subMatrices[8].determinant()
+		- m[3][0] * subMatrices[12].determinant();
+
+	if (determinant == 0.0f)
+		return false;
+
+	Mat4 adjugateMatrix;
+
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			adjugateMatrix[i][j] = powf(-1.0f, static_cast<float>(i + j)) * subMatrices[j * 4 + i].determinant();
+		}
+	}
+
+	inverse = (1.0f / determinant) * adjugateMatrix;
+
+	return true;
+}
+
 Mat4 Mat4::transpose() const {
 	Mat4 trans;
 	for (int l = 0; l < 4; l++) {
@@ -378,6 +523,11 @@ Mat3 Mat4::toMat3() const {
 	return { m[0][0], m[0][1], m[0][2],
 			m[1][0], m[1][1], m[1][2],
 			m[2][0], m[2][1], m[2][2] };
+}
+
+bool Mat4::isOrthogonal() const
+{
+	return *this * this->transpose() == Mat4::IDENTITY;
 }
 
 void Mat4::decompose(Vec3& scale, Vec3& rotation, Vec3& position) const

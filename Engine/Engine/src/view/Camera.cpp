@@ -139,6 +139,11 @@ bool Camera::wasDirty() const
 	return wasDirtyRecently;
 }
 
+float Camera::getAspectRatio() const
+{
+	return viewportWidth / viewportHeight;
+}
+
 /*
 void Camera::addCameraController(ICameraController* cameraController) {
 	this->cameraController = cameraController;

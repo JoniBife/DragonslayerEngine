@@ -56,6 +56,7 @@ public:
 	float getViewportHeight() const;
 	Vec2 getViewportSize() const;
 	bool wasDirty() const; // Checks if the camera was dirty recently
+	float getAspectRatio() const;
 
 	//void addCameraController(ICameraController* cameraController);
 

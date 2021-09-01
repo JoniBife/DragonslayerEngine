@@ -309,6 +309,11 @@ void Mat3::toOpenGLFormat(float array[9]) const {
 	}
 }
 
+bool Mat3::isOrthogonal() const
+{
+	return *this * this->transpose() == Mat3::IDENTITY;
+}
+
 /*
  * Print result example:
  * [ 1 , 0 , 0 ]

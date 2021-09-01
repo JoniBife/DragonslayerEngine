@@ -25,7 +25,7 @@ void main(void)
 	fragTextCoords = textCoord;
 
 	vec3 N = normalize(mat3(normalMatrix) * normal);
-    vec3 T = normalize(mat3(modelMatrix) * tangent);
+    vec3 T = normalize(mat3(normalMatrix) * tangent);
     T = normalize(T - dot(N, T) * N);
 	vec3 B = normalize(cross(T,N));
 

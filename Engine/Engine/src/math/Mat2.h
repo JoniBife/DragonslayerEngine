@@ -49,6 +49,7 @@ struct Mat2 {
 	bool inverse(Mat2& inverse) const;
 	float determinant() const;
 	void toOpenGLFormat(float array[4]) const;
+	bool isOrthogonal() const;
 
 	/*
 	 * Print result example:
