@@ -64,7 +64,7 @@ Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 	return ret;
 }
 
-Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, Mat4 inverseCameraView, Mat4 lightView, Vec4& outTopRight, Vec4& outBottomLeft)
+Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, Mat4 inverseCameraView, Mat4 lightView)
 {
 	assert(farViewSpace > nearViewSpace);
 
@@ -92,9 +92,6 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 	corners[6] = { x2, -y2, -nearViewSpace, 1.0f };
 	corners[7] = { x2, -y2, -farViewSpace, 1.0f };
 
-	outTopRight = corners[3];
-	outBottomLeft = corners[4];
-
 	float far = corners[0].z;
 	float near = corners[0].z;
 	float left = corners[0].x;
@@ -117,5 +114,6 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 		near = fmaxf(near, cornerLightSpace.z); // Inverted because the forward direction is -Z
 	}
 
-	return ortho(left, right, bottom, top, near, far);
+	// Near and far sign is altered again because ortho expects them positive and inverts them internally
+	return ortho(left, right, bottom, top, near * -1, far * -1);
 }

@@ -95,14 +95,32 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.attachStencilBuffer()
 		.build();
 
-	for (int i = 0; i < maxShadowMaps; ++i) {
+	/*for (int i = 0; i < maxShadowMaps; ++i) {
 		// TODO ShadowMap depth texture has different properties
 		shadowMapBuffers.push_back(frameBufferBuilder
 			.setSize(1024, 1024)
 			.attachColorBuffers(1, GL_HALF_FLOAT)
 			.attachDepthBuffer()
 			.build());
-	}
+	}*/
+
+	shadowMapBuffers.push_back(frameBufferBuilder
+		.setSize(2048, 2048)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachDepthBuffer()
+		.build());
+
+	shadowMapBuffers.push_back(frameBufferBuilder
+		.setSize(512, 512)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachDepthBuffer()
+		.build());
+
+	shadowMapBuffers.push_back(frameBufferBuilder
+		.setSize(256, 256)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachDepthBuffer()
+		.build());
 
 	lightBuffer = frameBufferBuilder
 		.setSize(renderWidth, renderHeight)
@@ -228,103 +246,67 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
 	auto shadowMapCommands = deferredRenderQueue->getShadowMapQueue();
 	
-	Mat4 lightViewProjection;
+	Mat4 lightViewProjections[3];
 
-	static float left = -20.0f;
-	static float right = 20.0f;
-	static float bottom = -20.0f;
-	static float top = 20.0f;
-	static float near = -15.0f;
-	static float far = 20.0f;
+	static float cascades[] = { camera.getNearPlane(), 5.0f, 30.0f, camera.getFarPlane() };
+	static float far1 = cascades[1];
+	static float far2 = cascades[2];
+	ImGui::InputFloat("Far1", &far1);
+	ImGui::InputFloat("Far2", &far2);
 
-	ImGui::Text("Light Orthographic Projection Settings");
-	ImGui::InputFloat("Left", &left);
-	ImGui::InputFloat("Right", &right);
-	ImGui::InputFloat("bottom", &bottom);
-	ImGui::InputFloat("top", &top);
-	ImGui::InputFloat("near", &near);
-	ImGui::InputFloat("far", &far);
-
-	Mat4 projection = ortho(left, right, bottom, top, near, far);
-
-	Vec4 bottomLeft;
-	Vec4 topRight;
-	Vec4 bottomLeft2;
-	Vec4 topRight2;
-	Vec4 bottomLeft3;
-	Vec4 topRight3;
-
-	Vec4 front = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-	front = camera.getView() * front;
-
-	ImGui::InputVec4("Front", front);
+	if (ImGui::Button("Update planes")) {
+		cascades[1] = far1;
+		cascades[2] = far2;
+	}
 
 	if (shadowMapCommands.size() > 0) {
 		
 		// TODO this should not be hardcoded
-		openGLState->setViewPort(0, 0, 1024, 1024);
 		//openGLState->setCullFace(GL_FRONT);
 		//openGLState->setFaceCulling(false);
 
 		for (int i = 0; i < lights.directionalLights.size(); ++i) {
 
-			shadowMapBuffers[i]->bind();
-			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
+			for (int j = 0; j < shadowMapBuffers.size(); ++j) {
+				
+				shadowMapBuffers[j]->bind();
 
-			shadowMapShaderProgram->use();
+				openGLState->setViewPort(0, 0, shadowMapBuffers[j]->getWidth(), shadowMapBuffers[j]->getHeigth());
 
-			Mat4 lightView = lookAt(-1.0f * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
+				GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
-			Mat4 inverseCameraView;
-			camera.getView().inverse(inverseCameraView);
+				shadowMapShaderProgram->use();
 
-			static float near = 2.0f;
-			static float far = 7.0f;
+				Mat4 lightView = lookAt(-1.0f * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
 
-			ImGui::InputFloat("Near", &near);
-			ImGui::InputFloat("Far", &far);
+				Mat4 inverseCameraView;
+				camera.getView().inverse(inverseCameraView);
 
-			Mat4 cascadeProjection = orthoCascade(
-				camera.getNearPlane(),
-				7.0f,
-				degreesToRadians(camera.getFov()),
-				camera.getAspectRatio(),
-				inverseCameraView,
-				lightView, topRight, bottomLeft);
+				Mat4 cascadeProjection = orthoCascade(
+					cascades[j],
+					cascades[j+1],
+					degreesToRadians(camera.getFov()),
+					camera.getAspectRatio(),
+					inverseCameraView,
+					lightView);
 
-			Mat4 cascadeProjection2 = orthoCascade(
-				7.0f,
-				30.0f,
-				degreesToRadians(camera.getFov()),
-				camera.getAspectRatio(),
-				inverseCameraView,
-				lightView, topRight2, bottomLeft2);
+				lightViewProjections[j] = cascadeProjection * lightView;
 
-			Mat4 cascadeProjection3 = orthoCascade(
-				30.0f,
-				camera.getFarPlane(),
-				degreesToRadians(camera.getFov()),
-				camera.getAspectRatio(),
-				inverseCameraView,
-				lightView, topRight3, bottomLeft3);
-			
-			lightViewProjection = projection * lightView;
+				shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjections[j]);
 
-			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjection);
-			
-			for (const RenderCommand shadowMapCommand : shadowMapCommands._Get_container()) {
+				for (const RenderCommand shadowMapCommand : shadowMapCommands._Get_container()) {
 
-				shadowMapShaderProgram->setUniform("modelMatrix", shadowMapCommand.model);
-				shadowMapCommand.mesh->bind();
-				shadowMapCommand.mesh->draw();
-				shadowMapCommand.mesh->unBind();
+					shadowMapShaderProgram->setUniform("modelMatrix", shadowMapCommand.model);
+					shadowMapCommand.mesh->bind();
+					shadowMapCommand.mesh->draw();
+					shadowMapCommand.mesh->unBind();
+				}
+
+				shadowMapShaderProgram->stopUsing();
+				shadowMapBuffers[j]->unbind();
+
+				ImGui::Image((ImTextureID)shadowMapBuffers[i]->getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 			}
-
-			shadowMapShaderProgram->stopUsing();
-			shadowMapBuffers[i]->unbind();
-
-			ImGui::Image((ImTextureID)shadowMapBuffers[i]->getColorAttachment(0).getId(), ImVec2(400,400), ImVec2(0, 1), ImVec2(1, 0));
 		}
 
 		// TODO Temporary solution to clean shadow queue
@@ -347,18 +329,21 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->use();
 
 	pbrShaderProgram->setUniform("viewMatrix", camera.getView());
-	pbrShaderProgram->setUniform("bottomLeft", bottomLeft);
-	pbrShaderProgram->setUniform("topRight", topRight);
-	pbrShaderProgram->setUniform("bottomLeft2", bottomLeft2);
-	pbrShaderProgram->setUniform("topRight2", topRight2);
-	pbrShaderProgram->setUniform("bottomLeft3", bottomLeft3);
-	pbrShaderProgram->setUniform("topRight3", topRight3);
-	pbrShaderProgram->setUniform("lightSpaceMatrix", lightViewProjection);
+	pbrShaderProgram->setUniform("far", cascades[1]);
+	pbrShaderProgram->setUniform("far2", cascades[2]);
+
+	pbrShaderProgram->setUniform("lightViewProjectionMatrix", lightViewProjections[0]);
+	pbrShaderProgram->setUniform("lightViewProjectionMatrix2", lightViewProjections[1]);
+	pbrShaderProgram->setUniform("lightViewProjectionMatrix3", lightViewProjections[2]);
+
 	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
 	pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
 	pbrShaderProgram->setUniform("shadowMap", 3);
+	pbrShaderProgram->setUniform("shadowMap2", 4);
+	pbrShaderProgram->setUniform("shadowMap3", 5);
+
 	static Vec3 pixelOffset;
 	ImGui::InputVec3("Pixel Offset", pixelOffset);
 	pbrShaderProgram->setUniform("pixelOffset", pixelOffset);
@@ -367,6 +352,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
 	gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
 	shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE3);
+	shadowMapBuffers[1]->getDepthAttachment().bind(GL_TEXTURE4);
+	shadowMapBuffers[2]->getDepthAttachment().bind(GL_TEXTURE5);
 
 	quadNDC->bind();
 	quadNDC->draw();

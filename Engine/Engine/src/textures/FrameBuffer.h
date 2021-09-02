@@ -47,6 +47,9 @@ public:
 	GLuint getStencilDepthAttachmentRBO() const;
 	GLuint getDepthAttachmentRBO() const;
 
+	float getWidth() const;
+	float getHeigth() const;
+
 	void bind();
 
 	void unbind();

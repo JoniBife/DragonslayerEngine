@@ -119,6 +119,16 @@ GLuint FrameBuffer::getDepthAttachmentRBO() const
 	return depthAttachmentRBO;
 }
 
+float FrameBuffer::getWidth() const
+{
+	return width;
+}
+
+float FrameBuffer::getHeigth() const
+{
+	return height;
+}
+
 void FrameBuffer::bind()
 {
 	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, id));

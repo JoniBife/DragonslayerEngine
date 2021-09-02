@@ -6,24 +6,26 @@ in vec2 fragTextCoords;
 
 uniform vec3 viewPosition;
 
-uniform mat4 lightSpaceMatrix;
+
 uniform mat4 viewMatrix;
 
 uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
 uniform vec3 pixelOffset;
 
-uniform vec4 bottomLeft;
-uniform vec4 topRight;
-uniform vec4 bottomLeft2;
-uniform vec4 topRight2;
-uniform vec4 bottomLeft3;
-uniform vec4 topRight3;
-
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
+
 uniform sampler2D shadowMap;
+uniform float far;
+uniform sampler2D shadowMap2;
+uniform float far2;
+uniform sampler2D shadowMap3;
+
+uniform mat4 lightViewProjectionMatrix;
+uniform mat4 lightViewProjectionMatrix2;
+uniform mat4 lightViewProjectionMatrix3;
 
 const float PI = 3.1415927;
 
@@ -63,13 +65,8 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     return ggx1 * ggx2;
 }
 
-float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix) {
+float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix, sampler2D shadowMap_) {
     
-    // The near and far planes distance for each of the cascades is relative to the position of the camera
-    // so to check whether a fragment is within a certain cascade we need to move its position from world space
-    // to view space
-    vec4 positionViewSpace = viewMatrix * position;
-
     // Moving the current fragment to light space
     vec4 fragmentLightSpace = lightViewProjectionMatrix * position + vec4(pixelOffset,0.0);
 
@@ -88,13 +85,13 @@ float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatri
 
 	// PCF Filter
 	float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+	vec2 texelSize = 1.0 / textureSize(shadowMap_, 0);
 	for(int x = -1; x <= 1; ++x)
 	{
 		for(int y = -1; y <= 1; ++y)
 		{
 
-			float shadowMapDepth = texture(shadowMap, shadowMapCoords.xy + vec2(x, y) * texelSize).r; 
+			float shadowMapDepth = texture(shadowMap_, shadowMapCoords.xy + vec2(x, y) * texelSize).r; 
 
             // if the current fragment is closer than the fragment renderered from the lights perspective
             // then the object is not in shadow, otherwise it is
@@ -107,6 +104,26 @@ float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatri
         return 0.0f;
 
 	return shadow;
+}
+
+float calculateShadows(vec4 position, vec3 normal) {
+    
+    // The near and far planes distance for each of the cascades is relative to the position of the camera
+    // so to check whether a fragment is within a certain cascade we need to move its position from world space
+    // to view space
+    vec4 positionViewSpace = viewMatrix * position;
+    float fragmentDepthViewSpace = -positionViewSpace.z;
+
+    if (fragmentDepthViewSpace < far) {
+        return calculateShadowFactor(position, normal, lightViewProjectionMatrix, shadowMap);
+
+    } else if (fragmentDepthViewSpace < far2) {
+        return calculateShadowFactor(position, normal, lightViewProjectionMatrix2, shadowMap2);
+
+    } else {
+        return calculateShadowFactor(position, normal, lightViewProjectionMatrix3, shadowMap3);
+    }
+    
 }
 
 
@@ -149,7 +166,7 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // scale light by NdotL
     float NdotL = max(dot(normal, L), 0.0);     
     
-   float shadow = calculateShadows(vec4(position,1.0),normal, lightSpaceMatrix);
+    float shadow = calculateShadows(vec4(position,1.0),normal);
 
     // add to outgoing radiance Lo
     Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
@@ -189,8 +206,17 @@ void main(void)
     color = pow(color, vec3(1.0/2.2)); 
 
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
+    float fragmentDepthViewSpace = -positionViewSpace.z;
 
-    if (positionViewSpace.x < topRight.x && positionViewSpace.x > -topRight.x &&
+    if (fragmentDepthViewSpace < far) {
+        color.r += 0.2;
+    } else if (fragmentDepthViewSpace < far2) {
+        color.g += 0.2;
+    } else {
+        color.b += 0.2;
+    }
+
+    /*if (positionViewSpace.x < topRight.x && positionViewSpace.x > -topRight.x &&
     positionViewSpace.y < topRight.y && positionViewSpace.y > -topRight.y && 
     positionViewSpace.z < bottomLeft.z && positionViewSpace.z > topRight.z
     ) {
@@ -209,7 +235,7 @@ void main(void)
     positionViewSpace.z < bottomLeft3.z && positionViewSpace.z > topRight3.z
     ) {
         color.b += 0.2;
-    }
+    }*/
 
     fragmentColor = vec4(color, 1.0);
 }
