@@ -249,6 +249,16 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	Vec4 bottomLeft;
 	Vec4 topRight;
+	Vec4 bottomLeft2;
+	Vec4 topRight2;
+	Vec4 bottomLeft3;
+	Vec4 topRight3;
+
+	Vec4 front = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	front = camera.getView() * front;
+
+	ImGui::InputVec4("Front", front);
 
 	if (shadowMapCommands.size() > 0) {
 		
@@ -264,19 +274,42 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 			shadowMapShaderProgram->use();
 
-			Mat4 lightView = lookAt(Vec3::ZERO, lights.directionalLights[i].direction, Vec3::Y);
+			Mat4 lightView = lookAt(-1.0f * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
 
 			Mat4 inverseCameraView;
 			camera.getView().inverse(inverseCameraView);
-			Mat4 cascadeProjection = orthoCascade(camera,
-				0.05f,
+
+			static float near = 2.0f;
+			static float far = 7.0f;
+
+			ImGui::InputFloat("Near", &near);
+			ImGui::InputFloat("Far", &far);
+
+			Mat4 cascadeProjection = orthoCascade(
+				camera.getNearPlane(),
 				7.0f,
 				degreesToRadians(camera.getFov()),
-				camera.getViewportHeight() / camera.getViewportWidth(),
+				camera.getAspectRatio(),
 				inverseCameraView,
 				lightView, topRight, bottomLeft);
+
+			Mat4 cascadeProjection2 = orthoCascade(
+				7.0f,
+				30.0f,
+				degreesToRadians(camera.getFov()),
+				camera.getAspectRatio(),
+				inverseCameraView,
+				lightView, topRight2, bottomLeft2);
+
+			Mat4 cascadeProjection3 = orthoCascade(
+				30.0f,
+				camera.getFarPlane(),
+				degreesToRadians(camera.getFov()),
+				camera.getAspectRatio(),
+				inverseCameraView,
+				lightView, topRight3, bottomLeft3);
 			
-			lightViewProjection = cascadeProjection * lightView;
+			lightViewProjection = projection * lightView;
 
 			shadowMapShaderProgram->setUniform("lightSpaceProjectionMatrix", lightViewProjection);
 			
@@ -313,8 +346,13 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
 
+	pbrShaderProgram->setUniform("viewMatrix", camera.getView());
 	pbrShaderProgram->setUniform("bottomLeft", bottomLeft);
 	pbrShaderProgram->setUniform("topRight", topRight);
+	pbrShaderProgram->setUniform("bottomLeft2", bottomLeft2);
+	pbrShaderProgram->setUniform("topRight2", topRight2);
+	pbrShaderProgram->setUniform("bottomLeft3", bottomLeft3);
+	pbrShaderProgram->setUniform("topRight3", topRight3);
 	pbrShaderProgram->setUniform("lightSpaceMatrix", lightViewProjection);
 	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);

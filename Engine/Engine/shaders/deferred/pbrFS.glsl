@@ -7,6 +7,7 @@ in vec2 fragTextCoords;
 uniform vec3 viewPosition;
 
 uniform mat4 lightSpaceMatrix;
+uniform mat4 viewMatrix;
 
 uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
@@ -14,6 +15,10 @@ uniform vec3 pixelOffset;
 
 uniform vec4 bottomLeft;
 uniform vec4 topRight;
+uniform vec4 bottomLeft2;
+uniform vec4 topRight2;
+uniform vec4 bottomLeft3;
+uniform vec4 topRight3;
 
 uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
@@ -59,7 +64,12 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
 }
 
 float calculateShadows(vec4 position, vec3 normal, mat4 lightViewProjectionMatrix) {
-	
+    
+    // The near and far planes distance for each of the cascades is relative to the position of the camera
+    // so to check whether a fragment is within a certain cascade we need to move its position from world space
+    // to view space
+    vec4 positionViewSpace = viewMatrix * position;
+
     // Moving the current fragment to light space
     vec4 fragmentLightSpace = lightViewProjectionMatrix * position + vec4(pixelOffset,0.0);
 
@@ -177,6 +187,29 @@ void main(void)
     color = color / (color + vec3(1.0));
     // gamma correct
     color = pow(color, vec3(1.0/2.2)); 
+
+    vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
+
+    if (positionViewSpace.x < topRight.x && positionViewSpace.x > -topRight.x &&
+    positionViewSpace.y < topRight.y && positionViewSpace.y > -topRight.y && 
+    positionViewSpace.z < bottomLeft.z && positionViewSpace.z > topRight.z
+    ) {
+        color.r += 0.2;
+    }
+
+    if (positionViewSpace.x < topRight2.x && positionViewSpace.x > -topRight2.x &&
+    positionViewSpace.y < topRight2.y && positionViewSpace.y > -topRight2.y && 
+    positionViewSpace.z < bottomLeft2.z && positionViewSpace.z > topRight2.z
+    ) {
+        color.g += 0.2;
+    }
+
+    if (positionViewSpace.x < topRight3.x && positionViewSpace.x > -topRight3.x &&
+    positionViewSpace.y < topRight3.y && positionViewSpace.y > -topRight3.y && 
+    positionViewSpace.z < bottomLeft3.z && positionViewSpace.z > topRight3.z
+    ) {
+        color.b += 0.2;
+    }
 
     fragmentColor = vec4(color, 1.0);
 }
