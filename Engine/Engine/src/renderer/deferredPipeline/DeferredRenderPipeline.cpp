@@ -105,19 +105,19 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	}*/
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(1024, 2048)
+		.setSize(2048, 2048)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(1024, 1024)
+		.setSize(512, 512)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(1024, 1024)
+		.setSize(512, 512)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
@@ -248,7 +248,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	Mat4 lightViewProjections[3];
 
-	static float cascades[] = { camera.getNearPlane(), 5.0f, 30.0f, 50.0f };
+	static float cascades[] = { camera.getNearPlane(), 7.5f, 20.0f, 50.0f };
 	static float far1 = cascades[1];
 	static float far2 = cascades[2];
 	ImGui::InputFloat("Far1", &far1);
@@ -259,7 +259,11 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		cascades[2] = far2;
 	}
 
+	static bool debugShadows = true;
+
 	if (shadowMapCommands.size() > 0) {
+
+		ImGui::Checkbox("Debug shadows", &debugShadows);
 		
 		// TODO this should not be hardcoded
 		//openGLState->setCullFace(GL_FRONT);
@@ -331,6 +335,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->setUniform("viewMatrix", camera.getView());
 	pbrShaderProgram->setUniform("far", cascades[1]);
 	pbrShaderProgram->setUniform("far2", cascades[2]);
+
+	pbrShaderProgram->setUniform("debug", debugShadows);
 
 	pbrShaderProgram->setUniform("lightViewProjectionMatrix", lightViewProjections[0]);
 	pbrShaderProgram->setUniform("lightViewProjectionMatrix2", lightViewProjections[1]);

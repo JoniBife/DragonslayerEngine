@@ -250,11 +250,11 @@ void Engine::run() {
 
 	std::vector<RenderCommand> renderCommands;
 
-	for (int i = 0; i < 15; ++i) {
+	for (int i = -2; i < 10; ++i) {
 		RenderCommand rc;
 
 		rc.mesh = sphereMesh;
-		rc.model = Mat4::translation(0, 1.0f, -i * 2.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
+		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
 		rc.material = material;
 
 		renderCommands.push_back(rc);

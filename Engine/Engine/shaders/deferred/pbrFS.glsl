@@ -27,6 +27,8 @@ uniform mat4 lightViewProjectionMatrix;
 uniform mat4 lightViewProjectionMatrix2;
 uniform mat4 lightViewProjectionMatrix3;
 
+uniform bool debug;
+
 const float PI = 3.1415927;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
@@ -80,11 +82,14 @@ float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjection
 
 	// Extracting the depth of the current fragment from the light's point of view
 	float currentFragmentDepth = shadowMapCoords.z; 
+
+    if(currentFragmentDepth > 1.0)
+        return 0.0f;
     
 	float bias = max(0.05 * (1.0 - dot(normalize(normal),  -1 *normalize(vec3(-1.0, -1.0, 0.0)))), 0.005);
 
 	// PCF Filter
-	float shadow = 0.0;
+    float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(shadowMap_, 0);
 	for(int x = -1; x <= 1; ++x)
 	{
@@ -100,8 +105,13 @@ float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjection
 	}
 	shadow /= 9;
 
-	if(currentFragmentDepth > 1.0)
-        return 0.0f;
+    
+    /*float shadowMapDepth = texture(shadowMap_, shadowMapCoords.xy).r; 
+
+    // if the current fragment is closer than the fragment renderered from the lights perspective
+    // then the object is not in shadow, otherwise it is
+    float shadow = currentFragmentDepth - bias > shadowMapDepth ? 1.0 : 0.0; */
+    
 
 	return shadow;
 }
@@ -208,34 +218,15 @@ void main(void)
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
     float fragmentDepthViewSpace = -positionViewSpace.z;
 
-    if (fragmentDepthViewSpace < far) {
-        color.r += 0.2;
-    } else if (fragmentDepthViewSpace < far2) {
-        color.g += 0.2;
-    } else {
-        color.b += 0.2;
+    if (debug) {
+        if (fragmentDepthViewSpace < far) {
+            color.r += 0.1;
+        } else if (fragmentDepthViewSpace < far2) {
+            color.g += 0.1;
+        } else {
+            color.b += 0.1;
+        }
     }
-
-    /*if (positionViewSpace.x < topRight.x && positionViewSpace.x > -topRight.x &&
-    positionViewSpace.y < topRight.y && positionViewSpace.y > -topRight.y && 
-    positionViewSpace.z < bottomLeft.z && positionViewSpace.z > topRight.z
-    ) {
-        color.r += 0.2;
-    }
-
-    if (positionViewSpace.x < topRight2.x && positionViewSpace.x > -topRight2.x &&
-    positionViewSpace.y < topRight2.y && positionViewSpace.y > -topRight2.y && 
-    positionViewSpace.z < bottomLeft2.z && positionViewSpace.z > topRight2.z
-    ) {
-        color.g += 0.2;
-    }
-
-    if (positionViewSpace.x < topRight3.x && positionViewSpace.x > -topRight3.x &&
-    positionViewSpace.y < topRight3.y && positionViewSpace.y > -topRight3.y && 
-    positionViewSpace.z < bottomLeft3.z && positionViewSpace.z > topRight3.z
-    ) {
-        color.b += 0.2;
-    }*/
 
     fragmentColor = vec4(color, 1.0);
 }

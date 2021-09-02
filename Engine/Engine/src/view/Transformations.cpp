@@ -115,5 +115,5 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 	}
 
 	// Near and far sign is altered again because ortho expects them positive and inverts them internally
-	return ortho(left, right, bottom, top, near * -1, far * -1);
+	return ortho(roundf(left), roundf(right), roundf(bottom), roundf(top), near * -1, far * -1);
 }
