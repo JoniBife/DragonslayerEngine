@@ -375,6 +375,12 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
+
+	static bool toneMapping = false;
+	ImGui::Checkbox("ToneMapping ACES", &toneMapping);
+
+	postProcessingShaderProgram->setUniform("toneMapping", toneMapping);
+
 	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	//shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE0);
 	quadNDC->bind();
