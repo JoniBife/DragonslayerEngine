@@ -105,19 +105,19 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	}*/
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(2048, 2048)
+		.setSize(1024, 2048)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(512, 512)
+		.setSize(1024, 1024)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(256, 256)
+		.setSize(1024, 1024)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
@@ -248,7 +248,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	Mat4 lightViewProjections[3];
 
-	static float cascades[] = { camera.getNearPlane(), 5.0f, 30.0f, camera.getFarPlane() };
+	static float cascades[] = { camera.getNearPlane(), 5.0f, 30.0f, 50.0f };
 	static float far1 = cascades[1];
 	static float far2 = cascades[2];
 	ImGui::InputFloat("Far1", &far1);
@@ -305,7 +305,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 				shadowMapShaderProgram->stopUsing();
 				shadowMapBuffers[j]->unbind();
 
-				ImGui::Image((ImTextureID)shadowMapBuffers[i]->getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+				ImGui::Image((ImTextureID)shadowMapBuffers[j]->getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 			}
 		}
 

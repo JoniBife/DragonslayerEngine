@@ -250,11 +250,11 @@ void Engine::run() {
 
 	std::vector<RenderCommand> renderCommands;
 
-	for (int i = 0; i < 0; ++i) {
+	for (int i = 0; i < 15; ++i) {
 		RenderCommand rc;
 
 		rc.mesh = sphereMesh;
-		rc.model = Mat4::translation(rand() % 30 - 15, rand() % 5, rand() % 30 - 15) * Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
+		rc.model = Mat4::translation(0, 1.0f, -i * 2.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
 		rc.material = material;
 
 		renderCommands.push_back(rc);
@@ -292,9 +292,9 @@ void Engine::run() {
 		ImGui::InputFloat("Rotation", &rotation);
 		ImGui::InputVec3("Light Direction", lights.directionalLights[0].direction);
 
-		deferredRenderPipeline->enqueueRender(renderCommand);
+		//deferredRenderPipeline->enqueueRender(renderCommand);
 		deferredRenderPipeline->enqueueRender(renderCommand2);
-		deferredRenderPipeline->enqueueRender(renderCommand3);
+		//deferredRenderPipeline->enqueueRender(renderCommand3);
 
 		for (RenderCommand rc : renderCommands) {
 			deferredRenderPipeline->enqueueRender(rc);
