@@ -103,9 +103,8 @@ float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjection
 			shadow += currentFragmentDepth - bias > shadowMapDepth ? 1.0 : 0.0;        
 		}    
 	}
-	shadow /= 9;
+    shadow/=9.0;
 
-    
     /*float shadowMapDepth = texture(shadowMap_, shadowMapCoords.xy).r; 
 
     // if the current fragment is closer than the fragment renderered from the lights perspective

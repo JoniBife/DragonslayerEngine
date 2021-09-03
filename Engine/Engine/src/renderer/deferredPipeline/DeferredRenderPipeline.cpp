@@ -82,8 +82,15 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	pbrShaderProgram = new ShaderProgram(pbrVS, pbrFS);
 
 	Shader postProcessingVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/postProcessingVS.glsl");
-	Shader prostProcessingFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/postProcessingFS.glsl");
-	postProcessingShaderProgram = new ShaderProgram(postProcessingVS, prostProcessingFS);
+	Shader postProcessingFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/postProcessingFS.glsl");
+	postProcessingShaderProgram = new ShaderProgram(postProcessingVS, postProcessingFS);
+
+	Shader gaussianBlurVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/gaussianBlurVS.glsl");
+	Shader horizontalGaussianBlurFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/horizontalGaussianBlurFS.glsl");
+	horizontalBlurShaderProgram = new ShaderProgram(gaussianBlurVS, horizontalGaussianBlurFS);
+
+	Shader verticalGaussianBlurFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/verticalGaussianBlurFS.glsl");
+	verticalBlurShaderProgram = new ShaderProgram(gaussianBlurVS, verticalGaussianBlurFS);
 
 	// 4. Creating intermediate framebuffers and global unifom buffer
 	FrameBufferBuilder frameBufferBuilder;
@@ -137,9 +144,15 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.build();
 
 	postProcessingBuffer = frameBufferBuilder
-		.setSize(renderWidth, renderHeight)
+		.setSize(blurWidth, blurHeight)
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
+
+	postProcessingBuffer2 = frameBufferBuilder
+		.setSize(blurWidth, blurHeight)
+		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
+		.build();
+
 
 	createGlobalUniformsBuffer();
 
@@ -164,14 +177,18 @@ renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
 	delete shadowMapShaderProgram;
 	delete pbrShaderProgram;
 	delete postProcessingShaderProgram;
+	delete horizontalBlurShaderProgram;
+	delete verticalBlurShaderProgram;
 	
 	// Delete buffers
 	delete gBuffer;
 	for (int i = 0; i < maxShadowMaps; ++i) {
 		delete shadowMapBuffers[i];
 	}
+
 	delete prePostProcessingBuffer;
 	delete postProcessingBuffer;
+	delete postProcessingBuffer2;
 }
 
 void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights& lights)
@@ -371,6 +388,87 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	//glViewport(0,0,renderWidth, renderHeight);
 
+	// 4. Blur
+
+	static int blurPasses = 0;
+	ImGui::SliderInt("Blur passes", &blurPasses, 0, 10);
+	if (blurPasses > 0) {
+
+		glViewport(0, 0, blurWidth, blurHeight);
+
+		postProcessingBuffer->bind();
+		postProcessingBuffer->drawBuffers();
+
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
+		horizontalBlurShaderProgram->use();
+		horizontalBlurShaderProgram->setUniform("previousRenderTexture", 0);
+		lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+
+		quadNDC->bind();
+		quadNDC->draw();
+		quadNDC->unBind();
+
+		horizontalBlurShaderProgram->stopUsing();
+		postProcessingBuffer->unbind();
+
+		postProcessingBuffer2->bind();
+		postProcessingBuffer2->drawBuffers();
+
+		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
+		verticalBlurShaderProgram->use();
+		verticalBlurShaderProgram->setUniform("previousRenderTexture", 0);
+		postProcessingBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+
+		quadNDC->bind();
+		quadNDC->draw();
+		quadNDC->unBind();
+
+		verticalBlurShaderProgram->stopUsing();
+
+		postProcessingBuffer2->unbind();
+
+		for (int i = 0; i < blurPasses - 1; ++i) {
+
+			postProcessingBuffer->bind();
+			postProcessingBuffer->drawBuffers();
+
+			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
+			horizontalBlurShaderProgram->use();
+			horizontalBlurShaderProgram->setUniform("previousRenderTexture", 0);
+			postProcessingBuffer2->getColorAttachment(0).bind(GL_TEXTURE0);
+
+			quadNDC->bind();
+			quadNDC->draw();
+			quadNDC->unBind();
+
+			horizontalBlurShaderProgram->stopUsing();
+			postProcessingBuffer->unbind();
+
+			postProcessingBuffer2->bind();
+			postProcessingBuffer2->drawBuffers();
+
+			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
+			verticalBlurShaderProgram->use();
+			verticalBlurShaderProgram->setUniform("previousRenderTexture", 0);
+			postProcessingBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+
+			quadNDC->bind();
+			quadNDC->draw();
+			quadNDC->unBind();
+
+			verticalBlurShaderProgram->stopUsing();
+
+			postProcessingBuffer2->unbind();
+
+		}
+	}
+
+	glViewport(0, 0, renderWidth, renderHeight);
+
 	// 3. Apply any post processing
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	postProcessingShaderProgram->use();
@@ -380,13 +478,18 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	ImGui::Checkbox("ToneMapping ACES", &toneMapping);
 
 	postProcessingShaderProgram->setUniform("toneMapping", toneMapping);
+	
+	if (blurPasses == 0)
+		lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+	else
+		postProcessingBuffer2->getColorAttachment(0).bind(GL_TEXTURE0);
 
-	lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
-	//shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE0);
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
 	postProcessingShaderProgram->stopUsing();
+
+
 }
 
 void renderer::DeferredRenderPipeline::renderToTarget(const Camera& camera, const Lights& lights, const RenderTarget& renderTarget)

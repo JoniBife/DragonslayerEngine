@@ -17,6 +17,11 @@ namespace renderer {
 
 		ShaderProgram* geometryShaderProgram;
 		ShaderProgram* shadowMapShaderProgram;
+
+		// Two-pass Gaussian blur shaders
+		ShaderProgram* horizontalBlurShaderProgram;
+		ShaderProgram* verticalBlurShaderProgram;
+
 		ShaderProgram* pbrShaderProgram;
 		ShaderProgram* postProcessingShaderProgram;
 
@@ -25,6 +30,7 @@ namespace renderer {
 		FrameBuffer* lightBuffer;
 		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
+		FrameBuffer* postProcessingBuffer2;
 
 		Texture2D* defaultAlbedoMap;
 		Texture2D* defaultNormalMap;
@@ -34,7 +40,9 @@ namespace renderer {
 
 		Mesh* quadNDC;
 
-		unsigned int maxShadowMaps = 3;
+		const unsigned int maxShadowMaps = 3;
+		const unsigned int blurWidth = 426;
+		const unsigned int blurHeight = 240;
 
 		GLuint vboGlobalUniforms;
 

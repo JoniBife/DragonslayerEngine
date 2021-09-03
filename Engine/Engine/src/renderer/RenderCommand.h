@@ -10,8 +10,8 @@ namespace renderer {
 		Mesh* mesh;
 		GLPBRMaterial* material;
 		Mat4 model;
-		bool castShadows;
-		bool receiveShadows;
+		bool castShadows = true;
+		bool receiveShadows = true;
 		bool blending;
 
 		/* Check if the rendering command is valid (i.e. Mesh is not null nor material) */

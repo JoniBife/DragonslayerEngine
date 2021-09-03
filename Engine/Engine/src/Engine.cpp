@@ -253,6 +253,9 @@ void Engine::run() {
 	for (int i = -2; i < 10; ++i) {
 		RenderCommand rc;
 
+		if (i < 0)
+			rc.castShadows = false;
+
 		rc.mesh = sphereMesh;
 		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
 		rc.material = material;
