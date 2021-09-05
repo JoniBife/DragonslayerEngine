@@ -25,12 +25,15 @@ namespace renderer {
 		ShaderProgram* pbrShaderProgram;
 		ShaderProgram* postProcessingShaderProgram;
 
+		ShaderProgram* fxaaShaderProgram;
+
 		FrameBuffer* gBuffer;
 		std::vector<FrameBuffer*> shadowMapBuffers;
 		FrameBuffer* lightBuffer;
 		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
-		FrameBuffer* postProcessingBuffer2;
+		FrameBuffer* horizontalBlurBuffer;
+		FrameBuffer* verticalBlurBuffer;
 
 		Texture2D* defaultAlbedoMap;
 		Texture2D* defaultNormalMap;

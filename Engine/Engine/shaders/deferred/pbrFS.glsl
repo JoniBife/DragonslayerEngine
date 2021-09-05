@@ -124,12 +124,15 @@ float calculateShadows(vec4 position, vec3 normal) {
     float fragmentDepthViewSpace = -positionViewSpace.z;
 
     if (fragmentDepthViewSpace < far) {
+   
         return calculateShadowFactor(position, normal, lightViewProjectionMatrix, shadowMap);
 
     } else if (fragmentDepthViewSpace < far2) {
+
         return calculateShadowFactor(position, normal, lightViewProjectionMatrix2, shadowMap2);
 
     } else {
+
         return calculateShadowFactor(position, normal, lightViewProjectionMatrix3, shadowMap3);
     }
     
@@ -208,11 +211,6 @@ void main(void)
 
     // 2. Calculate color using PBR
     vec3 color = pbr(position, normal, albedo, metallic, roughness, ambientOcclusion);
-
-    // HDR tonemapping
-    color = color / (color + vec3(1.0));
-    // gamma correct
-    color = pow(color, vec3(1.0/2.2)); 
 
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
     float fragmentDepthViewSpace = -positionViewSpace.z;

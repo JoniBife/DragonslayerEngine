@@ -92,6 +92,9 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	Shader verticalGaussianBlurFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/verticalGaussianBlurFS.glsl");
 	verticalBlurShaderProgram = new ShaderProgram(gaussianBlurVS, verticalGaussianBlurFS);
 
+	Shader fxaaFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/fxaaFS.glsl");
+	fxaaShaderProgram = new ShaderProgram(postProcessingVS, fxaaFS);
+
 	// 4. Creating intermediate framebuffers and global unifom buffer
 	FrameBufferBuilder frameBufferBuilder;
 
@@ -144,16 +147,19 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.build();
 
 	postProcessingBuffer = frameBufferBuilder
+		.setSize(renderWidth, renderHeight)
+		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
+		.build();
+
+	horizontalBlurBuffer = frameBufferBuilder
 		.setSize(blurWidth, blurHeight)
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
 
-	postProcessingBuffer2 = frameBufferBuilder
+	verticalBlurBuffer = frameBufferBuilder
 		.setSize(blurWidth, blurHeight)
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
-
-
 	createGlobalUniformsBuffer();
 
 	// 5. Creating the quad whose vertices will be used in most render passes
@@ -187,8 +193,8 @@ renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
 	}
 
 	delete prePostProcessingBuffer;
-	delete postProcessingBuffer;
-	delete postProcessingBuffer2;
+	delete horizontalBlurBuffer;
+	delete verticalBlurBuffer;
 }
 
 void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights& lights)
@@ -345,7 +351,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 	glViewport(0, 0, renderWidth, renderHeight);
 	
-	//lightBuffer->drawBuffers();
+	lightBuffer->drawBuffers();
+	
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)); // Clearing all buffer attachments, MUST be done after drawBuffers
 	pbrShaderProgram->use();
 
@@ -396,8 +403,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 		glViewport(0, 0, blurWidth, blurHeight);
 
-		postProcessingBuffer->bind();
-		postProcessingBuffer->drawBuffers();
+		horizontalBlurBuffer->bind();
+		horizontalBlurBuffer->drawBuffers();
 
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
@@ -410,16 +417,16 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		quadNDC->unBind();
 
 		horizontalBlurShaderProgram->stopUsing();
-		postProcessingBuffer->unbind();
+		horizontalBlurBuffer->unbind();
 
-		postProcessingBuffer2->bind();
-		postProcessingBuffer2->drawBuffers();
+		verticalBlurBuffer->bind();
+		verticalBlurBuffer->drawBuffers();
 
 		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 		verticalBlurShaderProgram->use();
 		verticalBlurShaderProgram->setUniform("previousRenderTexture", 0);
-		postProcessingBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+		horizontalBlurBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
 		quadNDC->bind();
 		quadNDC->draw();
@@ -427,34 +434,34 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 		verticalBlurShaderProgram->stopUsing();
 
-		postProcessingBuffer2->unbind();
+		verticalBlurBuffer->unbind();
 
 		for (int i = 0; i < blurPasses - 1; ++i) {
 
-			postProcessingBuffer->bind();
-			postProcessingBuffer->drawBuffers();
+			horizontalBlurBuffer->bind();
+			horizontalBlurBuffer->drawBuffers();
 
 			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 			horizontalBlurShaderProgram->use();
 			horizontalBlurShaderProgram->setUniform("previousRenderTexture", 0);
-			postProcessingBuffer2->getColorAttachment(0).bind(GL_TEXTURE0);
+			verticalBlurBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
 			quadNDC->bind();
 			quadNDC->draw();
 			quadNDC->unBind();
 
 			horizontalBlurShaderProgram->stopUsing();
-			postProcessingBuffer->unbind();
+			horizontalBlurBuffer->unbind();
 
-			postProcessingBuffer2->bind();
-			postProcessingBuffer2->drawBuffers();
+			verticalBlurBuffer->bind();
+			verticalBlurBuffer->drawBuffers();
 
 			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 			verticalBlurShaderProgram->use();
 			verticalBlurShaderProgram->setUniform("previousRenderTexture", 0);
-			postProcessingBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+			horizontalBlurBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
 			quadNDC->bind();
 			quadNDC->draw();
@@ -462,15 +469,19 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 			verticalBlurShaderProgram->stopUsing();
 
-			postProcessingBuffer2->unbind();
+			verticalBlurBuffer->unbind();
 
 		}
 	}
 
+	// 3. Apply any post processing
+	postProcessingBuffer->bind();
+	postProcessingBuffer->drawBuffers();
+
 	glViewport(0, 0, renderWidth, renderHeight);
 
-	// 3. Apply any post processing
 	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
 
@@ -482,13 +493,42 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	if (blurPasses == 0)
 		lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	else
-		postProcessingBuffer2->getColorAttachment(0).bind(GL_TEXTURE0);
+		verticalBlurBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
 	quadNDC->bind();
 	quadNDC->draw();
 	quadNDC->unBind();
 	postProcessingShaderProgram->stopUsing();
 
+	postProcessingBuffer->unbind();
+
+	glViewport(0, 0, renderWidth, renderHeight);
+
+	GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+	fxaaShaderProgram->use();
+	fxaaShaderProgram->setUniform("previousRenderTexture", 0);
+
+	static bool fxaa = false;
+	ImGui::Checkbox("FXAA", &fxaa);
+
+	fxaaShaderProgram->setUniform("enabled", fxaa);
+	
+	static float minEdgeThreshold = 0.0312f; static float maxEdgeThreshold = 0.125f;
+	ImGui::InputFloat("Min edge threshold", &minEdgeThreshold);
+	ImGui::InputFloat("Max edge threshold", &maxEdgeThreshold);
+
+	fxaaShaderProgram->setUniform("minEdgeThreshold", minEdgeThreshold);
+	fxaaShaderProgram->setUniform("maxEdgeThreshold", maxEdgeThreshold);
+
+	postProcessingBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+
+	quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
+
+	fxaaShaderProgram->stopUsing();
+
+	glViewport(0, 0, renderWidth, renderHeight);
 
 }
 
