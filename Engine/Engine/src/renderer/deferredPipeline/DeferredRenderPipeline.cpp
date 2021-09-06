@@ -115,7 +115,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	}*/
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(2048, 2048)
+		.setSize(1024, 1024)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
@@ -271,7 +271,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	Mat4 lightViewProjections[3];
 
-	static float cascades[] = { camera.getNearPlane(), 7.5f, 20.0f, 50.0f };
+	static float cascades[] = { camera.getNearPlane(), 7.5f, 25.0f, 42.5f };
 	static float far1 = cascades[1];
 	static float far2 = cascades[2];
 	ImGui::InputFloat("Far1", &far1);
@@ -282,7 +282,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		cascades[2] = far2;
 	}
 
-	static bool debugShadows = true;
+	static bool debugShadows = false;
 
 	if (shadowMapCommands.size() > 0) {
 
@@ -508,7 +508,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	fxaaShaderProgram->use();
 	fxaaShaderProgram->setUniform("previousRenderTexture", 0);
 
-	static bool fxaa = false;
+	static bool fxaa = true;
 	ImGui::Checkbox("FXAA", &fxaa);
 
 	fxaaShaderProgram->setUniform("enabled", fxaa);

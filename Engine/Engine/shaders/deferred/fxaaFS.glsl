@@ -20,7 +20,7 @@ and converts them from linear space to non linear space (to perceived brightness
 by using the inverse gamma transformation (x ^ (1/2.2)
 */
 float rgbToLuma(vec3 rgb){
-    return pow(dot(rgb, vec3(0.299, 0.587, 0.114)),1.0/2.2);
+    return dot(rgb, vec3(0.299, 0.587, 0.114));
 }
 
 void main()
@@ -272,10 +272,12 @@ void main()
         float subPixelOffset1 = clamp(abs(lumaAverage - lumaCenter)/lumaContrast,0.0,1.0);
         float subPixelOffset2 = (-2.0 * subPixelOffset1 + 3.0) * subPixelOffset1 * subPixelOffset1;
         // Compute a sub-pixel offset based on this delta.
-        float subPixelOffsetFinal = subPixelOffset2 * subPixelOffset2 * 0.75; // 0.75 is the subbixel quality
+        float subPixelOffsetFinal = subPixelOffset2 * subPixelOffset2 * 0.75; // 0.75 is the subpixel quality
 
         // Pick the biggest of the two offsets.
         finalOffset = max(finalOffset,subPixelOffsetFinal);
+
+        // BILINEAR FILTERING --------------------------------------------------
 
         // Compute the final UV coordinates.
         // The color will be sampled using a bilinear filter and so blured
@@ -297,8 +299,5 @@ void main()
     }
        
 
-    // HDR tonemapping
-    //color = color / (color + vec3(1.0));
-    // gamma correct
-    //color = pow(color, vec3(1.0/2.2)); 
+    
 }

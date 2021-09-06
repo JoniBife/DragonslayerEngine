@@ -215,6 +215,11 @@ void main(void)
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
     float fragmentDepthViewSpace = -positionViewSpace.z;
 
+    // HDR tonemapping (Reinhard)
+    color = color / (color + vec3(1.0));
+    // gamma correct
+    color = pow(color, vec3(1.0/2.2));
+
     if (debug) {
         if (fragmentDepthViewSpace < far) {
             color.r += 0.1;
