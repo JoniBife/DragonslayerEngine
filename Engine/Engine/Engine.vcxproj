@@ -116,6 +116,7 @@
     <ClInclude Include="src\renderer\deferredPipeline\DeferredRenderQueue.h" />
     <ClInclude Include="src\renderer\deferredPipeline\GLMaterial.h" />
     <ClInclude Include="src\renderer\deferredPipeline\GLPBRMaterial.h" />
+    <ClInclude Include="src\textures\IBL.h" />
     <ClInclude Include="src\renderer\DirectionalLight.h" />
     <ClInclude Include="src\renderer\Lights.h" />
     <ClInclude Include="src\renderer\Material.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="src\shaders\ShaderProgram.h" />
     <ClInclude Include="src\meshes\IDrawable.h" />
     <ClInclude Include="src\meshes\Mesh.h" />
+    <ClInclude Include="src\textures\std_image_write.h" />
     <ClInclude Include="src\textures\Texture2D.h" />
     <ClInclude Include="src\utils\ColorRGBA.h" />
     <ClInclude Include="src\utils\OpenGLUtils.h" />

@@ -2,6 +2,7 @@
 #include "stb_image.h"
 #include <assert.h>
 #include "../utils/OpenGLUtils.h"
+#include "../textures/FrameBuffer.h"
 
 CubeMap::CubeMap(const std::vector<std::string>& facesFilePath) {
 

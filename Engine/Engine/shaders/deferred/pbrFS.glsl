@@ -6,7 +6,6 @@ in vec2 fragTextCoords;
 
 uniform vec3 viewPosition;
 
-
 uniform mat4 viewMatrix;
 
 uniform vec3 lightColor = {10.0, 10.0, 10.0};
@@ -34,6 +33,14 @@ const float PI = 3.1415927;
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
+
+/* Approximation of fresnel schlick 
+https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for-blinn-phong-phong-and-fresnel/
+difference is unnoticable and slightly cheaper
+*/
+vec3 fresnelSphericalGaussian(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(2, -5.55473 * cosTheta - 6.98316 * cosTheta);
+}
 
 float DistributionGGX(vec3 N, vec3 H, float roughness) {
     float a      = roughness*roughness;
@@ -138,6 +145,33 @@ float calculateShadows(vec4 position, vec3 normal) {
     
 }
 
+vec3 LambertianDiffuse(vec3 diffuseColor) {
+    return diffuseColor / PI;
+}
+
+vec3 OrenNayarDiffuse(vec3 diffuseColor, float roughness, vec3 lightDir, vec3 viewDir) {
+    
+    vec3 lambert = LambertianDiffuse(diffuseColor);
+
+    if (roughness == 0.0) 
+        return lambert;
+
+    // Moving to spherical coordinates assuming radius 1
+    float thetaI = acos(lightDir.z);
+    float phiI = atan(lightDir.y / lightDir.x);
+
+    float thetaR = acos(viewDir.z);
+    float phiR = atan(viewDir.y / viewDir.x);
+
+    float roughnessSqrd = roughness * roughness;
+    float A = 1.0 - 0.5 * (roughnessSqrd / (roughnessSqrd + 0.33));
+    float B = 0.45 * (roughnessSqrd / (roughnessSqrd + 0.09));
+    float alpha = max(thetaI, thetaR);
+    float beta = min(thetaI, thetaR);
+
+    return lambert * (A + (B*max(0.0, cos(phiI - phiR))) * sin(alpha) * tan(beta));
+
+}
 
 vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughness, float ambientOcclusion) {
     vec3 V = normalize(viewPosition - position);
@@ -158,11 +192,12 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // Cook-Torrance BRDF
     float NDF = DistributionGGX(normal, H, roughness);   
     float G   = GeometrySmith(normal, V, L, roughness);      
-    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    vec3 F    = fresnelSphericalGaussian(max(dot(H, V), 0.0), F0);
            
     vec3 numerator    = NDF * G * F; 
     float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
     vec3 specular = numerator / denominator;
+    vec3 diffuse = /*OrenNayarDiffuse(albedo, roughness, L, V);*/LambertianDiffuse(albedo);
         
     // kS is equal to Fresnel
     vec3 kS = F;
@@ -173,7 +208,7 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // multiply kD by the inverse metalness such that only non-metals 
     // have diffuse lighting, or a linear blend if partly metal (pure metals
     // have no diffuse light).
-    kD *= 1.0 - metallic;	  
+    kD *= 1.0 - metallic;
 
     // scale light by NdotL
     float NdotL = max(dot(normal, L), 0.0);     
@@ -181,7 +216,7 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     float shadow = calculateShadows(vec4(position,1.0),normal);
 
     // add to outgoing radiance Lo
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     
     // ambient lighting (note that the next IBL tutorial will replace 
     // this ambient lighting with environment lighting).
@@ -191,7 +226,6 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
 
     return color;
 }
-
 
 void main(void)
 {
