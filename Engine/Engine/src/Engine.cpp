@@ -277,8 +277,8 @@ void Engine::run() {
 	float rotation = PI / 4.0f;
 	Vec3 translation(-2.0f, 2.0f, 2.0f);
 
-	IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr", 
-		"../Engine/textures/irradiance/");
+	IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr",
+		"../Engine/textures/irradiance/"); 
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))

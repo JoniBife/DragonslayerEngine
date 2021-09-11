@@ -7,6 +7,21 @@
 #include <imgui/imgui.h>
 #include "../../gui/ImGuiExtensions.h"
 #include "../../math/MathAux.h"
+#include "../../textures/std_image_write.h"
+
+/*static void screenShotFrame(float width, float height) {
+
+	GLubyte* data = new GLubyte[3 * width * height];
+	memset(data, 0, 3 * width * height);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); // Read the on-screen pixels into the space allocated above
+	const std::string path = "../Engine/textures/frame.png";
+
+	stbi_flip_vertically_on_write(true);
+	stbi_write_png(path.c_str(), width, height, 3, data, 0);
+
+	free(data);
+}*/
 
 using namespace renderer;
 
@@ -95,6 +110,10 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	Shader fxaaFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/fxaaFS.glsl");
 	fxaaShaderProgram = new ShaderProgram(postProcessingVS, fxaaFS);
 
+	Shader skyboxVS(GL_VERTEX_SHADER, "../Engine/shaders/skybox/skyboxVS.glsl");
+	Shader skyboxFS(GL_FRAGMENT_SHADER, "../Engine/shaders/skybox/skyboxFS.glsl");
+	skyboxShaderProgram = new ShaderProgram(skyboxVS, skyboxFS);
+
 	// 4. Creating intermediate framebuffers and global unifom buffer
 	FrameBufferBuilder frameBufferBuilder;
 
@@ -162,9 +181,12 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.build();
 	createGlobalUniformsBuffer();
 
-	// 5. Creating the quad whose vertices will be used in most render passes
+	// 5. Creating the quad whose vertices will be used in most render passes and cube for the skybox
 	quadNDC = Mesh::rectangle(2.0f, 2.0f);
 	quadNDC->init();
+
+	cube = Mesh::loadFromFile("../Engine/objs/cube.obj");
+	cube->init();
 
 	// 6. Load default material textures
 	defaultAlbedoMap = new Texture2D("../Engine/textures/pbr/default/albedo.png");
@@ -172,6 +194,28 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 	defaultMetallicMap = new Texture2D("../Engine/textures/pbr/default/metallic.png");
 	defaultRoughnessMap = new Texture2D("../Engine/textures/pbr/default/roughness.png");
 	defaultAOMap = new Texture2D("../Engine/textures/pbr/default/ao.png");
+
+	// 7. Load skybox
+	std::vector<std::string> skyboxFaces = {
+		"../Engine/textures/irradiance/cubeMap0.png",
+		"../Engine/textures/irradiance/cubeMap1.png",
+		"../Engine/textures/irradiance/cubeMap2.png",
+		"../Engine/textures/irradiance/cubeMap3.png",
+		"../Engine/textures/irradiance/cubeMap4.png",
+		"../Engine/textures/irradiance/cubeMap5.png"
+	};
+	//skyBox = new CubeMap(skyboxFaces);
+
+	// 8. Load irradiance map for indirect envirnment contribution
+	std::vector<std::string> irradianceMapFaces = {
+		"../Engine/textures/irradiance/face0.png",
+		"../Engine/textures/irradiance/face1.png",
+		"../Engine/textures/irradiance/face2.png",
+		"../Engine/textures/irradiance/face3.png",
+		"../Engine/textures/irradiance/face4.png",
+		"../Engine/textures/irradiance/face5.png"
+	};
+	//irradianceCubeMap = new CubeMap(irradianceMapFaces);
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -373,6 +417,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->setUniform("shadowMap", 3);
 	pbrShaderProgram->setUniform("shadowMap2", 4);
 	pbrShaderProgram->setUniform("shadowMap3", 5);
+	pbrShaderProgram->setUniform("irradianceCubeMap", 6);
 
 	static Vec3 pixelOffset;
 	ImGui::InputVec3("Pixel Offset", pixelOffset);
@@ -384,6 +429,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE3);
 	shadowMapBuffers[1]->getDepthAttachment().bind(GL_TEXTURE4);
 	shadowMapBuffers[2]->getDepthAttachment().bind(GL_TEXTURE5);
+	irradianceCubeMap->bind(GL_TEXTURE6);
 
 	quadNDC->bind();
 	quadNDC->draw();

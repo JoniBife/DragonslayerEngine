@@ -11,6 +11,94 @@
 #include "../shaders/ShaderProgram.h"
 #include "../meshes/Mesh.h"
 
+static void screenShotFrame(float width, float height, const std::string& outputPath) {
+
+    GLubyte* data = new GLubyte[3 * width * height];
+    memset(data, 255, 3 * width * height);
+    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); // Read the on-screen pixels into the space allocated above
+    //const std::string path = "../Engine/textures/frame.png";
+
+    //stbi_flip_vertically_on_write(true);
+    stbi_write_png(outputPath.c_str(), width, height, 3, data, 0);
+
+    free(data);
+}
+
+unsigned int cubeVAO = 0;
+unsigned int cubeVBO = 0;
+void renderCube()
+{
+    // initialize (if necessary)
+    if (cubeVAO == 0)
+    {
+        float vertices[] = {
+            // back face
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+             1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+            // front face
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+             1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+            // left face
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            // right face
+             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+             1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+             1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+            // bottom face
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+             1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+            -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+            // top face
+            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+             1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+             1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+             1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+            -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+        };
+        glGenVertexArrays(1, &cubeVAO);
+        glGenBuffers(1, &cubeVBO);
+        // fill buffer
+        glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // link vertex attributes
+        glBindVertexArray(cubeVAO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+    // render Cube
+    glBindVertexArray(cubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+
 /* Namespace containg function used to precompute any irradiance maps
 required for PBR, any function call should be done after the creation
 of the OpenGL context */
@@ -33,6 +121,11 @@ namespace IBL {
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
+
+        /*bool cullFacingEnabled = glIsEnabled(GL_CULL_FACE);
+        glGet
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);*/
 
         // Creating OpenGL texture with 16 bit float precision per color channel
         GLuint hdrTexture;
@@ -80,14 +173,14 @@ namespace IBL {
 
         // Setup each of the view matrices to look at the cube faces and projection matrix
         Mat4 viewMatrices[6] = {
-            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, 1.0f, 0.0f)),
-            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
             lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f)),
             lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f,-1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f)),
-            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f)),
-            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, -1.0f, 0.0f))
         };
-        Mat4 projection = perspective(90.0f, 1.0f, 0.1f, 10.f); // TODO Maybe reduce far plane
+        Mat4 projection = perspective(PI/2.0f, 1.0f, 0.1f, 10.f); // TODO Maybe reduce far plane
 
         // Setup shaders used to convert from equirectangular map to cubemap
         Shader convertVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/eqrtToCubemapVS.glsl");
@@ -109,26 +202,31 @@ namespace IBL {
 
         for (unsigned int i = 0; i < 6; ++i)
         {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            
             convertSp.setUniform("viewMatrix", viewMatrices[i]);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+
+            glClearColor(1, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
             cube->bind();
             cube->draw();
             cube->unBind();
 
             // Allocate enough data for 3 channels: RGB
-            int width = 512;
+            /*int width = 512;
             int height = 512;
-            GLubyte* data = new GLubyte[3 * 512 * 512];
-            memset(data, 0, 3 * width * height);
+            GLubyte* data = new GLubyte[12 * 512 * 512];
+            memset(data, 255, 12 * width * height);
 
-            glReadPixels(0, 0, 512, 512, GL_RGB, GL_UNSIGNED_BYTE, data); // Read the on-screen pixels into the space allocated above
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            glReadPixels(0, 0, 512, 512, GL_RGB, GL_FLOAT, data); // Read the on-screen pixels into the space allocated above
             const std::string path = std::string(outputPath) + "cubeMap" + std::to_string(i) + ".png";
 
-            stbi_write_png(path.c_str(), 512, 512, 3, data, 0);
-
-            free(data);
+            // glReadPixels reads pixels, bottom > up so we have to flip in order for the image to look right
+            stbi_flip_vertically_on_write(true);
+            stbi_write_png(path.c_str(), 512, 512, 3, data, 0);*/
+            screenShotFrame(512, 512, std::string(outputPath) + "cubeMap" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -176,18 +274,14 @@ namespace IBL {
             cube->draw();
             cube->unBind();
 
-            // Allocate enough data for 3 channels: RGB
-            unsigned char* data = (unsigned char*)malloc((size_t)(32 * 32 * 3)); 
-            glReadPixels(0, 0, 32, 32, GL_RGB, GL_RGB16F, data); // Read the on-screen pixels into the space allocated above
-            const std::string path = std::string(outputPath) + "face" + std::to_string(i) + ".png";
-
-            stbi_write_png(path.c_str(), 32, 32, 3, data, 0);
-
-            free(data);
+            screenShotFrame(32, 32, std::string(outputPath) + "face" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         convolutionSp.stopUsing();
+
+        delete cube;
+        // TODO Free the rest of unused textures, buffers etc..
 
         return true;
 	}

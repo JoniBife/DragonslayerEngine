@@ -26,6 +26,8 @@ uniform mat4 lightViewProjectionMatrix;
 uniform mat4 lightViewProjectionMatrix2;
 uniform mat4 lightViewProjectionMatrix3;
 
+uniform samplerCube irradianceCubeMap;
+
 uniform bool debug;
 
 const float PI = 3.1415927;
@@ -197,7 +199,8 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     vec3 numerator    = NDF * G * F; 
     float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
     vec3 specular = numerator / denominator;
-    vec3 diffuse = /*OrenNayarDiffuse(albedo, roughness, L, V);*/LambertianDiffuse(albedo);
+    vec3 diffuse = 
+    /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
         
     // kS is equal to Fresnel
     vec3 kS = F;
@@ -218,9 +221,13 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // add to outgoing radiance Lo
     Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     
-    // ambient lighting (note that the next IBL tutorial will replace 
-    // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * albedo * ambientOcclusion;
+    // ambient lighting (we now use IBL as the ambient term)
+    vec3 kS2 = fresnelSchlick(max(dot(normal, V), 0.0), F0);
+    vec3 kD2 = 1.0 - kS2;
+    kD *= 1.0 - metallic;	  
+    vec3 irradiance = texture(irradianceCubeMap, normal).rgb;
+    vec3 diffuse2 = irradiance * albedo;
+    vec3 ambient = (kD2 * diffuse2) * ambientOcclusion;
     
     vec3 color = ambient + Lo;
 

@@ -5,7 +5,7 @@ using namespace renderer;
 
 renderer::OpenGLState::OpenGLState()
 {
-	if (depthTesting) {
+	/*if (depthTesting) {
 		GL_CALL(glEnable(GL_DEPTH_TEST));
 	} else {
 		GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -30,7 +30,7 @@ renderer::OpenGLState::OpenGLState()
 	}
 
 	GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
-	GL_CALL(glViewport(x, y, width, height));
+	GL_CALL(glViewport(x, y, width, height));*/
 }
 
 OpenGLState* renderer::OpenGLState::createDefaultState()

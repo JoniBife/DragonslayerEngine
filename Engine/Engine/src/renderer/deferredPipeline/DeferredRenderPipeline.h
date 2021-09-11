@@ -5,6 +5,7 @@
 #include "DeferredRenderQueue.h"
 #include "OpenGLState.h"
 #include "../meshes/Mesh.h"
+#include "../../textures/CubeMap.h"
 
 namespace renderer {
 
@@ -27,6 +28,8 @@ namespace renderer {
 
 		ShaderProgram* fxaaShaderProgram;
 
+		ShaderProgram* skyboxShaderProgram;
+
 		FrameBuffer* gBuffer;
 		std::vector<FrameBuffer*> shadowMapBuffers;
 		FrameBuffer* lightBuffer;
@@ -42,7 +45,11 @@ namespace renderer {
 		Texture2D* defaultAOMap;
 
 		Mesh* quadNDC;
+		Mesh* cube;
 
+		CubeMap* skyBox;
+		CubeMap* irradianceCubeMap;
+		
 		const unsigned int maxShadowMaps = 3;
 		const unsigned int blurWidth = 426;
 		const unsigned int blurHeight = 240;

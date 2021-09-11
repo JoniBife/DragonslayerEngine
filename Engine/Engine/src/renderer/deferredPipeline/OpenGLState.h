@@ -10,6 +10,8 @@ namespace renderer {
     * Contains most of the active OpenGL state, avoids any unecessary state changes 
     * Could not find confirmation anywhere but switching OpenGL state probably has 
     * some cost
+    * 
+    * TODO Improve this class by fetching the values using glGet and glIsEnabled
     */
 	class OpenGLState {
 		

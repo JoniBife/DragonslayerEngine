@@ -21,5 +21,10 @@ void main()
 
     vec3 color = texture(equirectangularMap, uv).rgb;
     
-    fragmentColor = vec4(color + vec3(1,0,0), 1.0);
+    // HDR tonemapping
+    color = color / (color + vec3(1.0));
+    // gamma correct
+    color = pow(color, vec3(1.0/2.2)); 
+
+    fragmentColor = vec4(color, 1.0);
 }
