@@ -203,11 +203,11 @@ void Engine::run() {
 	sphereMesh->init();
 
 	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
-	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
-	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
-	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
-	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron/roughness.png");
-	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/rustediron/ao.png");
+	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/rustediron2/albedo.png");
+	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/rustediron2/normal.png");
+	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/rustediron2/metallic.png");
+	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron2/roughness.png");
+	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/rustediron2/ao.png");
 	material->setAlbedoMap(albedoMap);
 	material->setNormalMap(normalMap);
 	material->setMetallicMap(metallicMap);
@@ -277,8 +277,8 @@ void Engine::run() {
 	float rotation = PI / 4.0f;
 	Vec3 translation(-2.0f, 2.0f, 2.0f);
 
-	IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr",
-		"../Engine/textures/irradiance/"); 
+	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr",
+		"../Engine/textures/irradiance/");*/ 
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -290,6 +290,18 @@ void Engine::run() {
 		lastTime = time;
 
 		gui->preRenderUI();
+
+		float roughness = material->getRoughness();
+		ImGui::InputFloat("Roughness", &roughness);
+		material->setRoughness(roughness);
+
+		float metallic = material->getMetallic();
+		ImGui::InputFloat("Metallic", &metallic);
+		material->setMetallic(metallic);
+
+		float ao = material->getAO();
+		ImGui::InputFloat("AO", &ao);
+		material->setAO(ao);
 
 		editorCamera->update(elapsedTime);
 

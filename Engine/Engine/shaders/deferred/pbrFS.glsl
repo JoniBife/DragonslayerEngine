@@ -27,6 +27,8 @@ uniform mat4 lightViewProjectionMatrix2;
 uniform mat4 lightViewProjectionMatrix3;
 
 uniform samplerCube irradianceCubeMap;
+uniform samplerCube prefilterCubeMap;
+uniform sampler2D brdfLUT;
 
 uniform bool debug;
 
@@ -176,6 +178,7 @@ vec3 OrenNayarDiffuse(vec3 diffuseColor, float roughness, vec3 lightDir, vec3 vi
 }
 
 vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughness, float ambientOcclusion) {
+    
     vec3 V = normalize(viewPosition - position);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
@@ -227,8 +230,16 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceCubeMap, normal).rgb;
     vec3 diffuse2 = irradiance * albedo;
-    vec3 ambient = (kD2 * diffuse2) * ambientOcclusion;
-    
+
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 R = reflect(-V, normal); 
+    vec3 prefilteredColor = textureLod(prefilterCubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(brdfLUT, vec2(max(dot(normal, V), 0.0), roughness)).rg;
+    vec3 specular2 = prefilteredColor * (F * brdf.x + brdf.y);
+
+    vec3 ambient = (kD2 * diffuse2 + specular2) * ambientOcclusion;
+
     vec3 color = ambient + Lo;
 
     return color;

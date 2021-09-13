@@ -204,7 +204,7 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		"../Engine/textures/irradiance/cubeMap4.png",
 		"../Engine/textures/irradiance/cubeMap5.png"
 	};
-	//skyBox = new CubeMap(skyboxFaces);
+	skyBox = new CubeMap(skyboxFaces);
 
 	// 8. Load irradiance map for indirect envirnment contribution
 	std::vector<std::string> irradianceMapFaces = {
@@ -215,7 +215,34 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		"../Engine/textures/irradiance/face4.png",
 		"../Engine/textures/irradiance/face5.png"
 	};
-	//irradianceCubeMap = new CubeMap(irradianceMapFaces);
+	irradianceCubeMap = new CubeMap(irradianceMapFaces);
+
+	// 9. Load prefilter cube map
+	std::vector<std::string> prefilterMapFacesMip0 = {
+		"../Engine/textures/irradiance/prefilterMip0face0.png",
+		"../Engine/textures/irradiance/prefilterMip0face1.png",
+		"../Engine/textures/irradiance/prefilterMip0face2.png",
+		"../Engine/textures/irradiance/prefilterMip0face3.png",
+		"../Engine/textures/irradiance/prefilterMip0face4.png",
+		"../Engine/textures/irradiance/prefilterMip0face5.png"
+	};
+	prefilterCubeMap = new CubeMap(prefilterMapFacesMip0, true);
+	std::string basePath = "../Engine/textures/irradiance/prefilterMip";
+	for (unsigned int mip = 1; mip < 4; ++mip) {
+
+		std::string mipPath = basePath + std::to_string(mip);
+
+		std::vector<std::string> mipFacesPaths;
+		for (unsigned int face = 0; face < 5; ++face) {
+
+			mipFacesPaths.push_back(mipPath + "face" + std::to_string(face) + ".png");
+
+		}
+		prefilterCubeMap->addMip(mipFacesPaths, mip);
+	}
+
+	// 10. Load brdf LUT texture
+	brdfLUT = new Texture2D("../Engine/textures/irradiance/brdf.png");
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -418,6 +445,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->setUniform("shadowMap2", 4);
 	pbrShaderProgram->setUniform("shadowMap3", 5);
 	pbrShaderProgram->setUniform("irradianceCubeMap", 6);
+	pbrShaderProgram->setUniform("prefilterCubeMap", 7);
+	pbrShaderProgram->setUniform("brdfLUT", 8);
 
 	static Vec3 pixelOffset;
 	ImGui::InputVec3("Pixel Offset", pixelOffset);
@@ -430,6 +459,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	shadowMapBuffers[1]->getDepthAttachment().bind(GL_TEXTURE4);
 	shadowMapBuffers[2]->getDepthAttachment().bind(GL_TEXTURE5);
 	irradianceCubeMap->bind(GL_TEXTURE6);
+	prefilterCubeMap->bind(GL_TEXTURE7);
+	brdfLUT->bind(GL_TEXTURE8);
 
 	quadNDC->bind();
 	quadNDC->draw();

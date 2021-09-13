@@ -168,7 +168,7 @@ namespace IBL {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // enable pre-filter mipmap sampling (combatting visible dots artifact)
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         // Setup each of the view matrices to look at the cube faces and projection matrix
@@ -232,6 +232,10 @@ namespace IBL {
 
         convertSp.stopUsing();
 
+        // then generate mipmaps
+        glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
         // Creating texture to render the irradiance maps, one at the time
         unsigned int irradianceMapFace;
         glGenTextures(1, &irradianceMapFace);
@@ -280,12 +284,218 @@ namespace IBL {
 
         convolutionSp.stopUsing();
 
+
+        // SPECULAR PART
+
+        glEnable(GL_DEPTH_TEST);
+        // set depth function to less than AND equal for skybox depth trick.
+        glDepthFunc(GL_LEQUAL);
+        // enable seamless cubemap sampling for lower mip levels in the pre-filter map.
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+        // Creating a Cubemap with various mipmaps
+        unsigned int prefilterMap;
+        glGenTextures(1, &prefilterMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+        for (unsigned int i = 0; i < 6; ++i)
+        {
+            // Highest resolution mipmap is 128x128, if we want better reflections than this resolution should be increased
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Trilinear filtering, TODO try anisotropic 
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+        // Load shaders for the prefilter step
+        Shader prefilterVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/prefilterVS.glsl");
+        Shader prefilterFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/prefilterFS.glsl");
+        ShaderProgram prefilterSP(prefilterVS, prefilterFS);
+
+        // Run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
+        prefilterSP.use();
+        prefilterSP.setUniform("environmentMap", 0);
+        prefilterSP.setUniform("projectionMatrix", projection);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+        unsigned int maxMipLevels = 5;
+        for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+        {
+            // reisze framebuffer according to mip-level size.
+            unsigned int mipWidth = 128 * std::pow(0.5, mip); // TODO Where did this power came from (documentation ?)
+            unsigned int mipHeight = 128 * std::pow(0.5, mip);
+            glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+            glViewport(0, 0, mipWidth, mipHeight);
+
+            float roughness = (float)mip / (float)(maxMipLevels - 1);
+            prefilterSP.setUniform("roughness", roughness);
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                prefilterSP.setUniform("viewMatrix", viewMatrices[i]);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
+
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                cube->bind();
+                cube->draw();
+                cube->unBind();
+
+                screenShotFrame(mipWidth, mipHeight, std::string(outputPath) + "prefilterMip" + std::to_string(mip) + "face" + std::to_string(i) + ".png");
+            }
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Creating the texture to store the precalculated LUT
+        unsigned int brdfLUTTexture;
+        glGenTextures(1, &brdfLUTTexture);
+
+        // pre-allocate enough memory for the LUT texture.
+        glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+
+        // Load shaders for the prefilter step
+        Shader brdfVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/brdfVS.glsl");
+        Shader brdfFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/brdfFS.glsl");
+        ShaderProgram brdfSP(brdfVS, brdfFS);
+
+        Mesh* quadNDC = Mesh::rectangle(2.0f, 2.0f);
+        quadNDC->init();
+
+        glViewport(0, 0, 512, 512);
+        brdfSP.use();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        quadNDC->bind();
+        quadNDC->draw();
+        quadNDC->unBind();
+
+        screenShotFrame(512, 512, std::string(outputPath) + "brdf" + ".png");
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
         delete cube;
         // TODO Free the rest of unused textures, buffers etc..
 
         return true;
 	}
 
+    static bool ComputePreFiltereredCubeMap(const char* hdrFilePath, const char* outputPath) {
+
+        // Loading HDR file
+        stbi_set_flip_vertically_on_load(true);
+        int width, height, channels;
+        float* data = stbi_loadf(hdrFilePath, &width, &height, &channels, 0);
+
+        if (data == nullptr)
+            return false;
+
+        glEnable(GL_DEPTH_TEST);
+        // set depth function to less than AND equal for skybox depth trick.
+        glDepthFunc(GL_LEQUAL);
+        // enable seamless cubemap sampling for lower mip levels in the pre-filter map.
+        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+        // Creating a Cubemap with various mipmaps
+        unsigned int prefilterMap;
+        glGenTextures(1, &prefilterMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+        for (unsigned int i = 0; i < 6; ++i)
+        {
+            // Highest resolution mipmap is 128x128, if we want better reflections than this resolution should be increased
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Trilinear filtering, TODO try anisotropic 
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+        // Creating temporary framebuffer to render a single frame 
+       // converting from cylindrical map to cube map
+        GLuint captureFBO;
+        GLuint captureRBO;
+        glGenFramebuffers(1, &captureFBO);
+        glGenRenderbuffers(1, &captureRBO);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+        // Load shaders for the prefilter step
+        Shader prefilterVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/prefilterVS.glsl");
+        Shader prefilterFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/prefilterFS.glsl");
+        ShaderProgram prefilterSP(prefilterVS, prefilterFS);
+
+        // Setup each of the view matrices to look at the cube faces and projection matrix
+        Mat4 viewMatrices[6] = {
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f,-1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f)),
+            lookAt(Vec3(0.0f,0.0f,0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(0.0f, -1.0f, 0.0f))
+        };
+        Mat4 projection = perspective(PI / 2.0f, 1.0f, 0.1f, 10.f); // TODO Maybe reduce far plane
+
+         // Load cube to render each of the faces
+        Mesh* cube = Mesh::loadFromFile("../Engine/objs/cube.obj");
+        cube->init();
+
+        // Run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
+
+        //glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+        prefilterSP.use();
+        prefilterSP.setUniform("environmentMap", 0);
+        prefilterSP.setUniform("projectionMatrix", projection);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+        unsigned int maxMipLevels = 5;
+        for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+        {
+            // reisze framebuffer according to mip-level size.
+            unsigned int mipWidth = 128 * std::pow(0.5, mip);
+            unsigned int mipHeight = 128 * std::pow(0.5, mip);
+            glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+            glViewport(0, 0, mipWidth, mipHeight);
+
+            float roughness = (float)mip / (float)(maxMipLevels - 1);
+            prefilterSP.setUniform("roughness", roughness);
+            for (unsigned int i = 0; i < 6; ++i)
+            {
+                prefilterSP.setUniform("viewMatrix", viewMatrices[i]);
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
+
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                renderCube();
+            }
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    }
 };
 
 #endif

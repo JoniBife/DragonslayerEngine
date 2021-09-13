@@ -21,7 +21,8 @@ uniform sharedMatrices {
 void main(void)
 {
 	fragPosition = (modelMatrix * position).xyz;
-	fragNormal = normalMatrix * normal;
+
+	fragNormal = mat3(normalMatrix) *  normal;
 	fragTextCoords = textCoord;
 
 	vec3 N = normalize(mat3(normalMatrix) * normal);

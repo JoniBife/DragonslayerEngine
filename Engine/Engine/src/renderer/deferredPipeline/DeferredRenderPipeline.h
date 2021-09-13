@@ -49,6 +49,8 @@ namespace renderer {
 
 		CubeMap* skyBox;
 		CubeMap* irradianceCubeMap;
+		CubeMap* prefilterCubeMap;
+		Texture2D* brdfLUT;
 		
 		const unsigned int maxShadowMaps = 3;
 		const unsigned int blurWidth = 426;

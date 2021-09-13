@@ -6,11 +6,16 @@
 
 class CubeMap : ITexture {
 
+private:
+	bool hasMips = false;
+
 public:
 
-	CubeMap(const std::vector<std::string>& facesFilePath);
+	CubeMap(const std::vector<std::string>& facesFilePath, bool hasMips = false);
 
 	~CubeMap();
+
+	void addMip(const std::vector<std::string>& facesFilePath, GLint level);
 
 	void bind(unsigned int unitNumber) override;
 
