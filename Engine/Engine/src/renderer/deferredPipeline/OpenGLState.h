@@ -18,7 +18,7 @@ namespace renderer {
 	private:
         int activeShaderProgram = -1;
         bool depthTesting = true;
-        GLenum depthFunction = GL_LEQUAL;
+        GLenum depthFunction = GL_LESS;
         GLboolean depthMask = GL_TRUE;
         GLclampd zNear = 0.0f;
         GLclampd zFar = 1.0f;

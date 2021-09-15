@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include "../utils/OpenGLUtils.h"
 
 
 void GUI::setDefaultTheme()
@@ -240,7 +241,7 @@ void GUI::postRenderUI()
 {
 	ImGui::Render();
 
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	GL_CALL(ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()));
 }
 
 MaterialPanel& GUI::getMaterialPanel() const

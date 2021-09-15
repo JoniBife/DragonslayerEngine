@@ -1,6 +1,6 @@
 #version 330 core
 
-in vec4 position;
+layout (location = 0) in vec4 position;
 
 out vec3 fragTextCoord;
 
@@ -14,5 +14,6 @@ void main()
     fragTextCoord = position.xyz;
 
 	// Removing translation from view matrix, because the skybox is always centered
-    gl_Position = projectionMatrix * mat4(mat3(viewMatrix)) * position;
+    vec4 pos = projectionMatrix * mat4(mat3(viewMatrix)) * position;
+	gl_Position = pos.xyww;
 }  

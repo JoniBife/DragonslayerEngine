@@ -7,5 +7,10 @@ uniform samplerCube skybox;
 
 void main()
 {    
-    fragmentColor = texture(skybox, fragTextCoord);
+    vec3 skyboxColor = texture(skybox, fragTextCoord).rgb;
+
+    skyboxColor = skyboxColor / (skyboxColor + vec3(1.0));
+    skyboxColor = pow(skyboxColor, vec3(1.0/2.2));
+
+    fragmentColor = vec4(skyboxColor, 1.0);
 }

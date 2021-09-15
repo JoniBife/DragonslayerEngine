@@ -5,6 +5,8 @@
 #include "../utils/OpenGLUtils.h"
 #include "../math/Vec2.h"
 #include "../math/Vec3.h"
+#include <fstream>
+#include "FloatArrayFile.h"
 
 Texture2D::Texture2D() { }
 
@@ -141,6 +143,33 @@ Texture2D* Texture2D::depthTexture(unsigned int width, unsigned int height, GLen
 	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 	return emptyTexture;
+}
+
+Texture2D* Texture2D::fromFloatArrayFile(const std::string& textureFilePath, unsigned int width, unsigned int height)
+{
+	float* data = fa::loadFromFile(textureFilePath, 3 * width * height);
+
+	Texture2D* texture = new Texture2D();
+
+	// Generating the texture
+	GL_CALL(glGenTextures(1, &texture->id));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, texture->id));
+
+	texture->internalFormat = GL_RGB;
+
+	// texture wrapping/filtering options
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+	GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data));
+
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+	delete[] data;
+
+	return texture;
 }
 
 void Texture2D::bind(unsigned int unitNumber = -1) {

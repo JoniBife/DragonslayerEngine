@@ -60,7 +60,7 @@ void main()
 
     // Albedo = (X,Y,Z) and Ambient Occlusion = W
     gBufferAlbedoAmbientOcclusion = vec4(
-        pow(texture(albedoMap, fragTextCoords).rgb, vec3(2.2)) + albedoTint,
+        texture(albedoMap, fragTextCoords).rgb + albedoTint,
         texture(ambientOcclusionMap, fragTextCoords).r * aoFactor
     );
 

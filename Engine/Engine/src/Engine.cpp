@@ -197,17 +197,39 @@ void Engine::run() {
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
+
+	RenderCommand renderCommandCerberus;
+	Mesh* cerberusMesh = MeshLoader::loadFromFile("../Engine/objs/cerberus.obj");
+	cerberusMesh->calculateTangents();
+	cerberusMesh->init();
+
+	GLPBRMaterial* materialCerberus = deferredRenderPipeline->createMaterial();
+	Texture2D* albedoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/albedo.tga");
+	Texture2D* normalMap1 = new Texture2D("../Engine/textures/pbr/cerberus/normal.tga");
+	Texture2D* metallicMap1 = new Texture2D("../Engine/textures/pbr/cerberus/metallic.tga");
+	Texture2D* roughnessMap1 = new Texture2D("../Engine/textures/pbr/cerberus/roughness.tga");
+	Texture2D* aoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/ao.tga");
+	materialCerberus->setAlbedoMap(albedoMap1);
+	materialCerberus->setNormalMap(normalMap1);
+	materialCerberus->setMetallicMap(metallicMap1);
+	materialCerberus->setRoughnessMap(roughnessMap1);
+	materialCerberus->setAOMap(aoMap1);
+
+	renderCommandCerberus.mesh = cerberusMesh;
+	renderCommandCerberus.material = materialCerberus;
+	renderCommandCerberus.model = Mat4::IDENTITY;
+
 	RenderCommand renderCommand;
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
 	sphereMesh->calculateTangents();
 	sphereMesh->init();
 
 	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
-	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/rustediron2/albedo.png");
-	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/rustediron2/normal.png");
-	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/rustediron2/metallic.png");
-	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron2/roughness.png");
-	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/rustediron2/ao.png");
+	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
+	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
+	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
+	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron/roughness.png");
+	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/rustediron/ao.png");
 	material->setAlbedoMap(albedoMap);
 	material->setNormalMap(normalMap);
 	material->setMetallicMap(metallicMap);
@@ -223,9 +245,10 @@ void Engine::run() {
 	mesh->calculateTangents();
 	mesh->init();
 
-	
 	renderCommand2.mesh = mesh;
-	renderCommand2.material = deferredRenderPipeline->createMaterial();
+	GLPBRMaterial* mat = deferredRenderPipeline->createMaterial();
+	mat->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+	renderCommand2.material = mat;
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
 
 	RenderCommand renderCommand3;
@@ -251,11 +274,10 @@ void Engine::run() {
 
 	std::vector<RenderCommand> renderCommands;
 
+	GLPBRMaterial* defaultMat = deferredRenderPipeline->createMaterial();
+
 	for (int i = -2; i < 10; ++i) {
 		RenderCommand rc;
-
-		if (i < 0)
-			rc.castShadows = false;
 
 		rc.mesh = sphereMesh;
 		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
@@ -278,7 +300,9 @@ void Engine::run() {
 	Vec3 translation(-2.0f, 2.0f, 2.0f);
 
 	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr",
-		"../Engine/textures/irradiance/");*/ 
+		"../Engine/textures/irradiance/");*/
+
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -303,6 +327,12 @@ void Engine::run() {
 		ImGui::InputFloat("AO", &ao);
 		material->setAO(ao);
 
+		Vec3 albedoTint = defaultMat->getAlbedoTint();
+		float color[3];
+		albedoTint.toOpenGLFormat(color);
+		ImGui::ColorPicker3("Albedo Tint", color);
+		defaultMat->setAlbedoTint({color[0], color[1], color[2]});
+
 		editorCamera->update(elapsedTime);
 
 		ImGui::ShowMetricsWindow();
@@ -311,9 +341,12 @@ void Engine::run() {
 		ImGui::InputFloat("Rotation", &rotation);
 		ImGui::InputVec3("Light Direction", lights.directionalLights[0].direction);
 
+		
+
 		//deferredRenderPipeline->enqueueRender(renderCommand);
 		deferredRenderPipeline->enqueueRender(renderCommand2);
 		//deferredRenderPipeline->enqueueRender(renderCommand3);
+		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 
 		for (RenderCommand rc : renderCommands) {
 			deferredRenderPipeline->enqueueRender(rc);
@@ -322,8 +355,6 @@ void Engine::run() {
 		deferredRenderPipeline->render(*editorCamera, lights);
 
 		rotation += (PI / 6.0f) * elapsedTime;
-
-		
 
 		renderCommand3.model = Mat4::translation(translation) * Mat4::rotation(rotation, Vec3::Z);
 

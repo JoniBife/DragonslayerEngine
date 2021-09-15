@@ -116,6 +116,7 @@
     <ClInclude Include="src\renderer\deferredPipeline\DeferredRenderQueue.h" />
     <ClInclude Include="src\renderer\deferredPipeline\GLMaterial.h" />
     <ClInclude Include="src\renderer\deferredPipeline\GLPBRMaterial.h" />
+    <ClInclude Include="src\textures\FloatArrayFile.h" />
     <ClInclude Include="src\textures\IBL.h" />
     <ClInclude Include="src\renderer\DirectionalLight.h" />
     <ClInclude Include="src\renderer\Lights.h" />

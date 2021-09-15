@@ -10,6 +10,8 @@
 #include "../view/Transformations.h"
 #include "../shaders/ShaderProgram.h"
 #include "../meshes/Mesh.h"
+#include <fstream>
+#include "FloatArrayFile.h"
 
 static void screenShotFrame(float width, float height, const std::string& outputPath) {
 
@@ -24,6 +26,17 @@ static void screenShotFrame(float width, float height, const std::string& output
 
     free(data);
 }
+
+static void saveFrameToFile(unsigned int width, unsigned int height, const std::string& outputPath) {
+    float* data = new float[3 * width * height];
+
+    glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+    //glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_FLOAT, data); // Read the on-screen pixels into the space allocated above
+
+    fa::writeToFile(data, 3 * width * height, outputPath, false);
+}
+
 
 unsigned int cubeVAO = 0;
 unsigned int cubeVBO = 0;
@@ -226,6 +239,8 @@ namespace IBL {
             // glReadPixels reads pixels, bottom > up so we have to flip in order for the image to look right
             stbi_flip_vertically_on_write(true);
             stbi_write_png(path.c_str(), 512, 512, 3, data, 0);*/
+            saveFrameToFile(512, 512, std::string(outputPath) + "cubeMap" + std::to_string(i) + ".fa");
+
             screenShotFrame(512, 512, std::string(outputPath) + "cubeMap" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -278,6 +293,7 @@ namespace IBL {
             cube->draw();
             cube->unBind();
 
+            saveFrameToFile(32, 32, std::string(outputPath) + "face" + std::to_string(i) + ".fa");
             screenShotFrame(32, 32, std::string(outputPath) + "face" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -346,9 +362,11 @@ namespace IBL {
                 cube->draw();
                 cube->unBind();
 
+                saveFrameToFile(mipWidth, mipHeight, std::string(outputPath) + "prefilterMip" + std::to_string(mip) + "face" + std::to_string(i) + ".fa");
                 screenShotFrame(mipWidth, mipHeight, std::string(outputPath) + "prefilterMip" + std::to_string(mip) + "face" + std::to_string(i) + ".png");
             }
         }
+        prefilterSP.stopUsing();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // Creating the texture to store the precalculated LUT
@@ -383,8 +401,10 @@ namespace IBL {
         quadNDC->draw();
         quadNDC->unBind();
 
+        saveFrameToFile(512, 512, std::string(outputPath) + "brdf" + ".fa");
         screenShotFrame(512, 512, std::string(outputPath) + "brdf" + ".png");
 
+        brdfSP.stopUsing();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 

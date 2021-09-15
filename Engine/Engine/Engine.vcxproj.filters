@@ -428,5 +428,8 @@
     <ClInclude Include="src\textures\std_image_write.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\textures\FloatArrayFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -33,6 +33,7 @@ namespace renderer {
 		FrameBuffer* gBuffer;
 		std::vector<FrameBuffer*> shadowMapBuffers;
 		FrameBuffer* lightBuffer;
+		FrameBuffer* skyboxBuffer;
 		FrameBuffer* prePostProcessingBuffer;
 		FrameBuffer* postProcessingBuffer;
 		FrameBuffer* horizontalBlurBuffer;

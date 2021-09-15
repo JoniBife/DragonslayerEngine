@@ -129,14 +129,14 @@ float FrameBuffer::getHeigth() const
 	return height;
 }
 
-void FrameBuffer::bind()
+void FrameBuffer::bind(GLenum target)
 {
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, id));
+	GL_CALL(glBindFramebuffer(target, id));
 }
 
-void FrameBuffer::unbind()
+void FrameBuffer::unbind(GLenum target)
 {
-	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	GL_CALL(glBindFramebuffer(target, 0));
 }
 
 void FrameBufferBuilder::reset()

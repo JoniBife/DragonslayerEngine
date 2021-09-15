@@ -37,6 +37,7 @@ public:
 	static Texture2D* emptyTexture(unsigned int width, unsigned int height, GLint internalFormat = GL_RGB, GLenum format = GL_RGB, GLenum type = GL_UNSIGNED_BYTE);
 	static Texture2D* depthTexture(unsigned int width, unsigned int height, GLenum type = GL_FLOAT);
 
+	static Texture2D* fromFloatArrayFile(const std::string& textureFilePath, unsigned int width, unsigned int height);
 
 	void bind(unsigned int unitNumber) override;
 

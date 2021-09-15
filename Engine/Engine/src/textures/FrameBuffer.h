@@ -50,9 +50,9 @@ public:
 	float getWidth() const;
 	float getHeigth() const;
 
-	void bind();
+	void bind(GLenum target = GL_FRAMEBUFFER);
 
-	void unbind();
+	void unbind(GLenum target = GL_FRAMEBUFFER);
 
 	friend class FrameBufferBuilder;
 };

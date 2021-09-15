@@ -8,7 +8,7 @@ uniform vec3 viewPosition;
 
 uniform mat4 viewMatrix;
 
-uniform vec3 lightColor = {10.0, 10.0, 10.0};
+uniform vec3 lightColor = {1.0, 1.0, 1.0};
 
 uniform vec3 pixelOffset;
 
@@ -36,7 +36,12 @@ const float PI = 3.1415927;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
-}  
+} 
+
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+} 
 
 /* Approximation of fresnel schlick 
 https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for-blinn-phong-phong-and-fresnel/
@@ -192,12 +197,14 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // calculate per-light radiance
     vec3 L = -1 * normalize(vec3(-1.0, -1.0, 0.0));
     vec3 H = normalize(V + L);
-    vec3 radiance = lightColor;
+    float distance = length(vec3(1.0, 1.0, 0.0));
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance = lightColor * attenuation;
 
     // Cook-Torrance BRDF
     float NDF = DistributionGGX(normal, H, roughness);   
     float G   = GeometrySmith(normal, V, L, roughness);      
-    vec3 F    = fresnelSphericalGaussian(max(dot(H, V), 0.0), F0);
+    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
            
     vec3 numerator    = NDF * G * F; 
     float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
@@ -225,7 +232,9 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     
     // ambient lighting (we now use IBL as the ambient term)
-    vec3 kS2 = fresnelSchlick(max(dot(normal, V), 0.0), F0);
+   
+    vec3 F2 = fresnelSchlickRoughness(max(dot(normal, V), 0.0), F0, roughness);
+    vec3 kS2 = F2;
     vec3 kD2 = 1.0 - kS2;
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceCubeMap, normal).rgb;
@@ -236,7 +245,7 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     vec3 R = reflect(-V, normal); 
     vec3 prefilteredColor = textureLod(prefilterCubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
     vec2 brdf  = texture(brdfLUT, vec2(max(dot(normal, V), 0.0), roughness)).rg;
-    vec3 specular2 = prefilteredColor * (F * brdf.x + brdf.y);
+    vec3 specular2 = prefilteredColor * (F2 * brdf.x + brdf.y);
 
     vec3 ambient = (kD2 * diffuse2 + specular2) * ambientOcclusion;
 

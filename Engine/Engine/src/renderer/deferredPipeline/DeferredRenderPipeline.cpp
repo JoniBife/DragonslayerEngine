@@ -9,20 +9,6 @@
 #include "../../math/MathAux.h"
 #include "../../textures/std_image_write.h"
 
-/*static void screenShotFrame(float width, float height) {
-
-	GLubyte* data = new GLubyte[3 * width * height];
-	memset(data, 0, 3 * width * height);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data); // Read the on-screen pixels into the space allocated above
-	const std::string path = "../Engine/textures/frame.png";
-
-	stbi_flip_vertically_on_write(true);
-	stbi_write_png(path.c_str(), width, height, 3, data, 0);
-
-	free(data);
-}*/
-
 using namespace renderer;
 
 static void printOpenGLInfo()
@@ -140,13 +126,13 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(512, 512)
+		.setSize(1024, 1024)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
 
 	shadowMapBuffers.push_back(frameBufferBuilder
-		.setSize(512, 512)
+		.setSize(1024, 1024)
 		.attachColorBuffers(1, GL_HALF_FLOAT)
 		.attachDepthBuffer()
 		.build());
@@ -156,6 +142,12 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.attachColorBuffers(1, GL_HALF_FLOAT) // Attaching color buffers with GL_RGBA16F precision to avoid clamping to [0,1]
 		.attachDepthBuffer()
 		.attachStencilBuffer()
+		.build();
+
+	skyboxBuffer = frameBufferBuilder
+		.setSize(renderWidth, renderHeight)
+		.attachColorBuffers(1, GL_HALF_FLOAT)
+		.attachDepthBuffer()
 		.build();
 
 	prePostProcessingBuffer = frameBufferBuilder
@@ -197,52 +189,52 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 
 	// 7. Load skybox
 	std::vector<std::string> skyboxFaces = {
-		"../Engine/textures/irradiance/cubeMap0.png",
-		"../Engine/textures/irradiance/cubeMap1.png",
-		"../Engine/textures/irradiance/cubeMap2.png",
-		"../Engine/textures/irradiance/cubeMap3.png",
-		"../Engine/textures/irradiance/cubeMap4.png",
-		"../Engine/textures/irradiance/cubeMap5.png"
+		"../Engine/textures/irradiance/cubeMap0.fa",
+		"../Engine/textures/irradiance/cubeMap1.fa",
+		"../Engine/textures/irradiance/cubeMap2.fa",
+		"../Engine/textures/irradiance/cubeMap3.fa",
+		"../Engine/textures/irradiance/cubeMap4.fa",
+		"../Engine/textures/irradiance/cubeMap5.fa"
 	};
-	skyBox = new CubeMap(skyboxFaces);
+	skyBox = CubeMap::fromFloatArrayFiles(skyboxFaces, 512, 512);
 
 	// 8. Load irradiance map for indirect envirnment contribution
 	std::vector<std::string> irradianceMapFaces = {
-		"../Engine/textures/irradiance/face0.png",
-		"../Engine/textures/irradiance/face1.png",
-		"../Engine/textures/irradiance/face2.png",
-		"../Engine/textures/irradiance/face3.png",
-		"../Engine/textures/irradiance/face4.png",
-		"../Engine/textures/irradiance/face5.png"
+		"../Engine/textures/irradiance/face0.fa",
+		"../Engine/textures/irradiance/face1.fa",
+		"../Engine/textures/irradiance/face2.fa",
+		"../Engine/textures/irradiance/face3.fa",
+		"../Engine/textures/irradiance/face4.fa",
+		"../Engine/textures/irradiance/face5.fa"
 	};
-	irradianceCubeMap = new CubeMap(irradianceMapFaces);
+	irradianceCubeMap = CubeMap::fromFloatArrayFiles(irradianceMapFaces, 32, 32);
 
 	// 9. Load prefilter cube map
 	std::vector<std::string> prefilterMapFacesMip0 = {
-		"../Engine/textures/irradiance/prefilterMip0face0.png",
-		"../Engine/textures/irradiance/prefilterMip0face1.png",
-		"../Engine/textures/irradiance/prefilterMip0face2.png",
-		"../Engine/textures/irradiance/prefilterMip0face3.png",
-		"../Engine/textures/irradiance/prefilterMip0face4.png",
-		"../Engine/textures/irradiance/prefilterMip0face5.png"
+		"../Engine/textures/irradiance/prefilterMip0face0.fa",
+		"../Engine/textures/irradiance/prefilterMip0face1.fa",
+		"../Engine/textures/irradiance/prefilterMip0face2.fa",
+		"../Engine/textures/irradiance/prefilterMip0face3.fa",
+		"../Engine/textures/irradiance/prefilterMip0face4.fa",
+		"../Engine/textures/irradiance/prefilterMip0face5.fa"
 	};
-	prefilterCubeMap = new CubeMap(prefilterMapFacesMip0, true);
+	prefilterCubeMap = CubeMap::fromFloatArrayFiles(prefilterMapFacesMip0, 128, 128, true);
 	std::string basePath = "../Engine/textures/irradiance/prefilterMip";
-	for (unsigned int mip = 1; mip < 4; ++mip) {
+	for (unsigned int mip = 1; mip < 5; ++mip) {
 
 		std::string mipPath = basePath + std::to_string(mip);
 
 		std::vector<std::string> mipFacesPaths;
-		for (unsigned int face = 0; face < 5; ++face) {
+		for (unsigned int face = 0; face < 6; ++face) {
 
-			mipFacesPaths.push_back(mipPath + "face" + std::to_string(face) + ".png");
+			mipFacesPaths.push_back(mipPath + "face" + std::to_string(face) + ".fa");
 
 		}
-		prefilterCubeMap->addMip(mipFacesPaths, mip);
+		prefilterCubeMap->addMipFromFloatArray(mipFacesPaths, mip);
 	}
 
 	// 10. Load brdf LUT texture
-	brdfLUT = new Texture2D("../Engine/textures/irradiance/brdf.png");
+	brdfLUT = Texture2D::fromFloatArrayFile("../Engine/textures/irradiance/brdf.fa", 512, 512);
 }
 
 renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
@@ -470,6 +462,39 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	lightBuffer->unbind();
 
+	gBuffer->bind(GL_READ_FRAMEBUFFER);
+	skyboxBuffer->bind(GL_DRAW_FRAMEBUFFER);
+
+	GL_CALL(glBlitFramebuffer(0, 0, renderWidth, renderHeight, 0, 0, renderWidth, renderHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST));
+
+	lightBuffer->bind(GL_READ_FRAMEBUFFER);
+
+	GL_CALL(glBlitFramebuffer(0, 0, renderWidth, renderHeight, 0, 0, renderWidth, renderHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST));
+
+	skyboxBuffer->bind();
+	skyboxShaderProgram->use();
+
+	skyboxShaderProgram->setUniform("skybox", 0);
+	skyBox->bind(GL_TEXTURE0);
+
+	openGLState->setFaceCulling(false);
+	openGLState->setDepthFunction(GL_LEQUAL);
+
+	cube->bind();
+	cube->draw();
+	cube->unBind();
+
+	openGLState->setFaceCulling(true);
+
+	openGLState->setDepthFunction(GL_LESS);
+
+	skyBox->unBind(GL_TEXTURE0);
+
+	skyboxShaderProgram->stopUsing();
+	skyboxBuffer->unbind();
+
+	ImGui::Image((ImTextureID)skyboxBuffer->getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+
 	//glViewport(0,0,renderWidth, renderHeight);
 
 	// 4. Blur
@@ -487,7 +512,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 
 		horizontalBlurShaderProgram->use();
 		horizontalBlurShaderProgram->setUniform("previousRenderTexture", 0);
-		lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+		skyboxBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
 		quadNDC->bind();
 		quadNDC->draw();
@@ -568,7 +593,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	postProcessingShaderProgram->setUniform("toneMapping", toneMapping);
 	
 	if (blurPasses == 0)
-		lightBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
+		skyboxBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	else
 		verticalBlurBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 
