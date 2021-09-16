@@ -105,9 +105,9 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 
 	gBuffer = frameBufferBuilder
 		.setSize(renderWidth, renderHeight)
-		.attachColorBuffers(3, GL_FLOAT)
+		.attachColorBuffers(1, GL_FLOAT, GL_RED) 
+		.attachColorBuffers(2, GL_FLOAT, GL_RGBA)
 		.attachDepthBuffer()
-		.attachStencilBuffer()
 		.build();
 
 	/*for (int i = 0; i < maxShadowMaps; ++i) {
@@ -269,7 +269,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	openGLState->setViewPort(0, 0, renderWidth, renderHeight);
 	openGLState->setDepthTesting(true);
 	openGLState->setDepthFunction(GL_LESS);
-	//openGLState->setDepthRange(0.0, 1.0);
+	openGLState->setDepthRange(0.0, 1.0);
 	openGLState->setFaceCulling(true);
 	openGLState->setCullFace(GL_BACK);
 	openGLState->setFrontFace(GL_CCW);
@@ -420,6 +420,15 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->use();
 
 	pbrShaderProgram->setUniform("viewMatrix", camera.getView());
+	Mat4 inverseProjection;
+	camera.getProjection().inverse(inverseProjection);
+	Mat4 inverseView;
+	camera.getView().inverse(inverseView);
+	pbrShaderProgram->setUniform("inverseViewMatrix", inverseView);
+	pbrShaderProgram->setUniform("inverseProjectionMatrix", inverseProjection);
+
+	//pbrShaderProgram->setUniform("projectionNear", camera.getNearPlane());
+	//pbrShaderProgram->setUniform("projectionFar", camera.getFarPlane());
 	pbrShaderProgram->setUniform("far", cascades[1]);
 	pbrShaderProgram->setUniform("far2", cascades[2]);
 
@@ -430,15 +439,16 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	pbrShaderProgram->setUniform("lightViewProjectionMatrix3", lightViewProjections[2]);
 
 	pbrShaderProgram->setUniform("viewPosition", camera.getPosition());
-	pbrShaderProgram->setUniform("gBufferPositionMetallic", 0);
+	pbrShaderProgram->setUniform("gBufferMetallic", 0);
 	pbrShaderProgram->setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram->setUniform("gBufferAlbedoAmbientOcclusion", 2);
-	pbrShaderProgram->setUniform("shadowMap", 3);
-	pbrShaderProgram->setUniform("shadowMap2", 4);
-	pbrShaderProgram->setUniform("shadowMap3", 5);
-	pbrShaderProgram->setUniform("irradianceCubeMap", 6);
-	pbrShaderProgram->setUniform("prefilterCubeMap", 7);
-	pbrShaderProgram->setUniform("brdfLUT", 8);
+	pbrShaderProgram->setUniform("gBufferDepth", 3);
+	pbrShaderProgram->setUniform("shadowMap", 4);
+	pbrShaderProgram->setUniform("shadowMap2", 5);
+	pbrShaderProgram->setUniform("shadowMap3", 6);
+	pbrShaderProgram->setUniform("irradianceCubeMap", 7);
+	pbrShaderProgram->setUniform("prefilterCubeMap", 8);
+	pbrShaderProgram->setUniform("brdfLUT", 9);
 
 	static Vec3 pixelOffset;
 	ImGui::InputVec3("Pixel Offset", pixelOffset);
@@ -447,12 +457,13 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	gBuffer->getColorAttachment(0).bind(GL_TEXTURE0);
 	gBuffer->getColorAttachment(1).bind(GL_TEXTURE1);
 	gBuffer->getColorAttachment(2).bind(GL_TEXTURE2);
-	shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE3);
-	shadowMapBuffers[1]->getDepthAttachment().bind(GL_TEXTURE4);
-	shadowMapBuffers[2]->getDepthAttachment().bind(GL_TEXTURE5);
-	irradianceCubeMap->bind(GL_TEXTURE6);
-	prefilterCubeMap->bind(GL_TEXTURE7);
-	brdfLUT->bind(GL_TEXTURE8);
+	gBuffer->getDepthAttachment().bind(GL_TEXTURE3);
+	shadowMapBuffers[0]->getDepthAttachment().bind(GL_TEXTURE4);
+	shadowMapBuffers[1]->getDepthAttachment().bind(GL_TEXTURE5);
+	shadowMapBuffers[2]->getDepthAttachment().bind(GL_TEXTURE6);
+	irradianceCubeMap->bind(GL_TEXTURE7);
+	prefilterCubeMap->bind(GL_TEXTURE8);
+	brdfLUT->bind(GL_TEXTURE9);
 
 	quadNDC->bind();
 	quadNDC->draw();
@@ -462,18 +473,19 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	
 	lightBuffer->unbind();
 
+
+	// Render skybox
+	// Copy depth buffer from gBuffer to skyboxBuffer and copy color buffer from light buffer to skyboxBuffer
+
 	gBuffer->bind(GL_READ_FRAMEBUFFER);
 	skyboxBuffer->bind(GL_DRAW_FRAMEBUFFER);
 
 	GL_CALL(glBlitFramebuffer(0, 0, renderWidth, renderHeight, 0, 0, renderWidth, renderHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST));
-
 	lightBuffer->bind(GL_READ_FRAMEBUFFER);
-
 	GL_CALL(glBlitFramebuffer(0, 0, renderWidth, renderHeight, 0, 0, renderWidth, renderHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 
 	skyboxBuffer->bind();
 	skyboxShaderProgram->use();
-
 	skyboxShaderProgram->setUniform("skybox", 0);
 	skyBox->bind(GL_TEXTURE0);
 
@@ -485,11 +497,9 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	cube->unBind();
 
 	openGLState->setFaceCulling(true);
-
 	openGLState->setDepthFunction(GL_LESS);
 
 	skyBox->unBind(GL_TEXTURE0);
-
 	skyboxShaderProgram->stopUsing();
 	skyboxBuffer->unbind();
 
@@ -587,8 +597,8 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	postProcessingShaderProgram->use();
 	postProcessingShaderProgram->setUniform("previousRenderTexture",0);
 
-	static bool toneMapping = false;
-	ImGui::Checkbox("ToneMapping ACES", &toneMapping);
+	static bool toneMapping = true;
+	ImGui::Checkbox("ToneMapping", &toneMapping);
 
 	postProcessingShaderProgram->setUniform("toneMapping", toneMapping);
 	

@@ -225,11 +225,11 @@ void Engine::run() {
 	sphereMesh->init();
 
 	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
-	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
-	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
-	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
-	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron/roughness.png");
-	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/rustediron/ao.png");
+	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/plastic/albedo.png");
+	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/plastic/normal.png");
+	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/plastic/metallic.png");
+	Texture2D* roughnessMap = new Texture2D("../Engine/textures/pbr/plastic/roughness.png");
+	Texture2D* aoMap = new Texture2D("../Engine/textures/pbr/plastic/ao.png");
 	material->setAlbedoMap(albedoMap);
 	material->setNormalMap(normalMap);
 	material->setMetallicMap(metallicMap);
@@ -299,10 +299,12 @@ void Engine::run() {
 	float rotation = PI / 4.0f;
 	Vec3 translation(-2.0f, 2.0f, 2.0f);
 
-	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/Hamarikyu_Bridge_B/14-Hamarikyu_Bridge_B_3k.hdr",
+	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/default/default.hdr",
 		"../Engine/textures/irradiance/");*/
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	GLPBRMaterial* editable = material;
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -315,23 +317,23 @@ void Engine::run() {
 
 		gui->preRenderUI();
 
-		float roughness = material->getRoughness();
+		float roughness = editable->getRoughness();
 		ImGui::InputFloat("Roughness", &roughness);
-		material->setRoughness(roughness);
+		editable->setRoughness(roughness);
 
-		float metallic = material->getMetallic();
+		float metallic = editable->getMetallic();
 		ImGui::InputFloat("Metallic", &metallic);
-		material->setMetallic(metallic);
+		editable->setMetallic(metallic);
 
-		float ao = material->getAO();
+		float ao = editable->getAO();
 		ImGui::InputFloat("AO", &ao);
-		material->setAO(ao);
+		editable->setAO(ao);
 
-		Vec3 albedoTint = defaultMat->getAlbedoTint();
+		Vec3 albedoTint = editable->getAlbedoTint();
 		float color[3];
 		albedoTint.toOpenGLFormat(color);
 		ImGui::ColorPicker3("Albedo Tint", color);
-		defaultMat->setAlbedoTint({color[0], color[1], color[2]});
+		editable->setAlbedoTint({color[0], color[1], color[2]});
 
 		editorCamera->update(elapsedTime);
 
@@ -344,7 +346,7 @@ void Engine::run() {
 		
 
 		//deferredRenderPipeline->enqueueRender(renderCommand);
-		deferredRenderPipeline->enqueueRender(renderCommand2);
+		//deferredRenderPipeline->enqueueRender(renderCommand2);
 		//deferredRenderPipeline->enqueueRender(renderCommand3);
 		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 

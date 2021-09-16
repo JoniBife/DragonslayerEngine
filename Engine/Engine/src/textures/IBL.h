@@ -37,7 +37,6 @@ static void saveFrameToFile(unsigned int width, unsigned int height, const std::
     fa::writeToFile(data, 3 * width * height, outputPath, false);
 }
 
-
 unsigned int cubeVAO = 0;
 unsigned int cubeVBO = 0;
 void renderCube()
@@ -111,7 +110,6 @@ void renderCube()
     glBindVertexArray(0);
 }
 
-
 /* Namespace containg function used to precompute any irradiance maps
 required for PBR, any function call should be done after the creation
 of the OpenGL context */
@@ -132,13 +130,19 @@ namespace IBL {
         if (data == nullptr)
             return false;
 
+        // Get all previous open gl state
+        bool lastEnableDepthTest = glIsEnabled(GL_DEPTH_TEST);
+        GLenum lastDepthFunc; glGetIntegerv(GL_DEPTH_FUNC, (GLint*)&lastDepthFunc);
+        bool lastEnableCullFace = glIsEnabled(GL_CULL_FACE);
+        GLenum lastCullFace; glGetIntegerv(GL_CULL_FACE_MODE, (GLint*)&lastCullFace);
+        bool lastEnableCubeMapSeamless = glIsEnabled(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        GLclampd lastDepthRange[2]; glGetDoublev(GL_DEPTH_RANGE, (GLdouble*)lastDepthRange);
+        GLint lastViewport[4]; glGetIntegerv(GL_VIEWPORT, lastViewport);
+        
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
-
-        /*bool cullFacingEnabled = glIsEnabled(GL_CULL_FACE);
-        glGet
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);*/
+        glCullFace(GL_FRONT);
 
         // Creating OpenGL texture with 16 bit float precision per color channel
         GLuint hdrTexture;
@@ -240,8 +244,6 @@ namespace IBL {
             stbi_flip_vertically_on_write(true);
             stbi_write_png(path.c_str(), 512, 512, 3, data, 0);*/
             saveFrameToFile(512, 512, std::string(outputPath) + "cubeMap" + std::to_string(i) + ".fa");
-
-            screenShotFrame(512, 512, std::string(outputPath) + "cubeMap" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -294,7 +296,6 @@ namespace IBL {
             cube->unBind();
 
             saveFrameToFile(32, 32, std::string(outputPath) + "face" + std::to_string(i) + ".fa");
-            screenShotFrame(32, 32, std::string(outputPath) + "face" + std::to_string(i) + ".png");
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -363,7 +364,6 @@ namespace IBL {
                 cube->unBind();
 
                 saveFrameToFile(mipWidth, mipHeight, std::string(outputPath) + "prefilterMip" + std::to_string(mip) + "face" + std::to_string(i) + ".fa");
-                screenShotFrame(mipWidth, mipHeight, std::string(outputPath) + "prefilterMip" + std::to_string(mip) + "face" + std::to_string(i) + ".png");
             }
         }
         prefilterSP.stopUsing();
@@ -402,15 +402,32 @@ namespace IBL {
         quadNDC->unBind();
 
         saveFrameToFile(512, 512, std::string(outputPath) + "brdf" + ".fa");
-        screenShotFrame(512, 512, std::string(outputPath) + "brdf" + ".png");
 
         brdfSP.stopUsing();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
 
+        // Reset OpenGL state to the previous state
+        if (lastEnableDepthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+        glDepthFunc(lastDepthFunc);
+        if (lastEnableCullFace) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+        glCullFace(lastCullFace);
+        if (lastEnableCubeMapSeamless) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); else glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        glDepthRange(lastDepthRange[0], lastDepthRange[1]);
+        glViewport(lastViewport[0], lastViewport[1], lastViewport[2], lastViewport[3]);
 
+        // Free all heap allocations
         delete cube;
-        // TODO Free the rest of unused textures, buffers etc..
 
+        // Delete used buffers and textures (freeing vram)
+        glDeleteTextures(1, &hdrTexture);
+        glDeleteFramebuffers(1, &captureFBO);
+        glDeleteRenderbuffers(1, &captureRBO);
+        glDeleteTextures(1, &envCubemap);
+        glDeleteTextures(1, &irradianceMapFace);
+        glDeleteTextures(1, &prefilterMap);
+        glDeleteTextures(1, &brdfLUTTexture);
+        
         return true;
 	}
 

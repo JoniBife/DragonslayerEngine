@@ -19,6 +19,11 @@ vec3 ACESFilm(vec3 x)
     return clamp(color,0.0,1.0);
 }
 
+vec3 reinhardTonemapping(vec3 color) {
+    return color = color / (color + vec3(1.0));
+}
+
+
 uniform bool toneMapping;
 
 void main()
@@ -63,13 +68,14 @@ void main()
     for(int i = 0; i < 9; i++)
         col += sampleTex[i] * kernel[i];
 
-    vec4 color = texture(previousRenderTexture, fragTextCoords);
+    vec3 color = texture(previousRenderTexture, fragTextCoords).xyz;
     // TODO Post processing
     //fragmentColor = vec4(1,1,0,1);
     
-    if (toneMapping)
-        fragmentColor = vec4(ACESFilm(color.xyz), 1);
-    else
+    if (toneMapping) {
+        color = reinhardTonemapping(color);
+        fragmentColor = vec4(pow(color, vec3(1.0/2.2)),1.0);
+    } else
         fragmentColor = vec4(color.xyz, 1);
     
     //fragmentColor = vec4(col, 1.0);

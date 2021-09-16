@@ -66,6 +66,7 @@ private:
 	unsigned int numberOfColorAttachments = 0;
 	std::vector<bool> allowSampleColor;
 	std::vector<GLenum> colorAttachmentsPrecision;
+	std::vector<GLenum> colorAttachmentsFormat;
 	bool hasStencilBuffer = false; bool allowSampleStencil = true;
 	bool hasDepthBuffer = false; bool allowSampleDepth = true;
 
@@ -75,7 +76,7 @@ public:
 	FrameBufferBuilder();
 
 	FrameBufferBuilder& setSize(unsigned width, unsigned height);
-	FrameBufferBuilder& attachColorBuffers(unsigned int number, GLenum precision, bool allowSample = true);
+	FrameBufferBuilder& attachColorBuffers(unsigned int number, GLenum precision, GLenum format = GL_RGBA, bool allowSample = true);
 	FrameBufferBuilder& attachStencilBuffer(bool allowSample = true);
 	FrameBufferBuilder& attachDepthBuffer(bool allowSample = true);
 	FrameBuffer* build();

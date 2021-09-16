@@ -15,10 +15,7 @@ const float quality[] = float[](1.0, 1.0, 1.0, 1.0, 1.5, 2.0, 2.0, 2.0, 2.0, 4.0
 
 uniform int iterations = 11;
 
-/* Converts RGB colors to luma (which is a measure of the brightness)
-and converts them from linear space to non linear space (to perceived brightness)
-by using the inverse gamma transformation (x ^ (1/2.2)
-*/
+/* Converts RGB colors to luma (which is a measure of the brightness) */
 float rgbToLuma(vec3 rgb){
     return dot(rgb, vec3(0.299, 0.587, 0.114));
 }
@@ -280,7 +277,7 @@ void main()
         // BILINEAR FILTERING --------------------------------------------------
 
         // Compute the final UV coordinates.
-        // The color will be sampled using a bilinear filter and so blured
+        // The color will be sampled using a bilinear filtering (i.e. slightly blured)
         vec2 finalUv = fragTextCoords;
 
         if(isEdgeHorizontal){
@@ -290,14 +287,9 @@ void main()
         }
 
         // Read the color at the new UV coordinates, and use it.
-        vec3 finalColor = texture(previousRenderTexture, finalUv).rgb;
-        fragmentColor = vec4(finalColor,1.0);
-        return;
+        fragmentColor = vec4(texture(previousRenderTexture, finalUv).rgb,1.0);
     } else {
         fragmentColor = vec4(currentColor,1.0);
-        return;
     }
-       
-
-    
+      
 }

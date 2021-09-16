@@ -7,14 +7,19 @@ in vec2 fragTextCoords;
 uniform vec3 viewPosition;
 
 uniform mat4 viewMatrix;
+uniform mat4 inverseViewMatrix;
+uniform mat4 inverseProjectionMatrix;
+uniform float projectionNear;
+uniform float projectionFar;
 
-uniform vec3 lightColor = {1.0, 1.0, 1.0};
+uniform vec3 lightColor = {10.0, 10.0, 10.0};
 
 uniform vec3 pixelOffset;
 
-uniform sampler2D gBufferPositionMetallic; // Contains both the position and metallic values
+uniform sampler2D gBufferMetallic; // Contains both the position and metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
+uniform sampler2D gBufferDepth;
 
 uniform sampler2D shadowMap;
 uniform float far;
@@ -254,17 +259,32 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     return color;
 }
 
+vec3 extractPositionFromDepth(float depth) {
+
+    // Both UVs and depth are in the range of [0,1] so we move them to the range of [-1,1]
+    float z = depth * 2.0 - 1.0;
+    float w = (2.0 * projectionNear * projectionFar) / (projectionFar + projectionNear - z * (projectionFar - projectionNear));
+    vec4 positionClipSpace = vec4((fragTextCoords * 2.0 - 1.0) , z, 1.0);
+
+    // Move back to view space
+    vec4 positionViewSpace = inverseProjectionMatrix * positionClipSpace;
+
+    // Perspective division
+    positionViewSpace /= positionViewSpace.w;
+
+    // Finally move back to world space
+    return (inverseViewMatrix * positionViewSpace).xyz;
+}
+
 void main(void)
 {
-
     // 1. Extract position, metallic map, normal, roughness map, albedo and ambient occlusion map values
     // from each of the buffers that compose the gBuffer
-    vec4 positionMetallic = texture(gBufferPositionMetallic, fragTextCoords);
+    float metallic = texture(gBufferMetallic, fragTextCoords).r;
     vec4 normalRoughness = texture(gBufferNormalRoughness, fragTextCoords);
     vec4 albedoAmbientOcclusion = texture(gBufferAlbedoAmbientOcclusion, fragTextCoords);
     
-    vec3 position = positionMetallic.rgb; 
-    float metallic = positionMetallic.a;
+    vec3 position = extractPositionFromDepth(texture(gBufferDepth, fragTextCoords).x);
     vec3 normal = normalRoughness.rgb; 
     float roughness = normalRoughness.a;
     vec3 albedo = albedoAmbientOcclusion.rgb; 
@@ -275,11 +295,6 @@ void main(void)
 
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
     float fragmentDepthViewSpace = -positionViewSpace.z;
-
-    // HDR tonemapping (Reinhard)
-    color = color / (color + vec3(1.0));
-    // gamma correct
-    color = pow(color, vec3(1.0/2.2));
 
     if (debug) {
         if (fragmentDepthViewSpace < far) {

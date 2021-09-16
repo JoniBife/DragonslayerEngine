@@ -241,7 +241,7 @@ void GUI::postRenderUI()
 {
 	ImGui::Render();
 
-	GL_CALL(ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()));
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 MaterialPanel& GUI::getMaterialPanel() const

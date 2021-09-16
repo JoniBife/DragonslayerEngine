@@ -145,6 +145,7 @@ void FrameBufferBuilder::reset()
 	numberOfColorAttachments = 0;
 	allowSampleColor.clear();
 	colorAttachmentsPrecision.clear();
+	colorAttachmentsFormat.clear();
 	hasStencilBuffer = false; allowSampleStencil = true;
 	hasDepthBuffer = false; allowSampleDepth = true;
 }
@@ -160,7 +161,7 @@ FrameBufferBuilder& FrameBufferBuilder::setSize(unsigned width, unsigned height)
 	return *this;
 }
 
-FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, GLenum precision, bool allowSample)
+FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, GLenum precision, GLenum format, bool allowSample)
 {
 	assert(number <= MAX_COLOR_ATTACHMENTS);
 	assert(numberOfColorAttachments + number <= MAX_COLOR_ATTACHMENTS);
@@ -168,12 +169,13 @@ FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, 
 #ifdef DEBUG
 	// Color attachments have to all be of the same type
 	for (int i = 0; i < numberOfColorAttachments; ++i) {
-		assert(colorAttachmentsPrecision[i] == allowSample);
+		assert(colorAttachmentsPrecision[i] == precision);
 	}
 #endif
 
 	this->numberOfColorAttachments += number;
 	for (int i = 0; i < number; ++i) {
+		colorAttachmentsFormat.push_back(format);
 		colorAttachmentsPrecision.push_back(precision);
 		allowSampleColor.push_back(allowSample);
 	}
@@ -230,19 +232,73 @@ FrameBuffer* FrameBufferBuilder::build()
 			
 			// TODO Is this the right approach, it does not
 			// feel intuitive no flexible
-			GLint internalFormat = GL_RGBA;
-			if (colorAttachmentsPrecision[i] == GL_FLOAT) {
-				internalFormat = GL_RGBA32F;
-			} else if (colorAttachmentsPrecision[i] == GL_HALF_FLOAT) {
-				internalFormat = GL_RGBA16F;
+
+			GLenum format = colorAttachmentsFormat[i];
+			GLenum precision = colorAttachmentsPrecision[i];
+			GLint internalFormat;
+			switch (format) {
+
+				case GL_RED: {
+					if (precision == GL_FLOAT) {
+						internalFormat = GL_R32F;
+					}
+					else if (precision == GL_HALF_FLOAT) {
+						internalFormat = GL_R16F;
+					}
+					else {
+						internalFormat = GL_RED;
+					}
+					break;
+				}
+				case GL_RG: {
+					if (precision == GL_FLOAT) {
+						internalFormat = GL_RG32F;
+					}
+					else if (precision == GL_HALF_FLOAT) {
+						internalFormat = GL_RG16F;
+					}
+					else {
+						internalFormat = GL_RG;
+					}
+					break;
+				}
+				case GL_RGB: {
+					if (precision == GL_FLOAT) {
+						internalFormat = GL_RGB32F;
+					}
+					else if (precision == GL_HALF_FLOAT) {
+						internalFormat = GL_RGB16F;
+					}
+					else {
+						internalFormat = GL_RGB16F;
+					}
+					break;
+				}
+				case GL_RGBA: {
+					if (precision == GL_FLOAT) {
+						internalFormat = GL_RGBA32F;
+					}
+					else if (precision == GL_HALF_FLOAT) {
+						internalFormat = GL_RGBA16F;
+					}
+					else {
+						internalFormat = GL_RGBA;
+					}
+					break;
+				}
+				default: {
+					format = GL_RGBA;
+					internalFormat = GL_RGBA;
+					break;
+				}
 			}
 
 			Texture2D* texture = Texture2D::emptyTexture(
 				width,
 				height,
 				internalFormat,
-				GL_RGBA,
-				colorAttachmentsPrecision[i]);
+				format,
+				precision);
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->getId(), 0));
 			frameBuffer->colorAttachments.push_back(texture);
@@ -250,12 +306,64 @@ FrameBuffer* FrameBufferBuilder::build()
 		} else {
 			// TODO Is this the right approach, it does not
 			// feel intuitive nor flexible
-			GLint internalFormat = GL_RGBA;
-			if (colorAttachmentsPrecision[i] == GL_FLOAT) {
-				internalFormat = GL_RGBA32F;
+			GLenum format = colorAttachmentsFormat[i];
+			GLenum precision = colorAttachmentsPrecision[i];
+			GLint internalFormat;
+			switch (format) {
+
+			case GL_RED: {
+				if (precision == GL_FLOAT) {
+					internalFormat = GL_R32F;
+				}
+				else if (precision == GL_HALF_FLOAT) {
+					internalFormat = GL_R16F;
+				}
+				else {
+					internalFormat = GL_R;
+				}
+				break;
 			}
-			else if (colorAttachmentsPrecision[i] == GL_HALF_FLOAT) {
-				internalFormat = GL_RGBA16F;
+			case GL_RG: {
+				if (precision == GL_FLOAT) {
+					internalFormat = GL_RG32F;
+				}
+				else if (precision == GL_HALF_FLOAT) {
+					internalFormat = GL_RG16F;
+				}
+				else {
+					internalFormat = GL_RG;
+				}
+				break;
+			}
+			case GL_RGB: {
+				if (precision == GL_FLOAT) {
+					internalFormat = GL_RGB32F;
+				}
+				else if (precision == GL_HALF_FLOAT) {
+					internalFormat = GL_RGB16F;
+				}
+				else {
+					internalFormat = GL_RGB16F;
+				}
+				break;
+			}
+			case GL_RGBA: {
+				if (precision == GL_FLOAT) {
+					internalFormat = GL_RGBA32F;
+				}
+				else if (precision == GL_HALF_FLOAT) {
+					internalFormat = GL_RGBA16F;
+				}
+				else {
+					internalFormat = GL_RGBA;
+				}
+				break;
+			}
+			default: {
+				format = GL_RGBA;
+				internalFormat = GL_RGBA;
+				break;
+			}
 			}
 
 			GLuint rbo;

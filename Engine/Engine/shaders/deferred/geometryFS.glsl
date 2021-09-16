@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 0) out vec4 gBufferPositionMetallic; // Contains both the position and metallic values
+layout (location = 0) out float gBufferMetallic; // Contains the metallic value
 layout (location = 1) out vec4 gBufferNormalRoughness; // Contains both the normal and roughness values
 layout (location = 2) out vec4 gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
 
@@ -41,11 +41,8 @@ vec3 getNormalFromMap()
 
 void main()
 {    
-    // Position = (X,Y,Z) and Metalliz = W
-    gBufferPositionMetallic = vec4(
-        fragPosition,
-        texture(metallicMap, fragTextCoords).r * metallicFactor
-    );
+    // Metallic = X
+    gBufferMetallic =  texture(metallicMap, fragTextCoords).r * metallicFactor;
 
     // Normals in the normal map are colors so they were moved to the [0,1] range
     // however normals are in the [-1,1] range so we have to move them back this range

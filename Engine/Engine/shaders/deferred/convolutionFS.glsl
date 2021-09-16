@@ -39,7 +39,7 @@ void main()
     irradiance = PI * irradiance * (1.0 / float(numberOfSamples));
     
     // gamma correct
-    irradiance = pow(irradiance, vec3(1.0/2.2));
+    //irradiance = pow(irradiance, vec3(1.0/2.2));
 
     fragmentColor = vec4(irradiance, 1.0);
 }

@@ -45,7 +45,6 @@ Mat4 ortho(float left, float right, float bottom, float top) {
 
 Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 
-	//glm::mat4 persp = glm::perspective(fovyRad, aspectRatio, near, far);
 
 	// Divisions by 0 are not possible
 	assert(aspectRatio != 0);
