@@ -7,7 +7,9 @@ uniform sampler2D previousRenderTexture; // A texture that resulted from the pre
 
 const float offset = 1.0 / 300.0; 
 
-vec3 ACESFilm(vec3 x)
+// ACES Tonemapping found here: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+// Note: Oversaturates brights. For more realistic rendering use: https://github.com/TheRealMJP/BakingLab/blob/master/BakingLab/ACES.hlsl
+vec3 acesFilmTonemapping(vec3 x)
 {
     float a = 2.51;
     float b = 0.03;
@@ -73,7 +75,7 @@ void main()
     //fragmentColor = vec4(1,1,0,1);
     
     if (toneMapping) {
-        color = reinhardTonemapping(color);
+        color = acesFilmTonemapping(color);
         fragmentColor = vec4(pow(color, vec3(1.0/2.2)),1.0);
     } else
         fragmentColor = vec4(color.xyz, 1);

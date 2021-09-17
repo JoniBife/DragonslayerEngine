@@ -22,7 +22,7 @@ Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 Mat4 ortho(float left, float right, float bottom, float top, float near, float far) {
 
 	// Divisions by 0 are not possible
-	assert(left != right && bottom != top && top != near );
+	assert(left != right && bottom != top && far != near );
 
 	return { 2.0f / (right - left) , 0.0f, 0.0f, (left + right) / (left - right),
 			0.0f, 2.0f/(top-bottom), 0.0f, (bottom + top)/(bottom - top), 

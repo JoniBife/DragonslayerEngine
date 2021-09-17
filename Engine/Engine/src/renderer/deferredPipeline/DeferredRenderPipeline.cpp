@@ -24,18 +24,18 @@ static void printOpenGLInfo()
 
 void renderer::DeferredRenderPipeline::createGlobalUniformsBuffer()
 {
-	GL_CALL(glGenBuffers(1, &vboGlobalUniforms));
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vboGlobalUniforms));
+	GL_CALL(glGenBuffers(1, &uboGlobalUniforms));
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobalUniforms));
 	{
 		GL_CALL(glBufferData(GL_UNIFORM_BUFFER, sizeof(float) * 16 * 2, 0, GL_DYNAMIC_DRAW));
-		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, vboGlobalUniforms));
+		GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboGlobalUniforms));
 	}
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
 void renderer::DeferredRenderPipeline::updateGlobalUniformsBuffer(const Mat4& view, const Mat4& projection)
 {
-	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, vboGlobalUniforms));
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uboGlobalUniforms));
 	{
 		float viewOpenGLFormat[16];
 		float projectionOpenGLFormat[16];
@@ -45,6 +45,34 @@ void renderer::DeferredRenderPipeline::updateGlobalUniformsBuffer(const Mat4& vi
 		GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(viewOpenGLFormat), sizeof(projectionOpenGLFormat), projectionOpenGLFormat));
 	}
 	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+void renderer::DeferredRenderPipeline::createPointLightsBuffer()
+{
+	GL_CALL(glGenBuffers(1, &uboPointLights));
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uboPointLights));
+	{
+		GL_CALL(glBufferData(GL_UNIFORM_BUFFER, sizeof(PointLight) * maxPointLights, 0, GL_DYNAMIC_DRAW));
+	}
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+void renderer::DeferredRenderPipeline::updatePointLightsBuffer(const std::vector<PointLight>& pointLights)
+{
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, uboPointLights));
+	{
+		if (pointLights.size() > 0) {
+			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PointLight) * pointLights.size(), &pointLights[0]));
+		} else {
+			GL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PointLight) * maxPointLights, 0));
+		}
+	}
+	GL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+void renderer::DeferredRenderPipeline::bindPointLightsBuffer(GLuint index)
+{
+	GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, index, uboPointLights));
 }
 
 renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new DeferredRenderQueue()) {
@@ -171,7 +199,10 @@ renderer::DeferredRenderPipeline::DeferredRenderPipeline() : RenderPipeline(new 
 		.setSize(blurWidth, blurHeight)
 		.attachColorBuffers(1, GL_UNSIGNED_BYTE)
 		.build();
+
 	createGlobalUniformsBuffer();
+
+	createPointLightsBuffer();
 
 	// 5. Creating the quad whose vertices will be used in most render passes and cube for the skybox
 	quadNDC = Mesh::rectangle(2.0f, 2.0f);
@@ -258,6 +289,8 @@ renderer::DeferredRenderPipeline::~DeferredRenderPipeline()
 	delete prePostProcessingBuffer;
 	delete horizontalBlurBuffer;
 	delete verticalBlurBuffer;
+
+	// TODO Free any missing heap allocations
 }
 
 void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights& lights)
@@ -355,7 +388,7 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 		//openGLState->setCullFace(GL_FRONT);
 		//openGLState->setFaceCulling(false);
 
-		for (int i = 0; i < lights.directionalLights.size(); ++i) {
+		for (int i = 0; i < 1; ++i) {
 
 			for (int j = 0; j < shadowMapBuffers.size(); ++j) {
 				
@@ -426,6 +459,37 @@ void renderer::DeferredRenderPipeline::render(const Camera& camera, const Lights
 	camera.getView().inverse(inverseView);
 	pbrShaderProgram->setUniform("inverseViewMatrix", inverseView);
 	pbrShaderProgram->setUniform("inverseProjectionMatrix", inverseProjection);
+
+	// Sending directional lights
+	DirectionalLight directionalLight;
+	for (unsigned int i = 0; i < lights.directionalLights.size(); ++i) {
+		directionalLight = lights.directionalLights[i];
+		// TODO Find a more efficient solution (maybe by concatenating char*)
+		// _strdup duplicates the const char* result of c_str otherwise it's content would be iliminated once 
+		// the lifetime is over (i.e. after the function call)
+		pbrShaderProgram->setUniform(_strdup(("directionalLights[" + std::to_string(i) + "].direction").c_str()), directionalLight.direction.normalize());
+		pbrShaderProgram->setUniform(_strdup(("directionalLights[" + std::to_string(i) + "].color").c_str()), directionalLight.color);
+		pbrShaderProgram->setUniform(_strdup(("directionalLights[" + std::to_string(i) + "].radiance").c_str()), directionalLight.intensity);
+	}
+	pbrShaderProgram->setUniform("numberOfDirectionalLights", (unsigned int)lights.directionalLights.size());
+
+	static float radius = 0.5;
+	static float intensity = 10.0f;
+	static Vec3 position = { 0.0f, 3.0f, 0.0f };
+	ImGui::InputFloat("Radius", &radius);
+	ImGui::InputFloat("Intensity", &intensity);
+	ImGui::InputVec3("Position", position);
+
+	pbrShaderProgram->setUniform("radius", radius);
+	pbrShaderProgram->setUniform("intensity", intensity);
+	pbrShaderProgram->setUniform("lposition", position);
+
+	// Sending point lights
+	/*updatePointLightsBuffer(lights.pointLights);
+	GLuint index = pbrShaderProgram->getUniformBlockIndex("pointLightsBlock");
+	bindPointLightsBuffer(1);
+	pbrShaderProgram->bindUniformBlock(index, 1);*/
+	//pbrShaderProgram->setUniform("numberOfPointLights", (unsigned int)lights.pointLights.size());
 
 	//pbrShaderProgram->setUniform("projectionNear", camera.getNearPlane());
 	//pbrShaderProgram->setUniform("projectionFar", camera.getFarPlane());

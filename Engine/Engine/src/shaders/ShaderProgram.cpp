@@ -194,7 +194,7 @@ void ShaderProgram::setUniform(const GLchar* name, const GLfloat value)
     if (search == locationCache.end()) {
         GL_CALL(location = glGetUniformLocation(id, name));
         assert(location >= 0); // execution should stop if location is < 0
-        locationCache.insert({ name, location });
+        locationCache.insert({name, location});
     } else {
         location = search->second;
     }
@@ -219,6 +219,7 @@ void ShaderProgram::setUniform(const GLchar* name, const Vec2& value)
 
 void ShaderProgram::setUniform(const GLchar* name, const Vec3& value)
 {
+
     auto search = locationCache.find(name);
     GLint location;
     if (search == locationCache.end()) {

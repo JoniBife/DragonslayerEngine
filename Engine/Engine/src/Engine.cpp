@@ -288,7 +288,17 @@ void Engine::run() {
 	
 	Lights lights;
 	DirectionalLight light;
+	DirectionalLight light2;
+	light2.direction = { 10.0, -10.0, 0.0 };
+	light2.color = { 0.0, 1.0, 0.0 };
 	lights.directionalLights.push_back(light);
+	lights.directionalLights.push_back(light2);
+
+	/*PointLight pLight;
+	pLight.position = { 0.0f ,0.0f ,0.0f };
+	pLight.color = { 1.0f ,0.0f ,0.0f };
+	pLight.radiance = 100.0f;
+	lights.pointLights.push_back(pLight);*/
 
 	editorCamera = new EditorCamera();
 
@@ -346,7 +356,7 @@ void Engine::run() {
 		
 
 		//deferredRenderPipeline->enqueueRender(renderCommand);
-		//deferredRenderPipeline->enqueueRender(renderCommand2);
+		deferredRenderPipeline->enqueueRender(renderCommand2);
 		//deferredRenderPipeline->enqueueRender(renderCommand3);
 		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 

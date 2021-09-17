@@ -53,15 +53,21 @@ namespace renderer {
 		CubeMap* prefilterCubeMap;
 		Texture2D* brdfLUT;
 		
+		const unsigned int maxPointLights = 1000;
 		const unsigned int maxShadowMaps = 3;
 		const unsigned int blurWidth = 426;
 		const unsigned int blurHeight = 240;
 
-		GLuint vboGlobalUniforms;
+		GLuint uboPointLights;
+		GLuint uboGlobalUniforms;
 
 		/* Creates empty global uniform buffer */
 		void createGlobalUniformsBuffer();
 		void updateGlobalUniformsBuffer(const Mat4& view, const Mat4& projection);
+
+		void createPointLightsBuffer();
+		void updatePointLightsBuffer(const std::vector<PointLight>& pointLights);
+		void bindPointLightsBuffer(GLuint index);
 
 	public:
 		/* Performs all initialization operations:

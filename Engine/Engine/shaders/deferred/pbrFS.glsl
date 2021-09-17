@@ -2,24 +2,55 @@
 
 layout (location = 0) out vec4 fragmentColor;
 
+struct DirectionalLight {
+    vec3 direction;
+    vec3 color;
+    float radiance;
+};
+
+const float CUTOFF_THRESHOLD = 0.001; // Ignore point light contributions below this value
+struct PointLight {
+    vec3 position;
+    vec3 color;
+    float radiance;
+    float radius;
+};
+
 in vec2 fragTextCoords;
 
+// Camera inputs
 uniform vec3 viewPosition;
-
 uniform mat4 viewMatrix;
 uniform mat4 inverseViewMatrix;
 uniform mat4 inverseProjectionMatrix;
 uniform float projectionNear;
 uniform float projectionFar;
 
-uniform vec3 lightColor = {10.0, 10.0, 10.0};
+// Light inputs
+uniform DirectionalLight directionalLights[4];
+uniform uint numberOfDirectionalLights; // This solution works with structs but not with samplers on open gl version 3.30
 
-uniform vec3 pixelOffset;
+layout (std140) uniform pointLightsBlock {
+    PointLight pointLights[1000];
+};
+uniform uint numberOfPointLights;
+uniform float intensity;
+uniform float radius;
+uniform vec3 lposition;
 
-uniform sampler2D gBufferMetallic; // Contains both the position and metallic values
+// G-Buffer inputs ----------------------------------------------------------
+uniform sampler2D gBufferMetallic; // Contains the metallic values 
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
 uniform sampler2D gBufferDepth;
+
+// IBL inputs
+uniform samplerCube irradianceCubeMap;
+uniform samplerCube prefilterCubeMap;
+uniform sampler2D brdfLUT;
+
+// Cascaded shadow mapping inputs --------------------------------------------
+uniform vec3 pixelOffset;
 
 uniform sampler2D shadowMap;
 uniform float far;
@@ -31,10 +62,7 @@ uniform mat4 lightViewProjectionMatrix;
 uniform mat4 lightViewProjectionMatrix2;
 uniform mat4 lightViewProjectionMatrix3;
 
-uniform samplerCube irradianceCubeMap;
-uniform samplerCube prefilterCubeMap;
-uniform sampler2D brdfLUT;
-
+// Debug inputs
 uniform bool debug;
 
 const float PI = 3.1415927;
@@ -189,7 +217,7 @@ vec3 OrenNayarDiffuse(vec3 diffuseColor, float roughness, vec3 lightDir, vec3 vi
 
 vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughness, float ambientOcclusion) {
     
-    vec3 V = normalize(viewPosition - position);
+     vec3 V = normalize(viewPosition - position);
 
     // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
     // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    
@@ -199,62 +227,127 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     // reflectance equation
     vec3 Lo = vec3(0.0);
 
-    // calculate per-light radiance
-    vec3 L = -1 * normalize(vec3(-1.0, -1.0, 0.0));
-    vec3 H = normalize(V + L);
-    float distance = length(vec3(1.0, 1.0, 0.0));
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = lightColor * attenuation;
-
-    // Cook-Torrance BRDF
-    float NDF = DistributionGGX(normal, H, roughness);   
-    float G   = GeometrySmith(normal, V, L, roughness);      
-    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
-           
-    vec3 numerator    = NDF * G * F; 
-    float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-    vec3 specular = numerator / denominator;
-    vec3 diffuse = 
-    /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
+    //  Directional lights contribution
+    for (uint i = 0u; i < numberOfDirectionalLights; ++i) {
         
-    // kS is equal to Fresnel
-    vec3 kS = F;
-    // for energy conservation, the diffuse and specular light can't
-    // be above 1.0 (unless the surface emits light); to preserve this
-    // relationship the diffuse component (kD) should equal 1.0 - kS.
-    vec3 kD = vec3(1.0) - kS;
-    // multiply kD by the inverse metalness such that only non-metals 
-    // have diffuse lighting, or a linear blend if partly metal (pure metals
-    // have no diffuse light).
-    kD *= 1.0 - metallic;
+        DirectionalLight directionalLight = directionalLights[i];
+      
+        // calculate per-light radiance
+        vec3 L = -1 * directionalLight.direction;
+        vec3 H = normalize(V + L);
+        vec3 radiance = directionalLight.color * directionalLight.radiance;
 
-    // scale light by NdotL
-    float NdotL = max(dot(normal, L), 0.0);     
-    
-    float shadow = calculateShadows(vec4(position,1.0),normal);
+        // Cook-Torrance BRDF
+        float NDF = DistributionGGX(normal, H, roughness);   
+        float G   = GeometrySmith(normal, V, L, roughness);      
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+           
+        vec3 numerator    = NDF * G * F; 
+        float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+        vec3 specular = numerator / denominator;
+        vec3 diffuse = 
+        /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
+        
+        // kS is equal to Fresnel
+        vec3 kS = F;
+        // for energy conservation, the diffuse and specular light can't
+        // be above 1.0 (unless the surface emits light); to preserve this
+        // relationship the diffuse component (kD) should equal 1.0 - kS.
+        vec3 kD = vec3(1.0) - kS;
+        // multiply kD by the inverse metalness such that only non-metals 
+        // have diffuse lighting, or a linear blend if partly metal (pure metals
+        // have no diffuse light).
+        kD *= 1.0 - metallic;
 
-    // add to outgoing radiance Lo
-    Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        // scale light by NdotL
+        float NdotL = max(dot(normal, L), 0.0);     
     
+        float shadow = calculateShadows(vec4(position,1.0),normal);
+
+        // add to outgoing radiance Lo
+        Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    }
+
+    // Point lights contribution
+    for (uint i = 0u; i < 1u; ++i) {
+        
+        PointLight pointLight;
+        pointLight.position = lposition;
+        pointLight.radius = radius;
+        pointLight.color = vec3(1.0, 0.0, 0.0);
+        pointLight.radiance = intensity;
+
+        // calculate per-light radiance
+        vec3 L = -1 * (position - pointLight.position);
+        vec3 H = normalize(V + L);
+        float distanceToLight = length(L);
+
+        // Point Light attenuation without constant, linear and quadratic terms (a much easier to use solution)
+        // https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+        /*float denum = distanceToLight/pointLight.radius + 1;
+        float attenuation = 1.0 / (denum * denum);
+        // Biasing 
+        attenuation = attenuation - CUTOFF_THRESHOLD;
+        // Scaling
+        attenuation = attenuation * (1.0 / (1 - CUTOFF_THRESHOLD));
+        // Cannot drop below zero
+        attenuation = max(attenuation, 0.0);*/
+
+        // Inverse square falloff attenuation found in Unreal
+        float attenuation = pow(clamp(1.0 - pow(distanceToLight / pointLight.radius, 4.0), 0.0, 1.0), 2.0) / (distanceToLight * distanceToLight + 1.0);
+
+        vec3 radiance = (pointLight.color * pointLight.radiance) * attenuation;
+
+        // Cook-Torrance BRDF
+        float NDF = DistributionGGX(normal, H, roughness);   
+        float G   = GeometrySmith(normal, V, L, roughness);      
+        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+           
+        vec3 numerator    = NDF * G * F; 
+        float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+        vec3 specular = numerator / denominator;
+        vec3 diffuse = 
+        /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
+        
+        // kS is equal to Fresnel
+        vec3 kS = F;
+        // for energy conservation, the diffuse and specular light can't
+        // be above 1.0 (unless the surface emits light); to preserve this
+        // relationship the diffuse component (kD) should equal 1.0 - kS.
+        vec3 kD = vec3(1.0) - kS;
+        // multiply kD by the inverse metalness such that only non-metals 
+        // have diffuse lighting, or a linear blend if partly metal (pure metals
+        // have no diffuse light).
+        kD *= 1.0 - metallic;
+
+        // scale light by NdotL
+        float NdotL = max(dot(normal, L), 0.0);     
+    
+        float shadow = calculateShadows(vec4(position,1.0),normal);
+
+        // add to outgoing radiance Lo
+        Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+    }
+
     // ambient lighting (we now use IBL as the ambient term)
    
-    vec3 F2 = fresnelSchlickRoughness(max(dot(normal, V), 0.0), F0, roughness);
-    vec3 kS2 = F2;
-    vec3 kD2 = 1.0 - kS2;
+    vec3 F = fresnelSchlickRoughness(max(dot(normal, V), 0.0), F0, roughness);
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
     kD *= 1.0 - metallic;	  
     vec3 irradiance = texture(irradianceCubeMap, normal).rgb;
-    vec3 diffuse2 = irradiance * albedo;
+    vec3 diffuse = irradiance * albedo;
 
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 R = reflect(-V, normal); 
     vec3 prefilteredColor = textureLod(prefilterCubeMap, R,  roughness * MAX_REFLECTION_LOD).rgb;    
     vec2 brdf  = texture(brdfLUT, vec2(max(dot(normal, V), 0.0), roughness)).rg;
-    vec3 specular2 = prefilteredColor * (F2 * brdf.x + brdf.y);
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambient = (kD2 * diffuse2 + specular2) * ambientOcclusion;
+    vec3 ambientLo = (kD * diffuse + specular) * ambientOcclusion;
 
-    vec3 color = ambient + Lo;
+    vec3 color = ambientLo + Lo;
 
     return color;
 }
@@ -264,7 +357,7 @@ vec3 extractPositionFromDepth(float depth) {
     // Both UVs and depth are in the range of [0,1] so we move them to the range of [-1,1]
     float z = depth * 2.0 - 1.0;
     float w = (2.0 * projectionNear * projectionFar) / (projectionFar + projectionNear - z * (projectionFar - projectionNear));
-    vec4 positionClipSpace = vec4((fragTextCoords * 2.0 - 1.0) , z, 1.0);
+    vec4 positionClipSpace = vec4(fragTextCoords * 2.0 - 1.0, z, 1.0);
 
     // Move back to view space
     vec4 positionViewSpace = inverseProjectionMatrix * positionClipSpace;
