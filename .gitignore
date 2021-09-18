@@ -6,6 +6,12 @@
 ## Modified by João Silva (Github: LongJohnny)
 ##
 
+# Image files
+.png
+.jpg
+.hdr
+.ibl
+.fa
 
 # User-specific files
 *.rsuser
