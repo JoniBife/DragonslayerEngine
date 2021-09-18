@@ -5,7 +5,6 @@
 #include "../controllers/FreeCameraController.h"
 #include "../utils/ColorRGBA.h"
 #include "../core/GameObject.h"
-#include "../core/Renderer.h"
 #include "../core/MeshRenderer.h"
 #include "../core/BlinnPhongMaterial.h"
 #include "../scripts/CubeController.h"

@@ -14,6 +14,9 @@
 #include "gui/ImGuiExtensions.h"
 #include <cstdlib>
 #include "textures/IBL.h"
+#include "renderer/WarriorRenderer.h"
+
+using namespace WarriorRenderer;
 
 Engine* engine;
 
@@ -182,7 +185,8 @@ void Engine::run() {
 
 	// Setup (DO NOT CHANGE ORDER OF SETUP)
 	setupGLFW(); 
-	DeferredRenderPipeline* deferredRenderPipeline = new DeferredRenderPipeline();
+	
+	Renderer* renderer = new Renderer();
 	
 	//setupGLEW();  
 	
@@ -203,7 +207,7 @@ void Engine::run() {
 	cerberusMesh->calculateTangents();
 	cerberusMesh->init();
 
-	GLPBRMaterial* materialCerberus = deferredRenderPipeline->createMaterial();
+	WarriorRenderer::PMaterial* materialCerberus = renderer->createMaterial();
 	Texture2D* albedoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/albedo.tga");
 	Texture2D* normalMap1 = new Texture2D("../Engine/textures/pbr/cerberus/normal.tga");
 	Texture2D* metallicMap1 = new Texture2D("../Engine/textures/pbr/cerberus/metallic.tga");
@@ -224,7 +228,7 @@ void Engine::run() {
 	sphereMesh->calculateTangents();
 	sphereMesh->init();
 
-	GLPBRMaterial* material = deferredRenderPipeline->createMaterial();
+	WarriorRenderer::PMaterial* material = renderer->createMaterial();
 	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/plastic/albedo.png");
 	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/plastic/normal.png");
 	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/plastic/metallic.png");
@@ -246,7 +250,7 @@ void Engine::run() {
 	mesh->init();
 
 	renderCommand2.mesh = mesh;
-	GLPBRMaterial* mat = deferredRenderPipeline->createMaterial();
+	WarriorRenderer::PMaterial* mat = renderer->createMaterial();
 	mat->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
 	renderCommand2.material = mat;
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
@@ -256,7 +260,7 @@ void Engine::run() {
 	mesh2->calculateTangents();
 	mesh2->init();
 
-	GLPBRMaterial* material2 = deferredRenderPipeline->createMaterial();
+	WarriorRenderer::PMaterial* material2 = renderer->createMaterial();
 	albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
 	normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
 	metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
@@ -274,7 +278,7 @@ void Engine::run() {
 
 	std::vector<RenderCommand> renderCommands;
 
-	GLPBRMaterial* defaultMat = deferredRenderPipeline->createMaterial();
+	WarriorRenderer::PMaterial* defaultMat = renderer->createMaterial();
 
 	for (int i = -2; i < 10; ++i) {
 		RenderCommand rc;
@@ -288,21 +292,27 @@ void Engine::run() {
 	
 	Lights lights;
 	DirectionalLight light;
-	DirectionalLight light2;
-	light2.direction = { 10.0, -10.0, 0.0 };
-	light2.color = { 0.0, 1.0, 0.0 };
+	//DirectionalLight light2;
+	//light2.direction = { 10.0, -10.0, 0.0 };
+	//light2.color = { 0.0, 1.0, 0.0 };
 	lights.directionalLights.push_back(light);
-	lights.directionalLights.push_back(light2);
+	//lights.directionalLights.push_back(light2);
 
-	/*PointLight pLight;
-	pLight.position = { 0.0f ,0.0f ,0.0f };
-	pLight.color = { 1.0f ,0.0f ,0.0f };
-	pLight.radiance = 100.0f;
-	lights.pointLights.push_back(pLight);*/
+	/*for (int i = -10; i < 10; ++i) {
+		for (int j = -20; j < 20; ++j) {
+			PointLight pLight;
+			pLight.position = { (float)i * 3.5f ,0.0f , (float)j * 3.5f };
+			pLight.color = { 1.0f ,0.0f ,0.0f };
+			pLight.radiance = 20.0f;
+			pLight.radius = 2.0f;
+			lights.pointLights.push_back(pLight);
+		}
+	}*/
+	
 
 	editorCamera = new EditorCamera();
 
-	double lastTime = glfwGetTime();
+	
 
 	editorCamera->setEditorWindowFocus(true);
 
@@ -314,7 +324,9 @@ void Engine::run() {
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-	GLPBRMaterial* editable = material;
+	WarriorRenderer::PMaterial* editable = material;
+
+	double lastTime = glfwGetTime();
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -356,15 +368,15 @@ void Engine::run() {
 		
 
 		//deferredRenderPipeline->enqueueRender(renderCommand);
-		deferredRenderPipeline->enqueueRender(renderCommand2);
+		renderer->enqueueRender(renderCommand2);
 		//deferredRenderPipeline->enqueueRender(renderCommand3);
 		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 
 		for (RenderCommand rc : renderCommands) {
-			deferredRenderPipeline->enqueueRender(rc);
+			renderer->enqueueRender(rc);
 		}
 
-		deferredRenderPipeline->render(*editorCamera, lights);
+		renderer->render(*editorCamera, lights);
 
 		rotation += (PI / 6.0f) * elapsedTime;
 

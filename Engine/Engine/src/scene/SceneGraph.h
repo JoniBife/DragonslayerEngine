@@ -8,6 +8,7 @@
 #include "../math/Mat4.h"
 #include "../textures/ITexture.h"
 #include <list>
+#include <functional>
 
 class SceneNode {
 

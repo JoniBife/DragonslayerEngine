@@ -11,8 +11,8 @@ struct DirectionalLight {
 const float CUTOFF_THRESHOLD = 0.001; // Ignore point light contributions below this value
 struct PointLight {
     vec3 position;
-    vec3 color;
     float radiance;
+    vec3 color;
     float radius;
 };
 
@@ -30,13 +30,15 @@ uniform float projectionFar;
 uniform DirectionalLight directionalLights[4];
 uniform uint numberOfDirectionalLights; // This solution works with structs but not with samplers on open gl version 3.30
 
+// Using the std140 to have a consistent memory layout over any graphics card
+#define MAX_POINT_LIGHTS 2000
 layout (std140) uniform pointLightsBlock {
-    PointLight pointLights[1000];
+    PointLight pointLights[MAX_POINT_LIGHTS];
 };
 uniform uint numberOfPointLights;
-uniform float intensity;
-uniform float radius;
-uniform vec3 lposition;
+//uniform float intensity;
+//uniform float radius;
+//uniform vec3 lposition;
 
 // G-Buffer inputs ----------------------------------------------------------
 uniform sampler2D gBufferMetallic; // Contains the metallic values 
@@ -269,64 +271,69 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     }
 
     // Point lights contribution
-    for (uint i = 0u; i < 1u; ++i) {
+    for (uint i = 0u; i < numberOfPointLights; ++i) {
         
-        PointLight pointLight;
-        pointLight.position = lposition;
-        pointLight.radius = radius;
-        pointLight.color = vec3(1.0, 0.0, 0.0);
-        pointLight.radiance = intensity;
+        PointLight pointLight = pointLights[i];
+
+        //pointLight.position = lposition;
+        //pointLight.radius = radius;
+        //pointLight.color = vec3(1.0, 0.0, 0.0);
+        //pointLight.radiance = intensity;
 
         // calculate per-light radiance
         vec3 L = -1 * (position - pointLight.position);
-        vec3 H = normalize(V + L);
         float distanceToLight = length(L);
 
-        // Point Light attenuation without constant, linear and quadratic terms (a much easier to use solution)
-        // https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
-        /*float denum = distanceToLight/pointLight.radius + 1;
-        float attenuation = 1.0 / (denum * denum);
-        // Biasing 
-        attenuation = attenuation - CUTOFF_THRESHOLD;
-        // Scaling
-        attenuation = attenuation * (1.0 / (1 - CUTOFF_THRESHOLD));
-        // Cannot drop below zero
-        attenuation = max(attenuation, 0.0);*/
+        if (distanceToLight <= pointLight.radius) {
 
-        // Inverse square falloff attenuation found in Unreal
-        float attenuation = pow(clamp(1.0 - pow(distanceToLight / pointLight.radius, 4.0), 0.0, 1.0), 2.0) / (distanceToLight * distanceToLight + 1.0);
+            vec3 H = normalize(V + L);
 
-        vec3 radiance = (pointLight.color * pointLight.radiance) * attenuation;
+            // Point Light attenuation without constant, linear and quadratic terms (a much easier to use solution)
+            // https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+            /*float denum = distanceToLight/pointLight.radius + 1;
+            float attenuation = 1.0 / (denum * denum);
+            // Biasing 
+            attenuation = attenuation - CUTOFF_THRESHOLD;
+            // Scaling
+            attenuation = attenuation * (1.0 / (1 - CUTOFF_THRESHOLD));
+            // Cannot drop below zero
+            attenuation = max(attenuation, 0.0);*/
 
-        // Cook-Torrance BRDF
-        float NDF = DistributionGGX(normal, H, roughness);   
-        float G   = GeometrySmith(normal, V, L, roughness);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+            // Inverse square falloff attenuation found in Unreal
+            float attenuation = pow(clamp(1.0 - pow(distanceToLight / pointLight.radius, 4.0), 0.0, 1.0), 2.0) / (distanceToLight * distanceToLight + 1.0);
+
+            vec3 radiance = (pointLight.color * pointLight.radiance) * attenuation;
+
+            // Cook-Torrance BRDF
+            float NDF = DistributionGGX(normal, H, roughness);   
+            float G   = GeometrySmith(normal, V, L, roughness);      
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
            
-        vec3 numerator    = NDF * G * F; 
-        float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
-        vec3 specular = numerator / denominator;
-        vec3 diffuse = 
-        /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
+            vec3 numerator    = NDF * G * F; 
+            float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+            vec3 specular = numerator / denominator;
+            vec3 diffuse = 
+            /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
         
-        // kS is equal to Fresnel
-        vec3 kS = F;
-        // for energy conservation, the diffuse and specular light can't
-        // be above 1.0 (unless the surface emits light); to preserve this
-        // relationship the diffuse component (kD) should equal 1.0 - kS.
-        vec3 kD = vec3(1.0) - kS;
-        // multiply kD by the inverse metalness such that only non-metals 
-        // have diffuse lighting, or a linear blend if partly metal (pure metals
-        // have no diffuse light).
-        kD *= 1.0 - metallic;
+            // kS is equal to Fresnel
+            vec3 kS = F;
+            // for energy conservation, the diffuse and specular light can't
+            // be above 1.0 (unless the surface emits light); to preserve this
+            // relationship the diffuse component (kD) should equal 1.0 - kS.
+            vec3 kD = vec3(1.0) - kS;
+            // multiply kD by the inverse metalness such that only non-metals 
+            // have diffuse lighting, or a linear blend if partly metal (pure metals
+            // have no diffuse light).
+            kD *= 1.0 - metallic;
 
-        // scale light by NdotL
-        float NdotL = max(dot(normal, L), 0.0);     
+            // scale light by NdotL
+            float NdotL = max(dot(normal, L), 0.0);     
     
-        float shadow = calculateShadows(vec4(position,1.0),normal);
+            float shadow = calculateShadows(vec4(position,1.0),normal);
 
-        // add to outgoing radiance Lo
-        Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+            // add to outgoing radiance Lo
+            Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        }
     }
 
     // ambient lighting (we now use IBL as the ambient term)

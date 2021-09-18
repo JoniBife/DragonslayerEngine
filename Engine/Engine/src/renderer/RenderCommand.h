@@ -2,13 +2,13 @@
 #define RENDER_COMMAND_H
 
 #include "../meshes/Mesh.h"
-#include "deferredPipeline/GLPBRMaterial.h"
+#include "PMaterial.h"
 
-namespace renderer {
+namespace WarriorRenderer {
 
 	struct RenderCommand {
 		Mesh* mesh;
-		GLPBRMaterial* material;
+		PMaterial* material;
 		Mat4 model;
 		bool castShadows = true;
 		bool receiveShadows = true;

@@ -3,11 +3,11 @@
 
 #include "../meshes/Mesh.h"
 #include "../core/Material.h"
-#include "Renderer.h"
+#include "RendererComponent.h"
 
 namespace core {
 
-	class MeshRenderer : public Renderer {
+	class MeshRenderer : public RendererComponent {
 
 	private:
 		Mesh* mesh = nullptr;

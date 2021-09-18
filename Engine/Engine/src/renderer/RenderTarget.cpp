@@ -1,8 +1,8 @@
 #include "RenderTarget.h"
 
-using namespace renderer;
+using namespace WarriorRenderer;
 
-renderer::RenderTarget::RenderTarget()
+WarriorRenderer::RenderTarget::RenderTarget()
 {
 	FrameBufferBuilder frameBufferBuilder;
 	frameBuffer = frameBufferBuilder
@@ -11,12 +11,12 @@ renderer::RenderTarget::RenderTarget()
 		.build();
 }
 
-renderer::RenderTarget::~RenderTarget()
+WarriorRenderer::RenderTarget::~RenderTarget()
 {
 	delete frameBuffer;
 }
 
-RenderTexture renderer::RenderTarget::getRenderTexture()
+RenderTexture WarriorRenderer::RenderTarget::getRenderTexture()
 {
 	RenderTexture renderTexture;
 	// The render target frame buffer has a single color attachment

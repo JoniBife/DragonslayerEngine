@@ -7,12 +7,9 @@
 #include "core/Hierarchy.h"
 #include "gui/GUI.h"
 #include "meshes/SkyBox.h"
-#include "../core/Renderer3D.h"
 #include "view/EditorCamera.h"
-#include "renderer/deferredPipeline/DeferredRenderPipeline.h"
 
 using namespace core;
-using namespace renderer;
 
 class Engine {
 
@@ -21,7 +18,6 @@ private:
 	GLFWwindow* window = nullptr;
 	SceneGraph* sceneGraph = nullptr;
 	Hierarchy* hierarchy;
-	Renderer3D* renderer3D;
 	EditorCamera* editorCamera = nullptr;
 	GUI* gui = nullptr;
 	SkyBox* skybox = nullptr;

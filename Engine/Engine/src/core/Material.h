@@ -1,5 +1,5 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#ifndef MATERIAL2_H
+#define MATERIAL2_H
 
 #include <string>
 #include "../shaders/shaderProgram.h"

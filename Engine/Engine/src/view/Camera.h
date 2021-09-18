@@ -1,10 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "GL/glew.h"
 #include "../math/Mat4.h"
 #include "../math/Vec2.h"
-#include "../controllers/ICameraController.h"
 #include <assert.h>
 
 #define SWAP_IF_DIFFERENT(X,Y, dirty) if (X != Y) { X = Y; dirty=true; }
@@ -61,8 +59,6 @@ public:
 	bool wasDirty() const; // Checks if the camera was dirty recently
 	float getAspectRatio() const;
 	
-
-	//void addCameraController(ICameraController* cameraController);
 
 	virtual void onGUI();
 };

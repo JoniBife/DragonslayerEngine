@@ -3,12 +3,12 @@
 
 #include "../math/Vec3.h"
 
-namespace renderer {
+namespace WarriorRenderer {
 
 	struct PointLight {
 		Vec3 position;
-		Vec3 color = { 1.0f, 1.0f, 1.0f };
 		float radiance = 1.0f;
+		Vec3 color = { 1.0f, 1.0f, 1.0f };
 		float radius = 5.0f;
 	};
 

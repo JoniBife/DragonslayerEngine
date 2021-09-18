@@ -1,7 +1,7 @@
 #ifndef POST_PROCESSING_COMMAND_H
 #define POST_PROCESSING_COMMAND_H
 
-namespace renderer {
+namespace WarriorRenderer {
 
 	struct PostProcessingCommand {
 

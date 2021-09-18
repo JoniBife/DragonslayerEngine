@@ -6,7 +6,6 @@
 
 bool EditorCamera::freeMovement(float elapsedTime, Vec2 currMousePosition)
 {
-
     bool performedAction = false;
 
     Input::setCursorVisibility(false);

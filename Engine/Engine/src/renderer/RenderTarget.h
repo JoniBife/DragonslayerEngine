@@ -3,7 +3,7 @@
 
 #include "../textures/FrameBuffer.h"
 
-namespace renderer {
+namespace WarriorRenderer {
 
 	struct RenderTexture {
 		GLuint textureId;

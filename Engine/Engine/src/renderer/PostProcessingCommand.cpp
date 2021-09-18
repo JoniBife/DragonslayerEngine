@@ -1,6 +1,6 @@
 #include "PostProcessingCommand.h"
 
-bool renderer::PostProcessingCommand::isValid() const
+bool WarriorRenderer::PostProcessingCommand::isValid() const
 {
 	return false;
 }

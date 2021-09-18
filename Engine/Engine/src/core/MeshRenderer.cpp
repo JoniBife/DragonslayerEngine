@@ -2,12 +2,12 @@
 
 using namespace core;
 
-MeshRenderer::MeshRenderer() : Renderer("Mesh Renderer")
+MeshRenderer::MeshRenderer() : RendererComponent("Mesh Renderer")
 {
 
 }
 
-MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) : Renderer("Mesh Renderer"), mesh(mesh), material(material) {}
+MeshRenderer::MeshRenderer(Mesh* mesh, Material* material) : RendererComponent("Mesh Renderer"), mesh(mesh), material(material) {}
 
 void MeshRenderer::setMesh(Mesh* mesh)
 {

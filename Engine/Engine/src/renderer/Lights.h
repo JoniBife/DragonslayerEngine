@@ -1,12 +1,14 @@
 #ifndef LIGHTS_H
 #define LIGHTS_H
 
+#include <vector>
+
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 #include "AreaLight.h"
 
-namespace renderer {
+namespace WarriorRenderer {
 	
 	/*
 	* Simple container of all the lights to be consired when rendering a frame
