@@ -5,9 +5,19 @@ using namespace WarriorRenderer;
 
 WarriorRenderer::OpenGLState::OpenGLState()
 {
+	
+}
+WarriorRenderer::OpenGLState::~OpenGLState()
+{
+	// Does nothing for now (TODO Check if it should do something)
+}
+
+void WarriorRenderer::OpenGLState::setToDefaultState()
+{
 	if (depthTesting) {
 		GL_CALL(glEnable(GL_DEPTH_TEST));
-	} else {
+	}
+	else {
 		GL_CALL(glDisable(GL_DEPTH_TEST));
 	}
 
@@ -17,7 +27,8 @@ WarriorRenderer::OpenGLState::OpenGLState()
 
 	if (faceCulling) {
 		GL_CALL(glEnable(GL_CULL_FACE));
-	} else {
+	}
+	else {
 		GL_CALL(glDisable(GL_CULL_FACE));
 	}
 	GL_CALL(glCullFace(cullFace));
@@ -25,29 +36,13 @@ WarriorRenderer::OpenGLState::OpenGLState()
 
 	if (blending) {
 		GL_CALL(glEnable(GL_BLEND));
-	} else {
+	}
+	else {
 		GL_CALL(glDisable(GL_BLEND));
 	}
 
 	GL_CALL(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
 	GL_CALL(glViewport(x, y, width, height));
-}
-
-OpenGLState* WarriorRenderer::OpenGLState::createDefaultState()
-{
-	return new OpenGLState();
-}
-
-WarriorRenderer::OpenGLState::~OpenGLState()
-{
-	// Does nothing for now (TODO Check if it should do something)
-}
-
-void OpenGLState::setActiveShaderProgram(const ShaderProgram& shader)
-{
-	if (shader.getProgramId() != activeShaderProgram) {
-		activeShaderProgram = shader.getProgramId();
-	}
 }
 
 void OpenGLState::setDepthTesting(bool enable)

@@ -94,8 +94,17 @@ ShaderProgram::ShaderProgram(Shader& vertexShader, Shader& geometryShader, Shade
     GL_CALL(glDetachShader(id, fragmentShader.getId()));
 }
 
-ShaderProgram::~ShaderProgram() {
+ShaderProgram::ShaderProgram()
+{
+}
+
+void ShaderProgram::_deleteObject()
+{
     GL_CALL(glDeleteProgram(id));
+}
+
+ShaderProgram::~ShaderProgram() {
+    id = 0u;
 }
 
 void ShaderProgram::use() {

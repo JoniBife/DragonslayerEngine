@@ -186,7 +186,8 @@ void Engine::run() {
 	// Setup (DO NOT CHANGE ORDER OF SETUP)
 	setupGLFW(); 
 	
-	Renderer* renderer = new Renderer();
+	RenderingConfigurations renderingConfigs;
+	Renderer* renderer = new Renderer(renderingConfigs);
 	
 	//setupGLEW();  
 	
@@ -312,7 +313,8 @@ void Engine::run() {
 
 	editorCamera = new EditorCamera();
 
-	
+	FxaaCommand fxaa;
+	ACESToneMappingCommand toneMapping;
 
 	editorCamera->setEditorWindowFocus(true);
 
@@ -368,13 +370,16 @@ void Engine::run() {
 		
 
 		//deferredRenderPipeline->enqueueRender(renderCommand);
-		renderer->enqueueRender(renderCommand2);
+		renderer->enqueueRender(&renderCommand2);
 		//deferredRenderPipeline->enqueueRender(renderCommand3);
 		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 
-		for (RenderCommand rc : renderCommands) {
-			renderer->enqueueRender(rc);
+		for (RenderCommand& rc : renderCommands) {
+			renderer->enqueueRender(&rc);
 		}
+
+		renderer->enqueuePostProcessing(&toneMapping);
+		renderer->enqueuePostProcessing(&fxaa);
 
 		renderer->render(*editorCamera, lights);
 

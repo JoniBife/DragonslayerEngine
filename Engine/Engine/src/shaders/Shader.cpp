@@ -17,9 +17,15 @@ Shader::Shader(const GLenum shaderType, const std::string& filePath) : type(shad
         exit(EXIT_FAILURE);
     }
 }
-// Deletes the shader using glDeleteShader
-Shader::~Shader() {
+
+
+void Shader::_deleteObject()
+{
     GL_CALL(glDeleteShader(id));
+}
+
+Shader::~Shader() {
+    id = 0u;
 }
 
 // Getters
@@ -106,4 +112,6 @@ bool Shader::compileShader() {
     }
     return true;
 }
+
+
 

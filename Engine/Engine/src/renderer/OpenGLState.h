@@ -32,15 +32,13 @@ namespace WarriorRenderer {
         GLsizei width = 1366;
         GLsizei height = 768;
 
-        OpenGLState();
-
     public:
-
-        /* Creates an OpenGLState object and sets all the state to the default values (currently specified as the default field values) */
-        static OpenGLState* createDefaultState();
+        OpenGLState();
         ~OpenGLState();
-           
-        void setActiveShaderProgram(const ShaderProgram& shader);
+
+        /* Sets all the state to the default values (currently specified as the default field values) */
+        void setToDefaultState();
+        
         void setDepthTesting(bool enable);
         void setDepthFunction(GLenum depthFunction);
         void setDepthMask(GLboolean enable);

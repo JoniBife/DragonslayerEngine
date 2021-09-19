@@ -10,38 +10,37 @@
 #include "RenderTarget.h"
 #include "../view/Camera.h"
 #include "PMaterial.h"
+#include "RenderingConfigurations.h"
 
 namespace WarriorRenderer {
 
 	class Renderer {
 
 	private:
-		OpenGLState* openGLState;
-
+		// Both initialized by the default constructor
+		OpenGLState openGLState;
 		RenderQueue renderQueue;
 
-		ShaderProgram* geometryShaderProgram;
-		ShaderProgram* shadowMapShaderProgram;
+		ShaderProgram geometryShaderProgram;
+		ShaderProgram shadowMapShaderProgram;
 
 		// Two-pass Gaussian blur shaders
-		ShaderProgram* horizontalBlurShaderProgram;
-		ShaderProgram* verticalBlurShaderProgram;
+		ShaderProgram horizontalBlurShaderProgram;
+		ShaderProgram verticalBlurShaderProgram;
 
-		ShaderProgram* pbrShaderProgram;
-		ShaderProgram* postProcessingShaderProgram;
+		ShaderProgram pbrShaderProgram;
 
-		ShaderProgram* fxaaShaderProgram;
+		ShaderProgram skyboxShaderProgram;
 
-		ShaderProgram* skyboxShaderProgram;
-
-		FrameBuffer* gBuffer;
-		std::vector<FrameBuffer*> shadowMapBuffers;
-		FrameBuffer* lightBuffer;
-		FrameBuffer* skyboxBuffer;
-		FrameBuffer* prePostProcessingBuffer;
-		FrameBuffer* postProcessingBuffer;
-		FrameBuffer* horizontalBlurBuffer;
-		FrameBuffer* verticalBlurBuffer;
+		FrameBuffer gBuffer;
+		std::vector<FrameBuffer> shadowMapBuffers;
+		FrameBuffer lightBuffer;
+		FrameBuffer skyboxBuffer;
+		FrameBuffer prePostProcessingBuffer;
+		FrameBuffer postProcessingBuffer;
+		FrameBuffer postProcessingBuffer2;
+		FrameBuffer horizontalBlurBuffer;
+		FrameBuffer verticalBlurBuffer;
 
 		Texture2D* defaultAlbedoMap;
 		Texture2D* defaultNormalMap;
@@ -54,17 +53,15 @@ namespace WarriorRenderer {
 		Mesh* pointLightVolume;
 
 		CubeMap* skyBox;
-		CubeMap* irradianceCubeMap;
-		CubeMap* prefilterCubeMap;
-		Texture2D* brdfLUT;
 		
+		CubeMap irradianceCubeMap;
+		CubeMap prefilterCubeMap;
+		Texture2D brdfLUT;
+
+		RenderingConfigurations renderingConfigurations;
 		const unsigned int maxPointLights = 1000;
-		const unsigned int maxShadowMaps = 3;
 		const unsigned int blurWidth = 426;
 		const unsigned int blurHeight = 240;
-
-		unsigned int renderWidth = 1366;
-		unsigned int renderHeight = 768;
 
 		GLuint uboPointLights;
 		GLuint uboGlobalUniforms;
@@ -77,13 +74,19 @@ namespace WarriorRenderer {
 		void updatePointLightsBuffer(const std::vector<PointLight>& pointLights);
 		void bindPointLightsBuffer(GLuint index);
 
+		void doGeometryPass(const Camera& camera);
+		void doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections);
+		void doLightingPass(const Camera& camera, const Lights& lights, const std::vector<Mat4>& lightViewProjections);
+		void doSkyBoxPass();
+		FrameBuffer& doPostProcessingPasses(PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture, unsigned int currPass = 0u);
+
 	public:
 		/* Performs all initialization operations:
 		* - Creation of OpenGL context
 		* - Setting all default OpenGL states (face culling etc..)
 		* - Loading and compilation of shaders
 		* - Creation of intermediate framebuffers for each of the passes */
-		Renderer();
+		Renderer(RenderingConfigurations renderingConfigurations);
 		~Renderer();
 
 		void render(const Camera& camera, const Lights& lights);
@@ -92,13 +95,13 @@ namespace WarriorRenderer {
 		/* Enqueues a render command to be executed in the next rendered frame,
 		* returns false if it fails to enqueue the command, when it is invalid (i.e null mesh or material)
 		*/
-		bool enqueueRender(const RenderCommand& renderCommand);
+		bool enqueueRender(RenderCommand* renderCommand);
 		/* Enqueues a post processing command to be executed in the next rendered frame,
 		* returns false if it fails to enqueue the command, when it is invalid (TODO )
 		*/
-		bool enqueuePostProcessing(const PostProcessingCommand& postProcessingCommand);
+		bool enqueuePostProcessing(PostProcessingCommand* postProcessingCommand);
 
-		PMaterial* createMaterial();
+		PMaterial* createMaterial() const;
 	};
 
 }

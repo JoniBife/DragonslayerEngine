@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <GL/glew.h>
+#include "../renderer/GLObject.h"
 
 /*
 * Usage example:
@@ -20,11 +21,11 @@
 * delete s;
 * 
 */
-class Shader {
+class Shader : public GLObject {
 
 private:
 	std::string filePath;
-	GLuint id = -1;
+	GLuint id = 0u;
 	GLenum type;
 	std::string code;
 
@@ -52,6 +53,8 @@ private:
 
 	// Compiles the shader and returns false if compilation failed
 	bool compileShader();
+
+	void _deleteObject() override;
 };
 
 #endif SHADER_H

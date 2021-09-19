@@ -5,15 +5,16 @@
 #include "Texture2D.h"
 #include <vector>
 #include <functional>
+#include "../renderer/GLObject.h"
 
 class FrameBufferBuilder;
 
-class FrameBuffer {
+class FrameBuffer : public GLObject {
 
 private:
-	GLuint id;
+	GLuint id = 0u;
 
-	unsigned int width, height;
+	unsigned int width = 0u, height = 0u;
 
 	// Attachments that can be sampled from (i.e. they are textures)
 	std::vector<Texture2D*> colorAttachments;
@@ -22,14 +23,14 @@ private:
 
 	// Attachments that cannot be sampled from (i.e. they are render buffer objects)
 	std::vector<GLuint> colorAttachmentsRBO;
-	GLuint stencilDepthAttachmentRBO; bool attachedStencilDepth = false;
-	GLuint depthAttachmentRBO; bool attachedDepth = false;
+	GLuint stencilDepthAttachmentRBO = 0u; bool attachedStencilDepth = false;
+	GLuint depthAttachmentRBO = 0u; bool attachedDepth = false;
 
-	FrameBuffer();
+	void _deleteObject() override;
 
 public:
-
 	FrameBuffer(const std::function<void()>& setAttachments);
+	FrameBuffer();
 	~FrameBuffer();
 
 	/* 
@@ -62,8 +63,8 @@ class FrameBufferBuilder {
 #define MAX_COLOR_ATTACHMENTS 8 // Using 8 because that is the minimum max amount of color attachments that the openGL specification requires
 
 private:
-	unsigned int width = 1, height = 1;
-	unsigned int numberOfColorAttachments = 0;
+	unsigned int width = 1u, height = 1u;
+	unsigned int numberOfColorAttachments = 0u;
 	std::vector<bool> allowSampleColor;
 	std::vector<GLenum> colorAttachmentsPrecision;
 	std::vector<GLenum> colorAttachmentsFormat;
@@ -79,7 +80,7 @@ public:
 	FrameBufferBuilder& attachColorBuffers(unsigned int number, GLenum precision, GLenum format = GL_RGBA, bool allowSample = true);
 	FrameBufferBuilder& attachStencilBuffer(bool allowSample = true);
 	FrameBufferBuilder& attachDepthBuffer(bool allowSample = true);
-	FrameBuffer* build();
+	FrameBuffer build();
 };
 
 #endif

@@ -10,6 +10,7 @@
 #include "../math/Mat2.h"
 #include "../math/Mat3.h"
 #include "../math/Mat4.h"
+#include "../renderer/GLObject.h"
 #include <unordered_map>
 
 /*
@@ -43,20 +44,24 @@
 * // No longer need the shader program so delete it
 * delete sp;
 */
-class ShaderProgram {
+class ShaderProgram : public GLObject {
 
 private:
-	GLuint id;
+	GLuint id = 0u;
 
 	// Cache containing the location of any accessed uniform from this 
 	// Shader program to avoid uncessary calls to glGetUniformLocation
 	// which performs a full search in the shader program
 	std::unordered_map<const GLchar*, GLint> locationCache;
 
+	void _deleteObject() override;
+
 public:
 	// TODO In the future we should add other constructors to support other types of shaders
 	ShaderProgram(Shader& vertexShader, Shader& fragmentShader, bool locationInShader = false);
 	ShaderProgram(Shader& vertexShader, Shader& geometryShader, Shader& fragmentShader);
+	ShaderProgram();
+
 	~ShaderProgram();
 
 	//void bindAttributeLocation(const std::string& name,const int location); Maybe in the future

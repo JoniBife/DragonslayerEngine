@@ -13,7 +13,7 @@ WarriorRenderer::RenderTarget::RenderTarget()
 
 WarriorRenderer::RenderTarget::~RenderTarget()
 {
-	delete frameBuffer;
+
 }
 
 RenderTexture WarriorRenderer::RenderTarget::getRenderTexture()
@@ -21,6 +21,6 @@ RenderTexture WarriorRenderer::RenderTarget::getRenderTexture()
 	RenderTexture renderTexture;
 	// The render target frame buffer has a single color attachment
 	// which will always be at index 0
-	renderTexture.textureId = frameBuffer->getColorAttachment(0).getId();
+	renderTexture.textureId = frameBuffer.getColorAttachment(0).getId();
 	return renderTexture;
 }

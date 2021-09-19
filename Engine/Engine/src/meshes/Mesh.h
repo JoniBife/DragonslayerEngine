@@ -9,6 +9,7 @@
 #include "../math/Vec4.h"
 #include "../math/Vec3.h"
 #include "../math/Vec2.h"
+#include "../renderer/GLObject.h"
 
 /*
 * Usage example:
@@ -28,7 +29,7 @@
 * delete square;
 * 
 */
-class Mesh : public IDrawable {
+class Mesh : public IDrawable, public GLObject {
 
 public:
 	std::vector<Vec4> vertices;
@@ -39,14 +40,14 @@ public:
 	std::vector<Vec3> tangents;
 
 private:
-	GLuint vaoId = GLuint(0);
-	GLuint vboId = GLuint(0);
-	GLuint vboNormalsId = GLuint(0);
-	GLuint vboColorsId = GLuint(0);
-	GLuint vboTextCoordsId = GLuint(0);
-	GLuint eboIndicesId = GLuint(0);
-	GLuint vboTangentsId = GLuint(0);
-	GLuint vboBitangentsId = GLuint(0);
+	GLuint vaoId = 0u;
+	GLuint vboId = 0u;
+	GLuint vboNormalsId = 0u;
+	GLuint vboColorsId = 0u;
+	GLuint vboTextCoordsId = 0u;
+	GLuint eboIndicesId = 0u;
+	GLuint vboTangentsId = 0u;
+	GLuint vboBitangentsId = 0u;
 	GLenum drawingPrimitive = GL_TRIANGLES;
 	bool hasBeenInitialized = false;
 	bool hasBeenBound = false;
@@ -54,6 +55,8 @@ private:
 	int verticesBufferSize = -1;
 
 	std::string fileName = "Code-defined mesh"; // The name of the file where the mesh information is contained
+
+	void _deleteObject() override;
 
 public:
 

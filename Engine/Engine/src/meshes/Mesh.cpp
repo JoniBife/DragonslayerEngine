@@ -36,8 +36,8 @@ Mesh::Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec2>& textCoord
 	: vertices(vertices), textCoords(textCoords) {}
 
 // Deletes all the vbos, vaos and disables the vertex array atributes
-Mesh::~Mesh() {
-
+void Mesh::_deleteObject()
+{
 	if (!hasBeenInitialized) {
 		return;
 	}
@@ -61,6 +61,17 @@ Mesh::~Mesh() {
 	GL_CALL(glDeleteVertexArrays(1, &vaoId));
 	GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GL_CALL(glBindVertexArray(0));
+}
+
+Mesh::~Mesh() {
+	vaoId = 0u;
+	vboId = 0u;
+	vboNormalsId = 0u;
+	vboColorsId = 0u;
+	vboTextCoordsId = 0u;
+	eboIndicesId = 0u;
+	vboTangentsId = 0u;
+	vboBitangentsId = 0u;
 }
 
 Mesh& Mesh::operator=(const Mesh& mesh) {

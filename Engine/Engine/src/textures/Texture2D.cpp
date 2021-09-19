@@ -83,8 +83,14 @@ Texture2D::Texture2D(const std::string& textureFilePath, GLint param)
 	stbi_image_free(data);
 }
 
-Texture2D::~Texture2D() {
+
+void Texture2D::_deleteObject()
+{
 	GL_CALL(glDeleteTextures(1, &id));
+}
+
+Texture2D::~Texture2D() {
+	id = 0u;
 }
 
 Texture2D* Texture2D::emptyTexture(unsigned int width, unsigned int height, GLint internalFormat, GLenum format, GLenum type)
@@ -145,17 +151,17 @@ Texture2D* Texture2D::depthTexture(unsigned int width, unsigned int height, GLen
 	return emptyTexture;
 }
 
-Texture2D* Texture2D::fromFloatArrayFile(const std::string& textureFilePath, unsigned int width, unsigned int height)
+Texture2D Texture2D::fromFloatArrayFile(const std::string& textureFilePath, unsigned int width, unsigned int height)
 {
 	float* data = fa::loadFromFile(textureFilePath, 3 * width * height);
 
-	Texture2D* texture = new Texture2D();
+	Texture2D texture;
 
 	// Generating the texture
-	GL_CALL(glGenTextures(1, &texture->id));
-	GL_CALL(glBindTexture(GL_TEXTURE_2D, texture->id));
+	GL_CALL(glGenTextures(1, &texture.id));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, texture.id));
 
-	texture->internalFormat = GL_RGB;
+	texture.internalFormat = GL_RGB;
 
 	// texture wrapping/filtering options
 	GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -203,5 +209,6 @@ void Texture2D::resize(unsigned int width, unsigned int height)
 	this->width = width;
 	this->height = height;
 }
+
 
 

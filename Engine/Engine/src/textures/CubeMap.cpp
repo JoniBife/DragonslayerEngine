@@ -52,13 +52,13 @@ CubeMap::CubeMap(const std::vector<std::string>& facesFilePath, bool hasMips) {
     GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
 
-CubeMap* CubeMap::fromFloatArrayFiles(const std::vector<std::string>& facesFilePath, unsigned int width, unsigned int height, bool hasMips)
+CubeMap CubeMap::fromFloatArrayFiles(const std::vector<std::string>& facesFilePath, unsigned int width, unsigned int height, bool hasMips)
 {
-    CubeMap* cubeMap = new CubeMap();
+    CubeMap cubeMap;
     
     // Generating the cubemap
-    GL_CALL(glGenTextures(1, &cubeMap->id));
-    GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap->id));
+    GL_CALL(glGenTextures(1, &cubeMap.id));
+    GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.id));
 
     // texture wrapping/filtering options
     GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, hasMips ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR));
@@ -67,8 +67,8 @@ CubeMap* CubeMap::fromFloatArrayFiles(const std::vector<std::string>& facesFileP
     GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     GL_CALL(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-    cubeMap->width = width;
-    cubeMap->height = height;
+    cubeMap.width = width;
+    cubeMap.height = height;
 
     for (unsigned int i = 0; i < facesFilePath.size(); i++)
     {
@@ -87,7 +87,7 @@ CubeMap* CubeMap::fromFloatArrayFiles(const std::vector<std::string>& facesFileP
     }
 
     if (hasMips) {
-        cubeMap->hasMips = true;
+        cubeMap.hasMips = true;
         GL_CALL(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
     }
 
@@ -96,8 +96,13 @@ CubeMap* CubeMap::fromFloatArrayFiles(const std::vector<std::string>& facesFileP
     return cubeMap;
 }
 
-CubeMap::~CubeMap() {
+void CubeMap::_deleteObject()
+{
     GL_CALL(glDeleteTextures(1, &id));
+}
+
+CubeMap::~CubeMap() {
+    id = 0u;
 }
 
 void CubeMap::addMip(const std::vector<std::string>& facesFilePath, GLint level)
@@ -167,3 +172,5 @@ void CubeMap::unBind(unsigned int unitNumber) {
     GL_CALL(glActiveTexture(unitNumber));
     GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
+
+

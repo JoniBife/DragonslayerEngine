@@ -14,7 +14,7 @@ namespace WarriorRenderer {
 	friend class DeferredRenderPipeline;
 
 	private:
-		FrameBuffer* frameBuffer;
+		FrameBuffer frameBuffer;
 
 	public:
 		RenderTarget();

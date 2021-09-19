@@ -49,7 +49,9 @@
     <ClCompile Include="src\math\Vec4.cpp" />
     <ClCompile Include="src\meshes\MeshLoader.cpp" />
     <ClCompile Include="src\meshes\SkyBox.cpp" />
+    <ClCompile Include="src\renderer\GLObject.cpp" />
     <ClCompile Include="src\renderer\PMaterial.cpp" />
+    <ClCompile Include="src\renderer\RenderingConfigurations.cpp" />
     <ClCompile Include="src\renderer\WarriorRenderer.cpp" />
     <ClCompile Include="src\renderer\RenderQueue.cpp" />
     <ClCompile Include="src\renderer\OpenGLState.cpp" />
@@ -110,7 +112,9 @@
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\meshes\SkyBox.h" />
     <ClInclude Include="src\renderer\AreaLight.h" />
+    <ClInclude Include="src\renderer\GLObject.h" />
     <ClInclude Include="src\renderer\PMaterial.h" />
+    <ClInclude Include="src\renderer\RenderingConfigurations.h" />
     <ClInclude Include="src\renderer\WarriorRenderer.h" />
     <ClInclude Include="src\renderer\RenderQueue.h" />
     <ClInclude Include="src\textures\FloatArrayFile.h" />

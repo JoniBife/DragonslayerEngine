@@ -25,7 +25,7 @@ FrameBuffer::FrameBuffer(const std::function<void()>& attachBuffers)
 	GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-FrameBuffer::~FrameBuffer()
+void FrameBuffer::_deleteObject()
 {
 	GL_CALL(glDeleteBuffers(1, &id));
 
@@ -42,11 +42,17 @@ FrameBuffer::~FrameBuffer()
 	if (colorAttachmentsRBO.size() > 0)
 		GL_CALL(glDeleteRenderbuffers(colorAttachmentsRBO.size(), &colorAttachmentsRBO[0]));
 
-	if (attachedStencilDepth) 
+	if (attachedStencilDepth)
 		GL_CALL(glDeleteRenderbuffers(1, &stencilDepthAttachmentRBO));
-	else if (attachedDepth) 
+	else if (attachedDepth)
 		GL_CALL(glDeleteRenderbuffers(1, &depthAttachmentRBO));
+}
 
+FrameBuffer::~FrameBuffer()
+{
+	id = 0u;
+	width = 0u;
+	height = 0u;
 }
 
 void FrameBuffer::resize(unsigned int width, unsigned int height)
@@ -199,7 +205,7 @@ FrameBufferBuilder& FrameBufferBuilder::attachDepthBuffer(bool allowSample)
 	return *this;
 }
 
-FrameBuffer* FrameBufferBuilder::build()
+FrameBuffer FrameBufferBuilder::build()
 {
 	// A frame buffer has to have at least one attachment
 	assert(numberOfColorAttachments > 0 || hasDepthBuffer || hasStencilBuffer);
@@ -214,13 +220,13 @@ FrameBuffer* FrameBufferBuilder::build()
 	}
 #endif
 
-	FrameBuffer* frameBuffer = new FrameBuffer();
-	frameBuffer->width = width;
-	frameBuffer->height = height;
+	FrameBuffer frameBuffer;
+	frameBuffer.width = width;
+	frameBuffer.height = height;
 
-	GL_CALL(glGenFramebuffers(1, &frameBuffer->id));
+	GL_CALL(glGenFramebuffers(1, &frameBuffer.id));
 	
-	frameBuffer->bind();
+	frameBuffer.bind();
 
 
 	// 1. First do all color attachments (if there are any)
@@ -301,7 +307,7 @@ FrameBuffer* FrameBufferBuilder::build()
 				precision);
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, texture->getId(), 0));
-			frameBuffer->colorAttachments.push_back(texture);
+			frameBuffer.colorAttachments.push_back(texture);
 
 		} else {
 			// TODO Is this the right approach, it does not
@@ -374,7 +380,7 @@ FrameBuffer* FrameBufferBuilder::build()
 			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 
 			GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, rbo));
-			frameBuffer->colorAttachmentsRBO.push_back(rbo);
+			frameBuffer.colorAttachmentsRBO.push_back(rbo);
 		}
 	}
 
@@ -385,23 +391,23 @@ FrameBuffer* FrameBufferBuilder::build()
 				Texture2D::emptyTexture(width, height, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture->getId(), 0));
-			frameBuffer->stencilDepthAttachment = texture;
+			frameBuffer.stencilDepthAttachment = texture;
 		}
 		else {
-			GL_CALL(glGenRenderbuffers(1, &frameBuffer->stencilDepthAttachmentRBO));
-			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->stencilDepthAttachmentRBO));
+			GL_CALL(glGenRenderbuffers(1, &frameBuffer.stencilDepthAttachmentRBO));
+			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer.stencilDepthAttachmentRBO));
 			GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
 			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 		}
 
-		frameBuffer->attachedStencilDepth = true;
+		frameBuffer.attachedStencilDepth = true;
 	}
 	else if (hasDepthBuffer) {
 		if (allowSampleDepth) {
 			Texture2D* texture =Texture2D::depthTexture(width, height);
 
 			GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture->getId(), 0));
-			frameBuffer->depthAttachment = texture;
+			frameBuffer.depthAttachment = texture;
 
 			if (numberOfColorAttachments == 0) {
 				GL_CALL(glDrawBuffer(GL_NONE));
@@ -409,13 +415,13 @@ FrameBuffer* FrameBufferBuilder::build()
 			}
 		}
 		else {
-			GL_CALL(glGenRenderbuffers(1, &frameBuffer->depthAttachmentRBO));
-			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer->depthAttachmentRBO));
+			GL_CALL(glGenRenderbuffers(1, &frameBuffer.depthAttachmentRBO));
+			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, frameBuffer.depthAttachmentRBO));
 			GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 			GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 		}
 
-		frameBuffer->attachedDepth = true;
+		frameBuffer.attachedDepth = true;
 	}
 
 	GL_CALL(GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
