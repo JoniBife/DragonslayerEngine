@@ -130,22 +130,7 @@ void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights&
 {
 	std::queue<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
 
-	static float cascades[] = { camera.getNearPlane(), 7.5f, 25.0f, 42.5f };
-	static float far1 = cascades[1];
-	static float far2 = cascades[2];
-	ImGui::InputFloat("Far1", &far1);
-	ImGui::InputFloat("Far2", &far2);
-
-	if (ImGui::Button("Update planes")) {
-		cascades[1] = far1;
-		cascades[2] = far2;
-	}
-
-	static bool debugShadows = false;
-
 	if (shadowMapCommands.size() > 0) {
-
-		ImGui::Checkbox("Debug shadows", &debugShadows);
 
 		// TODO this should not be hardcoded
 		//openGLState.setCullFace(GL_FRONT);
@@ -168,9 +153,13 @@ void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights&
 				Mat4 inverseCameraView;
 				camera.getView().inverse(inverseCameraView);
 
+				// First cascade uses the near camera plane 
+				float nearPlane = j == 0 ? camera.getNearPlane() : renderingConfigurations.cascadesPlanes[j - 1];
+				float farPlane = renderingConfigurations.cascadesPlanes[j];
+
 				Mat4 cascadeProjection = orthoCascade(
-					cascades[j],
-					cascades[j + 1],
+					nearPlane,
+					farPlane,
 					degreesToRadians(camera.getFov()),
 					camera.getAspectRatio(),
 					inverseCameraView,
@@ -195,11 +184,7 @@ void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights&
 			}
 		}
 
-		// TODO Temporary solution to clean shadow queue
-		while (!renderQueue.isShadowMapEmpty()) {
-			renderQueue.dequeueShadowMap();
-		}
-
+		renderQueue.clearShadowMapQueue();
 		//openGLState.setCullFace(GL_BACK);
 		//openGLState.setFaceCulling(true);
 
@@ -245,28 +230,14 @@ void WarriorRenderer::Renderer::doLightingPass(const Camera& camera, const Light
 	pbrShaderProgram.bindUniformBlock(index, 1);
 	pbrShaderProgram.setUniform("numberOfPointLights", (unsigned int)lights.pointLights.size());
 
-	//pbrShaderProgram.setUniform("projectionNear", camera.getNearPlane());
-	//pbrShaderProgram.setUniform("projectionFar", camera.getFarPlane());
-	pbrShaderProgram.setUniform("far", 7.5f);
-	pbrShaderProgram.setUniform("far2", 25.0f);
-
-	pbrShaderProgram.setUniform("debug", false);
-
-	pbrShaderProgram.setUniform("lightViewProjectionMatrix", lightViewProjections[0]);
-	pbrShaderProgram.setUniform("lightViewProjectionMatrix2", lightViewProjections[1]);
-	pbrShaderProgram.setUniform("lightViewProjectionMatrix3", lightViewProjections[2]);
-
 	pbrShaderProgram.setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram.setUniform("gBufferMetallic", 0);
 	pbrShaderProgram.setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram.setUniform("gBufferAlbedoAmbientOcclusion", 2);
 	pbrShaderProgram.setUniform("gBufferDepth", 3);
-	pbrShaderProgram.setUniform("shadowMap", 4);
-	pbrShaderProgram.setUniform("shadowMap2", 5);
-	pbrShaderProgram.setUniform("shadowMap3", 6);
-	pbrShaderProgram.setUniform("irradianceCubeMap", 7);
-	pbrShaderProgram.setUniform("prefilterCubeMap", 8);
-	pbrShaderProgram.setUniform("brdfLUT", 9);
+	pbrShaderProgram.setUniform("irradianceCubeMap", 4);
+	pbrShaderProgram.setUniform("prefilterCubeMap", 5);
+	pbrShaderProgram.setUniform("brdfLUT", 6);
 
 	static Vec3 pixelOffset;
 	ImGui::InputVec3("Pixel Offset", pixelOffset);
@@ -276,12 +247,22 @@ void WarriorRenderer::Renderer::doLightingPass(const Camera& camera, const Light
 	gBuffer.getColorAttachment(1).bind(GL_TEXTURE1);
 	gBuffer.getColorAttachment(2).bind(GL_TEXTURE2);
 	gBuffer.getDepthAttachment().bind(GL_TEXTURE3);
-	shadowMapBuffers[0].getDepthAttachment().bind(GL_TEXTURE4);
-	shadowMapBuffers[1].getDepthAttachment().bind(GL_TEXTURE5);
-	shadowMapBuffers[2].getDepthAttachment().bind(GL_TEXTURE6);
-	irradianceCubeMap.bind(GL_TEXTURE7);
-	prefilterCubeMap.bind(GL_TEXTURE8);
-	brdfLUT.bind(GL_TEXTURE9);
+	
+	irradianceCubeMap.bind(GL_TEXTURE4);
+	prefilterCubeMap.bind(GL_TEXTURE5);
+	brdfLUT.bind(GL_TEXTURE6);
+
+	// Sending shadow parameters
+	pbrShaderProgram.setUniform("cascadesPlanes[0]", camera.getNearPlane());
+	for (int i = 0; i < renderingConfigurations.cascadesPlanes.size(); ++i) {
+		pbrShaderProgram.setUniform(_strdup(("cascadesPlanes[" + std::to_string(i + 1) + "]").c_str()),
+			renderingConfigurations.cascadesPlanes[i]);
+		pbrShaderProgram.setUniform(_strdup(("shadowMaps[" + std::to_string(i) + "]").c_str()), 7 + i);
+		shadowMapBuffers[i].getDepthAttachment().bind(GL_TEXTURE7 + i);
+		pbrShaderProgram.setUniform(_strdup(("lightViewProjectionMatrices[" + std::to_string(i) + "]").c_str()), lightViewProjections[i]);
+	}
+
+	pbrShaderProgram.setUniform("numberOfCascades", (unsigned int)renderingConfigurations.cascadesPlanes.size());
 
 	quadNDC->bind();
 	quadNDC->draw();
@@ -393,7 +374,7 @@ WarriorRenderer::Renderer::Renderer(RenderingConfigurations renderingConfigurati
 		.attachDepthBuffer()
 		.build();
 
-	for (int i = 0; i < renderingConfigurations.numberOfCascades; ++i) {
+	for (int i = 0; i < renderingConfigurations.cascadesPlanes.size(); ++i) {
 		// TODO Lower resolution for further cascades
 		shadowMapBuffers.push_back(frameBufferBuilder
 			.setSize(renderingConfigurations.shadowsResolution, renderingConfigurations.shadowsResolution)
@@ -515,7 +496,51 @@ WarriorRenderer::Renderer::Renderer(RenderingConfigurations renderingConfigurati
 WarriorRenderer::Renderer::~Renderer()
 {	
 	// TODO Free any missing heap allocations and delete open gl object to free vram
+	// Consider using the delete list
+	geometryShaderProgram.deleteObject();
+	shadowMapShaderProgram.deleteObject();
 
+	horizontalBlurShaderProgram.deleteObject();
+	verticalBlurShaderProgram.deleteObject();
+
+	pbrShaderProgram.deleteObject();
+
+	skyboxShaderProgram.deleteObject();
+
+	gBuffer.deleteObject();
+	for (FrameBuffer& frameBuffer : shadowMapBuffers) {
+		frameBuffer.deleteObject();
+	}
+
+	lightBuffer.deleteObject();
+	skyboxBuffer.deleteObject();
+	prePostProcessingBuffer.deleteObject();
+	postProcessingBuffer.deleteObject();
+	postProcessingBuffer2.deleteObject();
+	horizontalBlurBuffer.deleteObject();
+	verticalBlurBuffer.deleteObject();
+
+	defaultAlbedoMap->deleteObject();
+	delete defaultAlbedoMap;
+	defaultNormalMap->deleteObject();
+	delete defaultNormalMap;
+	defaultMetallicMap->deleteObject();
+	delete defaultMetallicMap;
+	defaultRoughnessMap->deleteObject();
+	delete defaultRoughnessMap;
+	defaultAOMap->deleteObject();
+	delete defaultAOMap;
+
+	quadNDC->deleteObject();
+	delete quadNDC;
+	cube->deleteObject();
+	delete cube;
+	pointLightVolume->deleteObject();
+	delete pointLightVolume;
+
+	irradianceCubeMap.deleteObject();
+	prefilterCubeMap.deleteObject();
+	brdfLUT.deleteObject();
 }
 
 void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& lights)
@@ -548,8 +573,6 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 
 	// 4. Render skybox
 	doSkyBoxPass();
-	
-	//glViewport(0,0,renderWidth, renderHeight);
 
 	// 4. Blur
 
@@ -709,7 +732,7 @@ bool WarriorRenderer::Renderer::enqueuePostProcessing(PostProcessingCommand* pos
 
 PMaterial* WarriorRenderer::Renderer::createMaterial() const
 {
-	return new PMaterial(defaultAlbedoMap,defaultNormalMap, defaultMetallicMap, defaultRoughnessMap,defaultAOMap);
+	return new PMaterial(defaultAlbedoMap, defaultNormalMap, defaultMetallicMap, defaultRoughnessMap, defaultAOMap);
 }
 
 

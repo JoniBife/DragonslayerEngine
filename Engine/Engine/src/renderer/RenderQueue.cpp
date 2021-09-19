@@ -69,6 +69,12 @@ std::queue<RenderCommand*>& WarriorRenderer::RenderQueue::getShadowMapQueue()
 	return shadowMapQueue;
 }
 
+void WarriorRenderer::RenderQueue::clearShadowMapQueue()
+{
+	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty;
+	shadowMapQueue.swap(empty);
+}
+
 bool WarriorRenderer::RenderQueue::isAlphaTestEmpty()
 {
 	return alphaTestQueue.empty();

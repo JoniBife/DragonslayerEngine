@@ -54,15 +54,11 @@ uniform sampler2D brdfLUT;
 // Cascaded shadow mapping inputs --------------------------------------------
 uniform vec3 pixelOffset;
 
-uniform sampler2D shadowMap;
-uniform float far;
-uniform sampler2D shadowMap2;
-uniform float far2;
-uniform sampler2D shadowMap3;
-
-uniform mat4 lightViewProjectionMatrix;
-uniform mat4 lightViewProjectionMatrix2;
-uniform mat4 lightViewProjectionMatrix3;
+#define MAX_CASCADES 6
+uniform sampler2D shadowMaps[MAX_CASCADES];
+uniform float cascadesPlanes[MAX_CASCADES + 1]; // +1 because we are counting the first near plane
+uniform mat4 lightViewProjectionMatrices[MAX_CASCADES];
+uniform uint numberOfCascades;
 
 // Debug inputs
 uniform bool debug;
@@ -174,19 +170,13 @@ float calculateShadows(vec4 position, vec3 normal) {
     vec4 positionViewSpace = viewMatrix * position;
     float fragmentDepthViewSpace = -positionViewSpace.z;
 
-    if (fragmentDepthViewSpace < far) {
-   
-        return calculateShadowFactor(position, normal, lightViewProjectionMatrix, shadowMap);
-
-    } else if (fragmentDepthViewSpace < far2) {
-
-        return calculateShadowFactor(position, normal, lightViewProjectionMatrix2, shadowMap2);
-
-    } else {
-
-        return calculateShadowFactor(position, normal, lightViewProjectionMatrix3, shadowMap3);
+    for (uint i = 0u; i < numberOfCascades; ++i) {
+        if (fragmentDepthViewSpace > cascadesPlanes[i] && fragmentDepthViewSpace < cascadesPlanes[i + 1u]) {
+            return calculateShadowFactor(position, normal, lightViewProjectionMatrices[i], shadowMaps[i]);
+        }
     }
-    
+
+    return 0;
 }
 
 vec3 LambertianDiffuse(vec3 diffuseColor) {
@@ -395,16 +385,6 @@ void main(void)
 
     vec4 positionViewSpace = viewMatrix * vec4(position,1.0);
     float fragmentDepthViewSpace = -positionViewSpace.z;
-
-    if (debug) {
-        if (fragmentDepthViewSpace < far) {
-            color.r += 0.1;
-        } else if (fragmentDepthViewSpace < far2) {
-            color.g += 0.1;
-        } else {
-            color.b += 0.1;
-        }
-    }
 
     fragmentColor = vec4(color, 1.0);
 }

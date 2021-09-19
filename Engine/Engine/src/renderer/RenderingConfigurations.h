@@ -3,11 +3,11 @@
 
 #include <vector>
 
+#define MAX_CASCADES 6u
+
 struct RenderingConfigurations {
 	
-	unsigned int numberOfCascades = 3u;
 	std::vector<float> cascadesPlanes = { 7.5f, 25.0f, 42.5f };
-
 	unsigned int shadowsResolution = 1024u;
 
 	unsigned int renderWidth = 1366u;

@@ -29,6 +29,7 @@ namespace WarriorRenderer {
 		bool isShadowMapEmpty();
 		RenderCommand& dequeueShadowMap();
 		std::queue<RenderCommand*>& getShadowMapQueue();
+		void clearShadowMapQueue();
 
 		bool isAlphaTestEmpty();
 		RenderCommand& dequeueAlphaTest();

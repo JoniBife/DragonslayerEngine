@@ -1,10 +1,11 @@
 #include "RenderingConfigurations.h"
 #include <cassert>
 
+// TODO Better validations
 bool RenderingConfigurations::areValid()
 {
 	bool areValid = true;
-	areValid &= numberOfCascades > 0u;
+	areValid &= cascadesPlanes.size() > 0u && cascadesPlanes.size() < MAX_CASCADES;
 
 	float previousPlane = 0u;
 	for (float cascadePlane : cascadesPlanes) {
