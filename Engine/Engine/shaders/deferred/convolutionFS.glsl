@@ -15,7 +15,7 @@ void main()
     vec3 irradiance = vec3(0.0);
   
     float sampleDelta = 0.025;
-    float numberOfSamples = 0;
+    int numberOfSamples = 0;
 
     vec3 up    = vec3(0.0, 1.0, 0.0);
     vec3 right = normalize(cross(up, normal));

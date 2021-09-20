@@ -1,7 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "../view/Camera.h"
 #include "HierarchyPanel.h"
 #include "ObjectPanel.h"
 #include "SceneViewPanel.h"
@@ -11,6 +10,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
+#include <view/Camera.h>
 
 class GUI {
 

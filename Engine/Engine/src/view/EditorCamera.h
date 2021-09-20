@@ -1,10 +1,11 @@
+
 #ifndef EDITOR_CAMERA_H
 #define EDITOR_CAMERA_H
 
-#include "Camera.h"
-#include "../textures/FrameBuffer.h"
-#include "../textures/Texture2D.h"
-#include "../math/Vec2.h"
+#include <math/Vec2.h>
+#include <textures/Texture2D.h>
+#include <textures/FrameBuffer.h>
+#include <view/Camera.h>
 
 class EditorCamera : public Camera {
 
@@ -13,7 +14,7 @@ private:
 	FrameBuffer* frameBuffer = nullptr;
 	GLuint rbo = 0;
 	float movementSpeed = 6.0f; // In units (meters) per second
-	float rotationSpeed = 40.0f; // In degrees per second
+	float rotationSpeed = 30.0f; // In degrees per second
 	float dragSpeed = 6.0f;
 	float zoomSpeed = 60.0f;
 	float pitch = 0.0f;
@@ -50,7 +51,7 @@ public:
 	Texture2D& getFrameTexture() const;
 	FrameBuffer& getFrameBuffer() const;
 
-	void onGUI() override;
+	void onGUI();
 
 };
 

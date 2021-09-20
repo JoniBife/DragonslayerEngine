@@ -1,7 +1,7 @@
 #include "EditorCamera.h"
-#include "../utils/OpenGLUtils.h"
+#include <utils/OpenGLUtils.h>
 #include "../core/Input.h"
-#include "../math/MathAux.h"
+#include <math/MathAux.h>
 #include <algorithm>
 
 bool EditorCamera::freeMovement(float elapsedTime, Vec2 currMousePosition)
@@ -240,7 +240,7 @@ FrameBuffer& EditorCamera::getFrameBuffer() const
 
 void EditorCamera::onGUI()
 {
-    float minMovementSpeed = 0.01f;
+    /*float minMovementSpeed = 0.01f;
     float maxMovementSpeed = 1000.0f;
     float editedMovementSpeed = movementSpeed;
     ImGui::SliderScalar("Movement Speed", ImGuiDataType_Float, &editedMovementSpeed, &minMovementSpeed, &maxMovementSpeed);
@@ -264,7 +264,7 @@ void EditorCamera::onGUI()
     ImGui::SliderScalar("Zoom Speed", ImGuiDataType_Float, &editedZoomSpeed, &minZoomSpeed, &maxZoomSpeed);
     SWAP_IF_DIFFERENT(zoomSpeed, editedZoomSpeed, dirty)
 
-    Camera::onGUI();
+    Camera::onGUI();*/
 }
 
 float EditorCamera::getMovementSpeed() const

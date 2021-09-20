@@ -6,8 +6,8 @@
 #include <stdio.h>
 
 #include "../core/Input.h"
-#include "../math/Qtrn.h"
-#include "../math/MathAux.h"
+#include <math/Qtrn.h>
+#include <math/MathAux.h>
 
 SceneViewPanel::SceneViewPanel(EditorCamera& editorCamera, HierarchyPanel& hierarchyPanel) : editorCamera(editorCamera), hierarchyPanel(hierarchyPanel)
 {

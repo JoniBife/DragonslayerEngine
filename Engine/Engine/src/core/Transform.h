@@ -2,8 +2,8 @@
 #define TRANSFORM_H
 
 #include <list>
-#include "../math/Vec3.h"
-#include "../math/Mat4.h"
+#include <math/Vec3.h>
+#include <math/Mat4.h>
 
 namespace core {
 

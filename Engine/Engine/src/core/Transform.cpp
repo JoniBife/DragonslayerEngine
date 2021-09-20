@@ -4,9 +4,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
-
-#include "../math/MathAux.h"
-#include "../math/Qtrn.h"
+#include <math/MathAux.h>
+#include <math/Qtrn.h>
 
 using namespace core;
 

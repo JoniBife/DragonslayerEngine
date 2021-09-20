@@ -3,7 +3,7 @@
 
 #include <assert.h>
 #include <list>
-#include "../math/Mat4.h"
+#include <math/Mat4.h>
 #include <functional>
 
 namespace core {

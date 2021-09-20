@@ -1,6 +1,8 @@
-#include "../math/Vec2.h"
+
 #ifndef IM_GUI_EXTENSIONS
 #define IM_GUI_EXTENSIONS
+
+#include <math/Vec2.h>
 
 namespace ImGui {
 

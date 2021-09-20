@@ -3,7 +3,7 @@
 
 #include <filesystem>
 #include <iostream>
-#include "../utils/OpenGLUtils.h"
+#include <utils/OpenGLUtils.h>
 
 
 void GUI::setDefaultTheme()
@@ -185,7 +185,7 @@ static void showDockspace() {
 static void showEditorCameraPanel(Camera& camera) {
 	ImGui::Begin("Editor camera configs");
 	{
-		camera.onGUI();
+		//camera.onGUI();
 	}
 	ImGui::End();
 }

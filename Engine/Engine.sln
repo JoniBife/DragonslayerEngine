@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{6C3C1430-52CC-4229-BDC4-7074919A6FB8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WarriorRenderer", "WarriorRenderer\WarriorRenderer.vcxproj", "{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{6C3C1430-52CC-4229-BDC4-7074919A6FB8}.Release|x64.Build.0 = Release|x64
 		{6C3C1430-52CC-4229-BDC4-7074919A6FB8}.Release|x86.ActiveCfg = Release|Win32
 		{6C3C1430-52CC-4229-BDC4-7074919A6FB8}.Release|x86.Build.0 = Release|Win32
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Debug|x64.ActiveCfg = Debug|x64
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Debug|x64.Build.0 = Debug|x64
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Debug|x86.ActiveCfg = Debug|Win32
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Debug|x86.Build.0 = Debug|Win32
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Release|x64.ActiveCfg = Release|x64
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Release|x64.Build.0 = Release|x64
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Release|x86.ActiveCfg = Release|Win32
+		{9BCC6467-AAEC-46C2-96B9-F76F3134E9EB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

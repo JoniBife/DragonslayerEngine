@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "../core/Component.h"
-#include "../core/MeshRenderer.h"
 
 #include "GUI.h"
 
@@ -69,7 +68,7 @@ void ObjectPanel::onGUI(GUI& gui)
 			if (ImGui::BeginMenu("Add component"))
 			{
 				if (ImGui::MenuItem("MeshRenderer")) {
-					gameObject->addComponent(new MeshRenderer());
+					//gameObject->addComponent(new MeshRenderer());
 				}
 
 				

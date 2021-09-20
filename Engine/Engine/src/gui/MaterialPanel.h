@@ -1,9 +1,9 @@
 #ifndef MATERIAL_PANEL
 #define MATERIAL_PANEL
 
-#include "../core/Material.h"
+#include <Material.h>
 
-using namespace core;
+using namespace WarriorRenderer;
 
 class MaterialPanel {
 

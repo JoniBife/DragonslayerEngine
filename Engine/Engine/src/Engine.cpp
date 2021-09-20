@@ -1,20 +1,20 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "math/MathAux.h"
+#include <math/MathAux.h>
 #include "Engine.h"
-#include "utils/OpenGLUtils.h"
+#include <utils/OpenGLUtils.h>
 #include "Configurations.h"
-#include "view/Transformations.h"
+#include <view/Transformations.h>
 #include "core/Input.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <stdio.h>
-#include "meshes/MeshLoader.h"
+#include <meshes/MeshLoader.h>
 #include "gui/ImGuiExtensions.h"
 #include <cstdlib>
-#include "textures/IBL.h"
-#include "renderer/WarriorRenderer.h"
+#include <textures/IBL.h>
+#include <WarriorRenderer.h>
 
 using namespace WarriorRenderer;
 
@@ -116,8 +116,6 @@ void Engine::setupGLEW() {
 void Engine::setupScene() {
 	editorCamera = new EditorCamera();
 
-	sceneGraph = new SceneGraph(editorCamera);
-
 	hierarchy = core::Hierarchy::instance;
 }
 
@@ -132,7 +130,6 @@ void Engine::setupGUI()
 
 ////////////////////////////////////////////// RESOURCES
 void Engine::freeResources() {
-	delete sceneGraph;
 	delete editorCamera;
 	delete gui;
 }
@@ -157,9 +154,6 @@ void Engine::setSkyBox(const std::vector<std::string>& facesFilePath) {
 ////////////////////////////////////////////// GETTERS
 GLFWwindow* Engine::getWindow() {
 	return window;
-}
-SceneGraph* Engine::getSceneGraph() {
-	return sceneGraph;
 }
 EditorCamera* Engine::getCamera() {
 	return editorCamera;
@@ -186,8 +180,10 @@ void Engine::run() {
 	// Setup (DO NOT CHANGE ORDER OF SETUP)
 	setupGLFW(); 
 	
-	RenderingConfigurations renderingConfigs;
-	Renderer* renderer = new Renderer(renderingConfigs);
+	RenderingConfigurations normalConfigs;
+	RenderingConfigurations veryHighConfigs;
+	veryHighConfigs.shadowsResolution = 4096;
+	Renderer* renderer = new Renderer(normalConfigs);
 	
 	//setupGLEW();  
 	
@@ -208,7 +204,7 @@ void Engine::run() {
 	cerberusMesh->calculateTangents();
 	cerberusMesh->init();
 
-	WarriorRenderer::PMaterial* materialCerberus = renderer->createMaterial();
+	WarriorRenderer::Material* materialCerberus = renderer->createMaterial();
 	Texture2D* albedoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/albedo.tga");
 	Texture2D* normalMap1 = new Texture2D("../Engine/textures/pbr/cerberus/normal.tga");
 	Texture2D* metallicMap1 = new Texture2D("../Engine/textures/pbr/cerberus/metallic.tga");
@@ -229,7 +225,7 @@ void Engine::run() {
 	sphereMesh->calculateTangents();
 	sphereMesh->init();
 
-	WarriorRenderer::PMaterial* material = renderer->createMaterial();
+	WarriorRenderer::Material* material = renderer->createMaterial();
 	Texture2D* albedoMap = new Texture2D("../Engine/textures/pbr/plastic/albedo.png");
 	Texture2D* normalMap = new Texture2D("../Engine/textures/pbr/plastic/normal.png");
 	Texture2D* metallicMap = new Texture2D("../Engine/textures/pbr/plastic/metallic.png");
@@ -251,7 +247,7 @@ void Engine::run() {
 	mesh->init();
 
 	renderCommand2.mesh = mesh;
-	WarriorRenderer::PMaterial* mat = renderer->createMaterial();
+	WarriorRenderer::Material* mat = renderer->createMaterial();
 	mat->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
 	renderCommand2.material = mat;
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
@@ -261,7 +257,7 @@ void Engine::run() {
 	mesh2->calculateTangents();
 	mesh2->init();
 
-	WarriorRenderer::PMaterial* material2 = renderer->createMaterial();
+	WarriorRenderer::Material* material2 = renderer->createMaterial();
 	albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
 	normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
 	metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
@@ -279,7 +275,7 @@ void Engine::run() {
 
 	std::vector<RenderCommand> renderCommands;
 
-	WarriorRenderer::PMaterial* defaultMat = renderer->createMaterial();
+	WarriorRenderer::Material* defaultMat = renderer->createMaterial();
 
 	for (int i = -2; i < 10; ++i) {
 		RenderCommand rc;
@@ -322,11 +318,11 @@ void Engine::run() {
 	Vec3 translation(-2.0f, 2.0f, 2.0f);
 
 	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/default/default.hdr",
-		"../Engine/textures/irradiance/");*/
+		"../Engine/textures/irradiance2/");*/
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-	WarriorRenderer::PMaterial* editable = material;
+	WarriorRenderer::Material* editable = material;
 
 	double lastTime = glfwGetTime();
 
@@ -367,7 +363,16 @@ void Engine::run() {
 		ImGui::InputFloat("Rotation", &rotation);
 		ImGui::InputVec3("Light Direction", lights.directionalLights[0].direction);
 
-		
+		static bool veryHigh = false;
+		static bool updated = true;
+		if (ImGui::Checkbox("Very High Settings", &veryHigh) && updated) {
+			updated = false;
+			renderer->updateConfigutations(veryHighConfigs);
+
+		} else if (!updated) {
+			updated = true;
+			renderer->updateConfigutations(normalConfigs);
+		}
 
 		//deferredRenderPipeline->enqueueRender(renderCommand);
 		renderer->enqueueRender(&renderCommand2);
