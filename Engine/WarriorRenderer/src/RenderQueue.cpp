@@ -31,8 +31,6 @@ bool WarriorRenderer::RenderQueue::enqueuePostProcessing(PostProcessingCommand* 
 
 	postProcessingQueue.push(postProcessingCommand);
 
-	// TODO Post processing
-
 	return true;
 }
 

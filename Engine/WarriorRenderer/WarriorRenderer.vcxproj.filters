@@ -90,9 +90,6 @@
     <ClCompile Include="src\textures\Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\ColorRGBA.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\OpenGLUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -210,9 +207,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\textures\Texture2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\ColorRGBA.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\OpenGLUtils.h">

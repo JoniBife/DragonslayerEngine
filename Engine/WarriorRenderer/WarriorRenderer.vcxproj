@@ -169,7 +169,6 @@
     <ClCompile Include="src\textures\CubeMap.cpp" />
     <ClCompile Include="src\textures\FrameBuffer.cpp" />
     <ClCompile Include="src\textures\Texture2D.cpp" />
-    <ClCompile Include="src\utils\ColorRGBA.cpp" />
     <ClCompile Include="src\utils\OpenGLUtils.cpp" />
     <ClCompile Include="src\view\Camera.cpp" />
     <ClCompile Include="src\view\Transformations.cpp" />
@@ -211,7 +210,6 @@
     <ClInclude Include="src\textures\stb_image.h" />
     <ClInclude Include="src\textures\std_image_write.h" />
     <ClInclude Include="src\textures\Texture2D.h" />
-    <ClInclude Include="src\utils\ColorRGBA.h" />
     <ClInclude Include="src\utils\OpenGLUtils.h" />
     <ClInclude Include="src\view\Camera.h" />
     <ClInclude Include="src\view\Transformations.h" />

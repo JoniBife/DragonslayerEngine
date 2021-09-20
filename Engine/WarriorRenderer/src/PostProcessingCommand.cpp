@@ -12,8 +12,8 @@ ShaderProgram& WarriorRenderer::PostProcessingCommand::getShader()
 
 WarriorRenderer::FxaaCommand::FxaaCommand()
 {
-	Shader postProcessingVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/postProcessingVS.glsl");
-	Shader fxaaFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/fxaaFS.glsl");
+	Shader postProcessingVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/postProcessingVS.glsl");
+	Shader fxaaFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/fxaaFS.glsl");
 	shaderProgram = ShaderProgram(postProcessingVS, fxaaFS);
 	postProcessingVS.deleteObject();
 	fxaaFS.deleteObject();
@@ -34,8 +34,8 @@ void WarriorRenderer::FxaaCommand::sendParametersToShader(const FrameBuffer& gBu
 
 WarriorRenderer::ACESToneMappingCommand::ACESToneMappingCommand()
 {
-	Shader postProcessingVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/postProcessingVS.glsl");
-	Shader toneMappingFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/acesToneMappingFS.glsl");
+	Shader postProcessingVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/postProcessingVS.glsl");
+	Shader toneMappingFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/acesToneMappingFS.glsl");
 	shaderProgram = ShaderProgram(postProcessingVS, toneMappingFS);
 	postProcessingVS.deleteObject();
 	toneMappingFS.deleteObject();

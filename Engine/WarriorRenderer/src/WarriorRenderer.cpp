@@ -319,36 +319,36 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	std::vector<GLObject*> objectsToDelete;
 
 	// 3. Loading and compilation of shaders
-	Shader geometryVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/geometryVS.glsl");
-	Shader geometryFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/geometryFS.glsl");
+	Shader geometryVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/geometryVS.glsl");
+	Shader geometryFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/geometryFS.glsl");
 	geometryShaderProgram = ShaderProgram(geometryVS, geometryFS);
 	objectsToDelete.push_back(&geometryVS);
 	objectsToDelete.push_back(&geometryFS);
 
-	Shader depthVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/depthVS.glsl");
-	Shader depthFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/depthFS.glsl");
+	Shader depthVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/depthVS.glsl");
+	Shader depthFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/depthFS.glsl");
 	shadowMapShaderProgram = ShaderProgram(depthVS, depthFS);
 	objectsToDelete.push_back(&depthVS);
 	objectsToDelete.push_back(&depthFS);
 
-	Shader pbrVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/pbrVS.glsl");
-	Shader pbrFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/pbrFS.glsl");
+	Shader pbrVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/pbrVS.glsl");
+	Shader pbrFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/pbrFS.glsl");
 	pbrShaderProgram = ShaderProgram(pbrVS, pbrFS);
 	objectsToDelete.push_back(&pbrVS);
 	objectsToDelete.push_back(&pbrFS);
 
-	Shader gaussianBlurVS(GL_VERTEX_SHADER, "../Engine/shaders/deferred/gaussianBlurVS.glsl");
-	Shader horizontalGaussianBlurFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/horizontalGaussianBlurFS.glsl");
+	Shader gaussianBlurVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/gaussianBlurVS.glsl");
+	Shader horizontalGaussianBlurFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/horizontalGaussianBlurFS.glsl");
 	horizontalBlurShaderProgram = ShaderProgram(gaussianBlurVS, horizontalGaussianBlurFS);
 	objectsToDelete.push_back(&gaussianBlurVS);
 	objectsToDelete.push_back(&horizontalGaussianBlurFS);
 
-	Shader verticalGaussianBlurFS(GL_FRAGMENT_SHADER, "../Engine/shaders/deferred/verticalGaussianBlurFS.glsl");
+	Shader verticalGaussianBlurFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/verticalGaussianBlurFS.glsl");
 	verticalBlurShaderProgram = ShaderProgram(gaussianBlurVS, verticalGaussianBlurFS);
 	objectsToDelete.push_back(&verticalGaussianBlurFS);
 
-	Shader skyboxVS(GL_VERTEX_SHADER, "../Engine/shaders/skybox/skyboxVS.glsl");
-	Shader skyboxFS(GL_FRAGMENT_SHADER, "../Engine/shaders/skybox/skyboxFS.glsl");
+	Shader skyboxVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/skybox/skyboxVS.glsl");
+	Shader skyboxFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/skybox/skyboxFS.glsl");
 	skyboxShaderProgram = ShaderProgram(skyboxVS, skyboxFS);
 	objectsToDelete.push_back(&skyboxVS);
 	objectsToDelete.push_back(&skyboxFS);
@@ -411,52 +411,52 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	quadNDC = Mesh::rectangle(2.0f, 2.0f);
 	quadNDC->init();
 
-	cube = Mesh::loadFromFile("../Engine/objs/cube.obj");
+	cube = Mesh::loadFromFile("../WarriorRenderer/objs/cube.obj");
 	cube->init();
 
-	pointLightVolume = Mesh::loadFromFile("../Engine/objs/pointLightVolume.obj");
+	pointLightVolume = Mesh::loadFromFile("../WarriorRenderer/objs/pointLightVolume.obj");
 	pointLightVolume->init();
 
 	// 6. Load default material textures
-	defaultAlbedoMap = new Texture2D("../Engine/textures/pbr/default/albedo.png");
-	defaultNormalMap = new Texture2D("../Engine/textures/pbr/default/normal.png");
-	defaultMetallicMap = new Texture2D("../Engine/textures/pbr/default/metallic.png");
-	defaultRoughnessMap = new Texture2D("../Engine/textures/pbr/default/roughness.png");
-	defaultAOMap = new Texture2D("../Engine/textures/pbr/default/ao.png");
+	defaultAlbedoMap = new Texture2D("../WarriorRenderer/textures/pbr/default/albedo.png");
+	defaultNormalMap = new Texture2D("../WarriorRenderer/textures/pbr/default/normal.png");
+	defaultMetallicMap = new Texture2D("../WarriorRenderer/textures/pbr/default/metallic.png");
+	defaultRoughnessMap = new Texture2D("../WarriorRenderer/textures/pbr/default/roughness.png");
+	defaultAOMap = new Texture2D("../WarriorRenderer/textures/pbr/default/ao.png");
 
 	// 7. Load skybox
 	std::vector<std::string> skyboxFaces = {
-		"../Engine/textures/irradiance/cubeMap0.fa",
-		"../Engine/textures/irradiance/cubeMap1.fa",
-		"../Engine/textures/irradiance/cubeMap2.fa",
-		"../Engine/textures/irradiance/cubeMap3.fa",
-		"../Engine/textures/irradiance/cubeMap4.fa",
-		"../Engine/textures/irradiance/cubeMap5.fa"
+		"../WarriorRenderer/textures/irradiance/cubeMap0.fa",
+		"../WarriorRenderer/textures/irradiance/cubeMap1.fa",
+		"../WarriorRenderer/textures/irradiance/cubeMap2.fa",
+		"../WarriorRenderer/textures/irradiance/cubeMap3.fa",
+		"../WarriorRenderer/textures/irradiance/cubeMap4.fa",
+		"../WarriorRenderer/textures/irradiance/cubeMap5.fa"
 	};
 	skyBox = new CubeMap(CubeMap::fromFloatArrayFiles(skyboxFaces, 512, 512));
 
 	// 8. Load irradiance map for indirect envirnment contribution
 	std::vector<std::string> irradianceMapFaces = {
-		"../Engine/textures/irradiance/face0.fa",
-		"../Engine/textures/irradiance/face1.fa",
-		"../Engine/textures/irradiance/face2.fa",
-		"../Engine/textures/irradiance/face3.fa",
-		"../Engine/textures/irradiance/face4.fa",
-		"../Engine/textures/irradiance/face5.fa"
+		"../WarriorRenderer/textures/irradiance/face0.fa",
+		"../WarriorRenderer/textures/irradiance/face1.fa",
+		"../WarriorRenderer/textures/irradiance/face2.fa",
+		"../WarriorRenderer/textures/irradiance/face3.fa",
+		"../WarriorRenderer/textures/irradiance/face4.fa",
+		"../WarriorRenderer/textures/irradiance/face5.fa"
 	};
 	irradianceCubeMap = CubeMap::fromFloatArrayFiles(irradianceMapFaces, 32, 32);
 
 	// 9. Load prefilter cube map
 	std::vector<std::string> prefilterMapFacesMip0 = {
-		"../Engine/textures/irradiance/prefilterMip0face0.fa",
-		"../Engine/textures/irradiance/prefilterMip0face1.fa",
-		"../Engine/textures/irradiance/prefilterMip0face2.fa",
-		"../Engine/textures/irradiance/prefilterMip0face3.fa",
-		"../Engine/textures/irradiance/prefilterMip0face4.fa",
-		"../Engine/textures/irradiance/prefilterMip0face5.fa"
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face0.fa",
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face1.fa",
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face2.fa",
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face3.fa",
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face4.fa",
+		"../WarriorRenderer/textures/irradiance/prefilterMip0face5.fa"
 	};
 	prefilterCubeMap = CubeMap::fromFloatArrayFiles(prefilterMapFacesMip0, 128, 128, true);
-	std::string basePath = "../Engine/textures/irradiance/prefilterMip";
+	std::string basePath = "../WarriorRenderer/textures/irradiance/prefilterMip";
 	for (unsigned int mip = 1; mip < 5; ++mip) {
 
 		std::string mipPath = basePath + std::to_string(mip);
@@ -471,7 +471,7 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	}
 
 	// 10. Load brdf LUT texture
-	brdfLUT = Texture2D::fromFloatArrayFile("../Engine/textures/irradiance/brdf.fa", 512, 512);
+	brdfLUT = Texture2D::fromFloatArrayFile("../WarriorRenderer/textures/irradiance/brdf.fa", 512, 512);
 
 	// 11. Finally delete any open gl objects that are no longer necesary
 	for (GLObject* object : objectsToDelete) {
@@ -587,6 +587,7 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	openGLState.setCullFace(GL_BACK);
 	openGLState.setFrontFace(GL_CCW);
 	openGLState.setBlending(false);
+	GL_CALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
 	
 	// TODO Consider caching to avoid updating the buffer everyframe
 	updateGlobalUniformsBuffer(camera.getView(), camera.getProjection());

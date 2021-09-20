@@ -11,7 +11,7 @@ class EditorCamera : public Camera {
 
 private:
 	Texture2D* frameTexture = nullptr;
-	FrameBuffer* frameBuffer = nullptr;
+	FrameBuffer* frameBuffer = nullptr; // TODO Swap to render target
 	GLuint rbo = 0;
 	float movementSpeed = 6.0f; // In units (meters) per second
 	float rotationSpeed = 30.0f; // In degrees per second

@@ -198,28 +198,6 @@ void Engine::run() {
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
-
-	RenderCommand renderCommandCerberus;
-	Mesh* cerberusMesh = MeshLoader::loadFromFile("../Engine/objs/cerberus.obj");
-	cerberusMesh->calculateTangents();
-	cerberusMesh->init();
-
-	WarriorRenderer::Material* materialCerberus = renderer->createMaterial();
-	Texture2D* albedoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/albedo.tga");
-	Texture2D* normalMap1 = new Texture2D("../Engine/textures/pbr/cerberus/normal.tga");
-	Texture2D* metallicMap1 = new Texture2D("../Engine/textures/pbr/cerberus/metallic.tga");
-	Texture2D* roughnessMap1 = new Texture2D("../Engine/textures/pbr/cerberus/roughness.tga");
-	Texture2D* aoMap1 = new Texture2D("../Engine/textures/pbr/cerberus/ao.tga");
-	materialCerberus->setAlbedoMap(albedoMap1);
-	materialCerberus->setNormalMap(normalMap1);
-	materialCerberus->setMetallicMap(metallicMap1);
-	materialCerberus->setRoughnessMap(roughnessMap1);
-	materialCerberus->setAOMap(aoMap1);
-
-	renderCommandCerberus.mesh = cerberusMesh;
-	renderCommandCerberus.material = materialCerberus;
-	renderCommandCerberus.model = Mat4::IDENTITY;
-
 	RenderCommand renderCommand;
 	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
 	sphereMesh->calculateTangents();
@@ -251,27 +229,6 @@ void Engine::run() {
 	mat->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
 	renderCommand2.material = mat;
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
-
-	RenderCommand renderCommand3;
-	Mesh* mesh2 = MeshLoader::loadFromFile("../Engine/objs/cylinder64.obj");
-	mesh2->calculateTangents();
-	mesh2->init();
-
-	WarriorRenderer::Material* material2 = renderer->createMaterial();
-	albedoMap = new Texture2D("../Engine/textures/pbr/rustediron/albedo.png");
-	normalMap = new Texture2D("../Engine/textures/pbr/rustediron/normal.png");
-	metallicMap = new Texture2D("../Engine/textures/pbr/rustediron/metallic.png");
-	roughnessMap = new Texture2D("../Engine/textures/pbr/rustediron/roughness.png");
-	aoMap = new Texture2D("../Engine/textures/pbr/rustediron/ao.png");
-	material2->setAlbedoMap(albedoMap);
-	material2->setNormalMap(normalMap);
-	material2->setMetallicMap(metallicMap);
-	material2->setRoughnessMap(roughnessMap);
-	material2->setAOMap(aoMap);
-
-	renderCommand3.mesh = mesh2;
-	renderCommand3.material = material2;
-	renderCommand3.model = Mat4::translation(-2.0f, 2.0f, 2.0f) * Mat4::rotation(PI / 4.0f, Vec3::Z);
 
 	std::vector<RenderCommand> renderCommands;
 
@@ -320,11 +277,11 @@ void Engine::run() {
 	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/default/default.hdr",
 		"../Engine/textures/irradiance2/");*/
 
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
 	WarriorRenderer::Material* editable = material;
 
 	double lastTime = glfwGetTime();
+
+	gui->getMaterialPanel().showMaterial(editable);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -337,47 +294,13 @@ void Engine::run() {
 
 		gui->preRenderUI();
 
-		float roughness = editable->getRoughness();
-		ImGui::InputFloat("Roughness", &roughness);
-		editable->setRoughness(roughness);
-
-		float metallic = editable->getMetallic();
-		ImGui::InputFloat("Metallic", &metallic);
-		editable->setMetallic(metallic);
-
-		float ao = editable->getAO();
-		ImGui::InputFloat("AO", &ao);
-		editable->setAO(ao);
-
-		Vec3 albedoTint = editable->getAlbedoTint();
-		float color[3];
-		albedoTint.toOpenGLFormat(color);
-		ImGui::ColorPicker3("Albedo Tint", color);
-		editable->setAlbedoTint({color[0], color[1], color[2]});
+		gui->getMaterialPanel().onGUI();
 
 		editorCamera->update(elapsedTime);
 
 		ImGui::ShowMetricsWindow();
-		ImGui::InputVec3("Translation", translation);
-		ImGui::InputVec3("Translation2", translation);
-		ImGui::InputFloat("Rotation", &rotation);
-		ImGui::InputVec3("Light Direction", lights.directionalLights[0].direction);
 
-		static bool veryHigh = false;
-		static bool updated = true;
-		if (ImGui::Checkbox("Very High Settings", &veryHigh) && updated) {
-			updated = false;
-			renderer->updateConfigutations(veryHighConfigs);
-
-		} else if (!updated) {
-			updated = true;
-			renderer->updateConfigutations(normalConfigs);
-		}
-
-		//deferredRenderPipeline->enqueueRender(renderCommand);
 		renderer->enqueueRender(&renderCommand2);
-		//deferredRenderPipeline->enqueueRender(renderCommand3);
-		//deferredRenderPipeline->enqueueRender(renderCommandCerberus);
 
 		for (RenderCommand& rc : renderCommands) {
 			renderer->enqueueRender(&rc);
@@ -387,10 +310,6 @@ void Engine::run() {
 		renderer->enqueuePostProcessing(&fxaa);
 
 		renderer->render(*editorCamera, lights);
-
-		rotation += (PI / 6.0f) * elapsedTime;
-
-		renderCommand3.model = Mat4::translation(translation) * Mat4::rotation(rotation, Vec3::Z);
 
 		//update();
 
