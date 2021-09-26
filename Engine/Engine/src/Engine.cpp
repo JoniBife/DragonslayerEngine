@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include <textures/IBL.h>
 #include <WarriorRenderer.h>
+#include <meshes/MeshGroup.h>
+#include "gui/DebugPanel.h"
 
 using namespace WarriorRenderer;
 
@@ -30,7 +32,8 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 }
 void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy) 
 {
-	engine->updateWindow(winx, winy);
+	if (winx > 0 && winy > 0)
+		engine->updateWindow(winx, winy);
 	GL_CALL(glViewport(0, 0, winx, winy));
 	//engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
 	//GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
@@ -172,6 +175,7 @@ double Engine::getElapsedTime() {
 	return elapsedTime;
 }
 
+
 ////////////////////////////////////////////// MAIN LOOP
 void Engine::run() {
 
@@ -198,8 +202,11 @@ void Engine::run() {
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
+
+
+	MeshGroup group = MeshGroup::loadFromFile("../Engine/objs/sphere.fbx");
 	RenderCommand renderCommand;
-	Mesh* sphereMesh = MeshLoader::loadFromFile("../Engine/objs/sphere.obj");
+	Mesh* sphereMesh = group.meshes[0];
 	sphereMesh->calculateTangents();
 	sphereMesh->init();
 
@@ -230,6 +237,8 @@ void Engine::run() {
 	renderCommand2.material = mat;
 	renderCommand2.model = Mat4::translation(0.0f, -1.0f, 0.0f);
 
+	RenderCommand renderCommand3;
+
 	std::vector<RenderCommand> renderCommands;
 
 	WarriorRenderer::Material* defaultMat = renderer->createMaterial();
@@ -238,21 +247,23 @@ void Engine::run() {
 		RenderCommand rc;
 
 		rc.mesh = sphereMesh;
-		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f); //* Mat4::scaling(rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f, rand() % 2 + 1 * 0.5f);
+		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f)
+		*Mat4::rotation(PI / 2.0f, Vec3::X);// * Mat4::scaling(0.1f);
 		rc.material = material;
-
+			
 		renderCommands.push_back(rc);
 	}
 	
 	Lights lights;
 	DirectionalLight light;
-	//DirectionalLight light2;
-	//light2.direction = { 10.0, -10.0, 0.0 };
-	//light2.color = { 0.0, 1.0, 0.0 };
+	DirectionalLight light2;
+	light2.direction = { 10.0, -10.0, 0.0 };
+	light2.color = { 0.0, 1.0, 0.0 };
 	lights.directionalLights.push_back(light);
-	//lights.directionalLights.push_back(light2);
+	lights.directionalLights.push_back(light2);
 
-	/*for (int i = -10; i < 10; ++i) {
+	/*
+	for (int i = -10; i < 10; ++i) {
 		for (int j = -20; j < 20; ++j) {
 			PointLight pLight;
 			pLight.position = { (float)i * 3.5f ,0.0f , (float)j * 3.5f };
@@ -263,11 +274,11 @@ void Engine::run() {
 		}
 	}*/
 	
-
 	editorCamera = new EditorCamera();
 
 	FxaaCommand fxaa;
 	ACESToneMappingCommand toneMapping;
+	SSAOCommand ssao;
 
 	editorCamera->setEditorWindowFocus(true);
 
@@ -277,11 +288,11 @@ void Engine::run() {
 	/*IBL::ComputeIrradianceCubeMap("../Engine/textures/hdr/default/default.hdr",
 		"../Engine/textures/irradiance2/");*/
 
-	WarriorRenderer::Material* editable = material;
-
 	double lastTime = glfwGetTime();
 
-	gui->getMaterialPanel().showMaterial(editable);
+	gui->getMaterialPanel().showMaterial(material);
+
+	DebugPanel debugPanel(renderer);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -306,10 +317,14 @@ void Engine::run() {
 			renderer->enqueueRender(&rc);
 		}
 
+		
 		renderer->enqueuePostProcessing(&toneMapping);
 		renderer->enqueuePostProcessing(&fxaa);
+		//renderer->enqueuePostProcessing(&ssao);
 
 		renderer->render(*editorCamera, lights);
+
+		debugPanel.onGUI();
 
 		//update();
 

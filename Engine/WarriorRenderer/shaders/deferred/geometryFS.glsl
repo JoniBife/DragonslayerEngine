@@ -51,7 +51,7 @@ void main()
 
     // Normal = (X,Y,Z) and Roughness = Ws
     gBufferNormalRoughness = vec4(
-        normalize(TBNMatrix * normal) * normalStrength,
+        getNormalFromMap() * normalStrength,
         texture(roughnessMap, fragTextCoords).r * roughnessFactor
     );
 

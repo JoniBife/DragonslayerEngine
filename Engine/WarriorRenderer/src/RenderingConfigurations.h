@@ -7,7 +7,7 @@
 
 struct RenderingConfigurations {
 	
-	std::vector<float> cascadesPlanes = { 7.5f, 25.0f, 42.5f };
+	std::vector<float> cascadesPlanes = { 7.5f, 25.0f, 42.5f, 60.0f };
 	unsigned int shadowsResolution = 1024u;
 
 	unsigned int renderWidth = 1366u;

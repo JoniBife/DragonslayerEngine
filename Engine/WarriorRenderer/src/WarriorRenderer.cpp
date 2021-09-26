@@ -9,6 +9,7 @@
 #include "textures/FrameBuffer.h"
 #include "meshes/Mesh.h"
 #include "textures/CubeMap.h"
+#include <chrono>
 
 using namespace WarriorRenderer;
 
@@ -473,7 +474,16 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	// 10. Load brdf LUT texture
 	brdfLUT = Texture2D::fromFloatArrayFile("../WarriorRenderer/textures/irradiance/brdf.fa", 512, 512);
 
-	// 11. Finally delete any open gl objects that are no longer necesary
+	// 11. Insert all render passes map entries
+#ifdef DEBUG_RENDERER
+	renderPassesFrameTime.insert({ RenderPass::GEOMETRY, -1.0f });
+	renderPassesFrameTime.insert({ RenderPass::SHADOW, -1.0f });
+	renderPassesFrameTime.insert({ RenderPass::LIGHT, -1.0f });
+	renderPassesFrameTime.insert({ RenderPass::SKYBOX, -1.0f });
+	renderPassesFrameTime.insert({ RenderPass::POSTPROCESSING, -1.0f });
+#endif
+
+	// 12. Finally delete any open gl objects that are no longer necesary
 	for (GLObject* object : objectsToDelete) {
 		object->deleteObject();
 	}
@@ -593,112 +603,86 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	updateGlobalUniformsBuffer(camera.getView(), camera.getProjection());
 
 	// 1. Render all the geometry to the gBuffer
+#ifdef DEBUG_RENDERER
+	auto start = std::chrono::high_resolution_clock::now();
 	doGeometryPass(camera);
+	glFinish();
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> duration = end - start;
+	renderPassesFrameTime[RenderPass::GEOMETRY] = duration.count();
+#else 
+	doGeometryPass(camera);
+#endif
 
 	// 2. Render from each of the lights perspective to generate each of the shadow maps
 	std::vector<Mat4> lightViewProjections;
+
+#ifdef DEBUG_RENDERER
+	start = std::chrono::high_resolution_clock::now();
 	doShadowPass(camera, lights, lightViewProjections);
+	glFinish();
+	end = std::chrono::high_resolution_clock::now();
+	duration = end - start;
+	renderPassesFrameTime[RenderPass::SHADOW] = duration.count();
+#else 
+	doShadowPass(camera, lights, lightViewProjections);
+#endif
 
 	// 3. Render with lighting
+#ifdef DEBUG_RENDERER
+	start = std::chrono::high_resolution_clock::now();
 	doLightingPass(camera, lights, lightViewProjections);
+	glFinish();
+	end = std::chrono::high_resolution_clock::now();
+	duration = end - start;
+	renderPassesFrameTime[RenderPass::LIGHT] = duration.count();
+#else
+	doLightingPass(camera, lights, lightViewProjections);
+#endif
 
 	// 4. Render skybox
+#ifdef DEBUG_RENDERER
+	start = std::chrono::high_resolution_clock::now();
 	doSkyBoxPass();
-
-	// 4. Blur
-
-	static int blurPasses = 0;
-	//ImGui::SliderInt("Blur passes", &blurPasses, 0, 10);
-	if (blurPasses > 0) {
-
-		glViewport(0, 0, blurWidth, blurHeight);
-
-		horizontalBlurBuffer.bind();
-		horizontalBlurBuffer.drawBuffers();
-
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-		horizontalBlurShaderProgram.use();
-		horizontalBlurShaderProgram.setUniform("previousRenderTexture", 0);
-		skyboxBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
-
-		quadNDC->bind();
-		quadNDC->draw();
-		quadNDC->unBind();
-
-		horizontalBlurShaderProgram.stopUsing();
-		horizontalBlurBuffer.unbind();
-
-		verticalBlurBuffer.bind();
-		verticalBlurBuffer.drawBuffers();
-
-		GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-		verticalBlurShaderProgram.use();
-		verticalBlurShaderProgram.setUniform("previousRenderTexture", 0);
-		horizontalBlurBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
-
-		quadNDC->bind();
-		quadNDC->draw();
-		quadNDC->unBind();
-
-		verticalBlurShaderProgram.stopUsing();
-
-		verticalBlurBuffer.unbind();
-
-		for (int i = 0; i < blurPasses - 1; ++i) {
-
-			horizontalBlurBuffer.bind();
-			horizontalBlurBuffer.drawBuffers();
-
-			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-			horizontalBlurShaderProgram.use();
-			horizontalBlurShaderProgram.setUniform("previousRenderTexture", 0);
-			verticalBlurBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
-
-			quadNDC->bind();
-			quadNDC->draw();
-			quadNDC->unBind();
-
-			horizontalBlurShaderProgram.stopUsing();
-			horizontalBlurBuffer.unbind();
-
-			verticalBlurBuffer.bind();
-			verticalBlurBuffer.drawBuffers();
-
-			GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-			verticalBlurShaderProgram.use();
-			verticalBlurShaderProgram.setUniform("previousRenderTexture", 0);
-			horizontalBlurBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
-
-			quadNDC->bind();
-			quadNDC->draw();
-			quadNDC->unBind();
-
-			verticalBlurShaderProgram.stopUsing();
-
-			verticalBlurBuffer.unbind();
-
-		}
-	}
+	glFinish();
+	end = std::chrono::high_resolution_clock::now();
+	duration = end - start;
+	renderPassesFrameTime[RenderPass::SKYBOX] = duration.count();
+#else
+	doSkyBoxPass();
+#endif
 
 	// 5. Apply post processing if there is any
+#ifdef DEBUG_RENDERER
+	start = std::chrono::high_resolution_clock::now();
 	if (!renderQueue.isPostProcessingEmpty()) {
-		FrameBuffer& finalFrameBuffer = doPostProcessingPasses(renderQueue.dequeuePostProcessing(), skyboxBuffer.getColorAttachment(0));
+		FrameBuffer& finalFrameBuffer = doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), skyboxBuffer.getColorAttachment(0));
 
 		FrameBuffer::copyPixels(finalFrameBuffer, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight);
 	} else {
 		FrameBuffer::copyPixels(skyboxBuffer, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight);
 	}
+	glFinish();
+	end = std::chrono::high_resolution_clock::now();
+	duration = end - start;
+	renderPassesFrameTime[RenderPass::POSTPROCESSING] = duration.count();
+#else
+	if (!renderQueue.isPostProcessingEmpty()) {
+		FrameBuffer& finalFrameBuffer = doPostProcessingPasses(renderQueue.dequeuePostProcessing(), skyboxBuffer.getColorAttachment(0));
+
+		FrameBuffer::copyPixels(finalFrameBuffer, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight);
+}
+	else {
+		FrameBuffer::copyPixels(skyboxBuffer, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight);
+	}
+#endif
 }
 
 void WarriorRenderer::Renderer::renderToTarget(const Camera& camera, const Lights& lights, RenderTarget& renderTarget)
 {
 }
 
-FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture,
+FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(const Camera& camera, PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture,
 	unsigned int currPass) {
 
 	// Alternate between buffers inbetween post processing passes
@@ -710,7 +694,7 @@ FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(PostProcessingCom
 		auto shaderProgram = postProcessingCommand.getShader();
 		shaderProgram.use();
 
-		postProcessingCommand.sendParametersToShader(gBuffer, previousRenderTexture);
+		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
 
 		quadNDC->bind();
 		quadNDC->draw();
@@ -724,7 +708,7 @@ FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(PostProcessingCom
 		if (renderQueue.isPostProcessingEmpty())
 			return postProcessingBuffer;
 
-		return doPostProcessingPasses(renderQueue.dequeuePostProcessing(), postProcessingBuffer.getColorAttachment(0), currPass);
+		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer.getColorAttachment(0), currPass);
 
 	} else {
 		postProcessingBuffer2.bind();
@@ -734,7 +718,7 @@ FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(PostProcessingCom
 		auto shaderProgram = postProcessingCommand.getShader();
 		shaderProgram.use();
 
-		postProcessingCommand.sendParametersToShader(gBuffer, previousRenderTexture);
+		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
 
 		quadNDC->bind();
 		quadNDC->draw();
@@ -748,7 +732,7 @@ FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(PostProcessingCom
 		if (renderQueue.isPostProcessingEmpty())
 			return postProcessingBuffer2;
 
-		return doPostProcessingPasses(renderQueue.dequeuePostProcessing(), postProcessingBuffer2.getColorAttachment(0), currPass);
+		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer2.getColorAttachment(0), currPass);
 	}
 }
 
@@ -760,6 +744,15 @@ bool WarriorRenderer::Renderer::enqueueRender(RenderCommand* renderCommand)
 bool WarriorRenderer::Renderer::enqueuePostProcessing(PostProcessingCommand* postProcessingCommand)
 {
 	return renderQueue.enqueuePostProcessing(postProcessingCommand);
+}
+
+float WarriorRenderer::Renderer::getFrameTime(const RenderPass& renderPass) const
+{
+#ifdef DEBUG_RENDERER
+	return renderPassesFrameTime.find(renderPass)->second;
+#else
+	return -1.0f;
+#endif
 }
 
 Material* WarriorRenderer::Renderer::createMaterial() const

@@ -3,6 +3,7 @@
 
 #include "shaders/shaderProgram.h"
 #include "textures/FrameBuffer.h"
+#include "view/Camera.h"
 
 namespace WarriorRenderer {
 
@@ -14,7 +15,7 @@ namespace WarriorRenderer {
 
 	public:
 		virtual bool isValid() const = 0;
-		virtual void sendParametersToShader(const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) = 0;
+		virtual void sendParametersToShader(const Camera& camera, const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) = 0;
 		virtual ~PostProcessingCommand();
 		ShaderProgram& getShader();
 	};
@@ -29,7 +30,7 @@ namespace WarriorRenderer {
 		FxaaCommand();
 
 		bool isValid() const override;
-		void sendParametersToShader(const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
+		void sendParametersToShader(const Camera& camera, const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
 	};
 
 	class ACESToneMappingCommand : public PostProcessingCommand {
@@ -38,11 +39,32 @@ namespace WarriorRenderer {
 		ACESToneMappingCommand();
 
 		bool isValid() const override;
-		void sendParametersToShader(const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
+		void sendParametersToShader(const Camera& camera, const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
 	};
 
+	class ReinhardToneMappingCommand : public PostProcessingCommand {
 
+	public:
+		ReinhardToneMappingCommand();
 
+		bool isValid() const override;
+		void sendParametersToShader(const Camera& camera, const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
+	};
+
+	class SSAOCommand : public PostProcessingCommand {
+
+	private:
+		std::vector<Vec3> samples;
+		unsigned int sampleSize;
+		unsigned int noiseSize;
+		GLuint noiseTexture;
+
+	public:
+		SSAOCommand(unsigned int sampleSize = 64u, unsigned int noiseSize = 4u);
+
+		bool isValid() const override;
+		void sendParametersToShader(const Camera& camera, const FrameBuffer& gBuffer, Texture2D& previousRenderTexture) override;
+	};
 }
 
 #endif

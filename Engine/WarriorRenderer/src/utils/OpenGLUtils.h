@@ -45,4 +45,6 @@ static bool hasOpenGLError(const char* function, const char* file, int line) {
 #define GL_CALL(x) x;
 #endif
 
+
+
 #endif

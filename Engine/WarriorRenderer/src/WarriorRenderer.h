@@ -12,7 +12,17 @@
 #include "Material.h"
 #include "RenderingConfigurations.h"
 
+#define DEBUG_RENDERER
+
 namespace WarriorRenderer {
+
+	enum class RenderPass {
+		GEOMETRY,
+		SHADOW,
+		LIGHT,
+		SKYBOX,
+		POSTPROCESSING
+	};
 
 	class Renderer {
 
@@ -65,6 +75,11 @@ namespace WarriorRenderer {
 		GLuint uboPointLights;
 		GLuint uboGlobalUniforms;
 
+#ifdef DEBUG_RENDERER
+		// Contains the frame time for each of the render passes
+		std::unordered_map<RenderPass, double> renderPassesFrameTime;
+#endif
+
 		/* Creates empty global uniform buffer */
 		void createGlobalUniformsBuffer();
 		void updateGlobalUniformsBuffer(const Mat4& view, const Mat4& projection);
@@ -77,7 +92,7 @@ namespace WarriorRenderer {
 		void doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections);
 		void doLightingPass(const Camera& camera, const Lights& lights, const std::vector<Mat4>& lightViewProjections);
 		void doSkyBoxPass();
-		FrameBuffer& doPostProcessingPasses(PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture, unsigned int currPass = 0u);
+		FrameBuffer& doPostProcessingPasses(const Camera& camera, PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture, unsigned int currPass = 0u);
 
 	public:
 		/* Performs all initialization operations:
@@ -101,6 +116,10 @@ namespace WarriorRenderer {
 		bool enqueuePostProcessing(PostProcessingCommand* postProcessingCommand);
 
 		void updateConfigutations(const RenderingConfigurations& newRenderingConfigurations);
+
+		/* Returns the frame time in milliseconds for a specific pass
+		only works if the DEBUG_RENDERER directive is active */
+		float getFrameTime(const RenderPass& renderPass) const;
 
 		/* Creates a material using the default textures and settings */
 		Material* createMaterial() const;

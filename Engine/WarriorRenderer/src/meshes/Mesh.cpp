@@ -1,5 +1,4 @@
 #include "Mesh.h"
-#include "../utils/ColorRGBA.h"
 #include "../utils/OpenGLUtils.h"
 #include <iostream>
 #include "../math/Vec2.h"
@@ -22,7 +21,7 @@ Mesh::Mesh(const std::vector<Vec4>& vertices) : vertices(vertices) {}
 
 Mesh::Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec4>& colors) : vertices(vertices), colors(colors) {}
 
-Mesh::Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec4>& colors, const std::vector<GLubyte>& indices) :
+Mesh::Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec4>& colors, const std::vector<unsigned int>& indices) :
 	vertices(vertices), colors(colors), indices(indices) {}
 
 Mesh::Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec3>& normals, const std::vector<Vec2>& textCoords)
@@ -149,7 +148,7 @@ void Mesh::init() {
 			// Binding the colors to the second vbo
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboNormalsId));
 			{
-				GL_CALL(glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], GL_STATIC_DRAW));
+				GL_CALL(glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3), &normals[0], verticesBufferType));
 				GL_CALL(glEnableVertexAttribArray(idxNormals));
 				GL_CALL(glVertexAttribPointer(idxNormals, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
 			}
@@ -161,7 +160,7 @@ void Mesh::init() {
 			// Binding the colors to the second vbo
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboColorsId));
 			{
-				GL_CALL(glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(Vec4), &colors[0], GL_STATIC_DRAW));
+				GL_CALL(glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(Vec4), &colors[0], verticesBufferType));
 				GL_CALL(glEnableVertexAttribArray(idxColors));
 				GL_CALL(glVertexAttribPointer(idxColors, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4), 0));
 			}
@@ -172,7 +171,7 @@ void Mesh::init() {
 			// Binding the colors to the second vbo
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboTextCoordsId));
 			{
-				GL_CALL(glBufferData(GL_ARRAY_BUFFER, textCoords.size() * sizeof(Vec2), &textCoords[0], GL_STATIC_DRAW));
+				GL_CALL(glBufferData(GL_ARRAY_BUFFER, textCoords.size() * sizeof(Vec2), &textCoords[0], verticesBufferType));
 				GL_CALL(glEnableVertexAttribArray(idxTextCoords));
 				GL_CALL(glVertexAttribPointer(idxTextCoords, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2), 0));
 			}
@@ -184,7 +183,7 @@ void Mesh::init() {
 
 			GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vboTangentsId));
 			{
-				GL_CALL(glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(Vec3), &tangents[0], GL_STATIC_DRAW));
+				GL_CALL(glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(Vec3), &tangents[0], verticesBufferType));
 				GL_CALL(glEnableVertexAttribArray(idxTangents));
 				GL_CALL(glVertexAttribPointer(idxTangents, 2, GL_FLOAT, GL_FALSE, sizeof(Vec3), 0));
 			}
@@ -195,7 +194,7 @@ void Mesh::init() {
 			eboIndicesId = bufferIds[idxIndices];
 			GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboIndicesId));
 			{
-				GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLubyte), &indices[0], GL_STATIC_DRAW));
+				GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 			}
 		}
 
@@ -231,7 +230,7 @@ void Mesh::draw() {
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	if (!indices.empty()) {
-		GL_CALL(glDrawElements(drawingPrimitive, GLsizei(indices.size()), GL_UNSIGNED_BYTE, (GLvoid*)0));
+		GL_CALL(glDrawElements(drawingPrimitive, GLsizei(indices.size()), GL_UNSIGNED_INT, (GLvoid*)0));
 	}
 	else
 	{
@@ -342,6 +341,7 @@ Mesh* Mesh::triangle(const float width, const float height) {
 }
 
 Mesh* Mesh::loadFromFile(const std::string& filePath) {
+
 	return MeshLoader::loadFromFile(filePath);
 }
 

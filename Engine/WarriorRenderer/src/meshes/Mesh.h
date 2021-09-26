@@ -36,7 +36,7 @@ public:
 	std::vector<Vec3> normals;
 	std::vector<Vec4> colors;
 	std::vector<Vec2> textCoords;
-	std::vector<GLubyte> indices;
+	std::vector<unsigned int> indices;
 	std::vector<Vec3> tangents;
 
 private:
@@ -69,7 +69,7 @@ public:
 
 	Mesh(const std::vector<Vec4>& vertices,const std::vector<Vec4>& colors);
 
-	Mesh(const std::vector<Vec4>& vertices,const std::vector<Vec4>& colors,const std::vector<GLubyte>& indices);
+	Mesh(const std::vector<Vec4>& vertices,const std::vector<Vec4>& colors,const std::vector<unsigned int>& indices);
 
 	Mesh(const std::vector<Vec4>& vertices, const std::vector<Vec3>& normals, const std::vector<Vec2>& textCoords);
 

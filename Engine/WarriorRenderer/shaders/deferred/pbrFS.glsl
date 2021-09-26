@@ -377,7 +377,9 @@ void main(void)
     vec3 position = extractPositionFromDepth(texture(gBufferDepth, fragTextCoords).x);
     vec3 normal = normalRoughness.rgb; 
     float roughness = normalRoughness.a;
-    vec3 albedo = albedoAmbientOcclusion.rgb; 
+
+    // Assuming the albedo is in sRGB space so we move it to linear RGB space 
+    vec3 albedo = pow(albedoAmbientOcclusion.rgb, vec3(2.2)); 
     float ambientOcclusion = albedoAmbientOcclusion.a;
 
     // 2. Calculate color using PBR

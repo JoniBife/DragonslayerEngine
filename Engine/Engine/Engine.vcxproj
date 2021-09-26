@@ -26,6 +26,7 @@
     <ClCompile Include="src\core\Input.cpp" />
     <ClCompile Include="src\core\RendererComponent.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
+    <ClCompile Include="src\gui\DebugPanel.cpp" />
     <ClCompile Include="src\gui\GUI.cpp" />
     <ClCompile Include="src\gui\HierarchyPanel.cpp" />
     <ClCompile Include="src\gui\ImGuiExtensions.cpp" />
@@ -56,6 +57,7 @@
     <ClInclude Include="src\core\RendererComponent.h" />
     <ClInclude Include="src\core\Transform.h" />
     <ClInclude Include="src\Engine.h" />
+    <ClInclude Include="src\gui\DebugPanel.h" />
     <ClInclude Include="src\gui\GUI.h" />
     <ClInclude Include="src\gui\HierarchyPanel.h" />
     <ClInclude Include="src\gui\ImGuiExtensions.h" />
@@ -170,14 +172,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)Dependencies\glew-2.1.0\include;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\include;$(SolutionDir)Engine\src\vendor;$(SolutionDir)WarriorRenderer\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\include;$(SolutionDir)Dependencies\glew-2.1.0\include;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\include;$(SolutionDir)Engine\src\vendor;$(SolutionDir)Dependencies\assimp\include;$(SolutionDir)WarriorRenderer\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\lib-vc2019;$(SolutionDir)Dependencies\glew-2.1.0\lib_;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\win64;$(SolutionDir)x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3dll.lib;freetype.lib;WarriorRenderer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\glfw-3.3.2.bin.WIN64\lib-vc2019;$(SolutionDir)Dependencies\glew-2.1.0\lib_;$(SolutionDir)Dependencies\freetype-windows-binaries-2.10.4\win64;$(SolutionDir)x64\Debug;$(SolutionDir)Dependencies\assimp-5.0.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;glfw3dll.lib;freetype.lib;assimp-vc142-mt.lib;WarriorRenderer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

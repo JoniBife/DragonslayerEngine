@@ -19,10 +19,6 @@ vec3 acesFilmTonemapping(vec3 x)
     return clamp(color,0.0,1.0);
 }
 
-vec3 reinhardTonemapping(vec3 color) {
-    return color = color / (color + vec3(1.0));
-}
-
 void main()
 {
     vec3 color = texture(previousRenderTexture, fragTextCoords).xyz;
