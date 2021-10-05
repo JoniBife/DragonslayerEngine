@@ -187,7 +187,7 @@ void Engine::run() {
 	RenderingConfigurations normalConfigs;
 	RenderingConfigurations veryHighConfigs;
 	veryHighConfigs.shadowsResolution = 4096;
-	Renderer* renderer = new Renderer(normalConfigs);
+	Renderer* renderer = new Renderer(veryHighConfigs);
 	
 	//setupGLEW();  
 	
@@ -202,7 +202,19 @@ void Engine::run() {
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
-
+	MeshGroup group2 = MeshGroup::loadFromFile("../Engine/objs/axe.fbx");
+	RenderCommand cerberusCommand;
+	//group2.meshes[0]->calculateTangents();
+	group2.meshes[0]->init();
+	cerberusCommand.mesh = group2.meshes[0];
+	cerberusCommand.material = renderer->createMaterial();
+	cerberusCommand.material->setAlbedoMap(new Texture2D("../Engine/textures/pbr/axe/albedo.png"));
+	cerberusCommand.material->setNormalMap(new Texture2D("../Engine/textures/pbr/axe/normal.png"));
+	cerberusCommand.material->setMetallicMap(new Texture2D("../Engine/textures/pbr/axe/metallic.png"));
+	cerberusCommand.material->setRoughnessMap(new Texture2D("../Engine/textures/pbr/axe/roughness.png"));
+	cerberusCommand.material->setAOMap(new Texture2D("../Engine/textures/pbr/axe/ao.png"));
+	
+	cerberusCommand.model = Mat4::translation({ 0.0f, 2.0f, 0.0f }) * Mat4::rotation(PI/2, Vec3::Y) * Mat4::rotation(-PI/2, Vec3::X);
 
 	MeshGroup group = MeshGroup::loadFromFile("../Engine/objs/sphere.fbx");
 	RenderCommand renderCommand;
@@ -247,7 +259,7 @@ void Engine::run() {
 		RenderCommand rc;
 
 		rc.mesh = sphereMesh;
-		rc.model = Mat4::translation(0, 1.0f, -i * 3.5f)
+		rc.model = Mat4::translation(0, 0.01f, -i * 3.5f)
 		*Mat4::rotation(PI / 2.0f, Vec3::X);// * Mat4::scaling(0.1f);
 		rc.material = material;
 			
@@ -260,7 +272,7 @@ void Engine::run() {
 	light2.direction = { 10.0, -10.0, 0.0 };
 	light2.color = { 0.0, 1.0, 0.0 };
 	lights.directionalLights.push_back(light);
-	lights.directionalLights.push_back(light2);
+	//lights.directionalLights.push_back(light2);
 
 	/*
 	for (int i = -10; i < 10; ++i) {
@@ -278,7 +290,6 @@ void Engine::run() {
 
 	FxaaCommand fxaa;
 	ACESToneMappingCommand toneMapping;
-	SSAOCommand ssao;
 
 	editorCamera->setEditorWindowFocus(true);
 
@@ -312,17 +323,27 @@ void Engine::run() {
 		ImGui::ShowMetricsWindow();
 
 		renderer->enqueueRender(&renderCommand2);
+		renderer->enqueueRender(&cerberusCommand);
 
 		for (RenderCommand& rc : renderCommands) {
 			renderer->enqueueRender(&rc);
 		}
 
-		
-		renderer->enqueuePostProcessing(&toneMapping);
-		renderer->enqueuePostProcessing(&fxaa);
-		//renderer->enqueuePostProcessing(&ssao);
+		static bool enableToneMapping = true;
+		ImGui::Checkbox("Tone Mapping", &enableToneMapping);
+		if (enableToneMapping) renderer->enqueuePostProcessing(&toneMapping);
+
+		static bool enableFxaa = true;
+		ImGui::Checkbox("Fxaa", &enableFxaa);
+		if (enableFxaa) renderer->enqueuePostProcessing(&fxaa);
+
+		static float blend = 0.1f;
+		if (ImGui::SliderFloat("Blend band size", &blend, 0.0f, 10.0f))
+			renderer->setBlend(blend);
 
 		renderer->render(*editorCamera, lights);
+
+		ImGui::Image((ImTextureID)renderer->getBufferTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 
 		debugPanel.onGUI();
 

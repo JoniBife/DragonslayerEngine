@@ -18,6 +18,7 @@ namespace WarriorRenderer {
 
 	enum class RenderPass {
 		GEOMETRY,
+		SSAO,
 		SHADOW,
 		LIGHT,
 		SKYBOX,
@@ -27,53 +28,67 @@ namespace WarriorRenderer {
 	class Renderer {
 
 	private:
-		// Both initialized by the default constructor
+		// Global 
 		OpenGLState openGLState;
 		RenderQueue renderQueue;
-
+		RenderingConfigurations renderingConfigurations;
+		GLuint uboGlobalUniforms;
+		
+		// Geometry
 		ShaderProgram geometryShaderProgram;
-		ShaderProgram shadowMapShaderProgram;
+		FrameBuffer gBuffer;
 
-		// Two-pass Gaussian blur shaders
+		// SSAO 
+		ShaderProgram ssaoShaderProgram;
+		ShaderProgram ssaoBlurShaderProgram;
+		FrameBuffer ssaoBuffer;
+		FrameBuffer ssaoBlurBuffer;
+		std::vector<Vec3> samples;
+		unsigned int sampleSize = 64u;
+		unsigned int noiseSize = 4u;
+		GLuint noiseTexture;
+
+		// Shadows 
+		ShaderProgram shadowMapShaderProgram;
+		std::vector<FrameBuffer> shadowMapBuffers;
+
+		// Blur 
 		ShaderProgram horizontalBlurShaderProgram;
 		ShaderProgram verticalBlurShaderProgram;
-
-		ShaderProgram pbrShaderProgram;
-
-		ShaderProgram skyboxShaderProgram;
-
-		FrameBuffer gBuffer;
-		std::vector<FrameBuffer> shadowMapBuffers;
-		FrameBuffer lightBuffer;
-		FrameBuffer skyboxBuffer;
-		FrameBuffer postProcessingBuffer;
-		FrameBuffer postProcessingBuffer2;
 		FrameBuffer horizontalBlurBuffer;
 		FrameBuffer verticalBlurBuffer;
+		const unsigned int blurWidth = 426;
+		const unsigned int blurHeight = 240;
 
+		// PBR
+		ShaderProgram pbrShaderProgram;
+		FrameBuffer lightBuffer;
+		CubeMap irradianceCubeMap;
+		CubeMap prefilterCubeMap;
+		Texture2D brdfLUT;
 		Texture2D* defaultAlbedoMap;
 		Texture2D* defaultNormalMap;
 		Texture2D* defaultMetallicMap;
 		Texture2D* defaultRoughnessMap;
 		Texture2D* defaultAOMap;
 
-		Mesh* quadNDC;
-		Mesh* cube;
-		Mesh* pointLightVolume;
-
-		CubeMap* skyBox;
-		
-		CubeMap irradianceCubeMap;
-		CubeMap prefilterCubeMap;
-		Texture2D brdfLUT;
-
-		RenderingConfigurations renderingConfigurations;
-		const unsigned int maxPointLights = 1000;
-		const unsigned int blurWidth = 426;
-		const unsigned int blurHeight = 240;
-
+		// Lighting
 		GLuint uboPointLights;
-		GLuint uboGlobalUniforms;
+		Mesh* pointLightVolume;
+		const unsigned int maxPointLights = 1000;
+
+		// Skybox
+		ShaderProgram skyboxShaderProgram;
+		FrameBuffer skyboxBuffer;
+		Mesh* cube;
+		CubeMap* skyBox;
+
+		//Post processing
+		FrameBuffer postProcessingBuffer;
+		FrameBuffer postProcessingBuffer2;
+		Mesh* quadNDC;
+
+		float blend = 0.1f;
 
 #ifdef DEBUG_RENDERER
 		// Contains the frame time for each of the render passes
@@ -89,6 +104,7 @@ namespace WarriorRenderer {
 		void bindPointLightsBuffer(GLuint index);
 
 		void doGeometryPass(const Camera& camera);
+		void doSSAOPass(const Camera& camera);
 		void doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections);
 		void doLightingPass(const Camera& camera, const Lights& lights, const std::vector<Mat4>& lightViewProjections);
 		void doSkyBoxPass();
@@ -99,7 +115,9 @@ namespace WarriorRenderer {
 		* - Creation of OpenGL context
 		* - Setting all default OpenGL states (face culling etc..)
 		* - Loading and compilation of shaders
-		* - Creation of intermediate framebuffers for each of the passes */
+		* - Creation of intermediate framebuffers for each of the passes 
+		* - Loading necessary meshes (Cube and Quad NDC)
+		* - Loading default material */
 		Renderer(const RenderingConfigurations& renderingConfigurations);
 		~Renderer();
 
@@ -119,7 +137,9 @@ namespace WarriorRenderer {
 
 		/* Returns the frame time in milliseconds for a specific pass
 		only works if the DEBUG_RENDERER directive is active */
-		float getFrameTime(const RenderPass& renderPass) const;
+		double getFrameTime(const RenderPass& renderPass) const;
+		GLint getBufferTexture();
+		void setBlend(float blend);
 
 		/* Creates a material using the default textures and settings */
 		Material* createMaterial() const;

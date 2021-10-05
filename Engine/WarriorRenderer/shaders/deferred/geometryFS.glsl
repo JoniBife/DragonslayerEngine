@@ -45,7 +45,7 @@ void main()
     gBufferMetallic =  texture(metallicMap, fragTextCoords).r * metallicFactor;
 
     // Normals in the normal map are colors so they were moved to the [0,1] range
-    // however normals are in the [-1,1] range so we have to move them back this range
+    // however normals are in the [-1,1] range so we have to move them back to this range
     vec3 normal = texture(normalMap, fragTextCoords).rgb;
     normal = normalize(normal * 2.0 - 1.0);
 

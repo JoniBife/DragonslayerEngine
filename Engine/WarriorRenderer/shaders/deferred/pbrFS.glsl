@@ -46,6 +46,9 @@ uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughn
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
 uniform sampler2D gBufferDepth;
 
+// SSAO Inputs
+uniform sampler2D ssao; 
+
 // IBL inputs
 uniform samplerCube irradianceCubeMap;
 uniform samplerCube prefilterCubeMap;
@@ -162,17 +165,69 @@ float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjection
 	return shadow;
 }
 
+uniform float blendBandSize;
 float calculateShadows(vec4 position, vec3 normal) {
     
     // The near and far planes distance for each of the cascades is relative to the position of the camera
     // so to check whether a fragment is within a certain cascade we need to move its position from world space
     // to view space
     vec4 positionViewSpace = viewMatrix * position;
-    float fragmentDepthViewSpace = -positionViewSpace.z;
+    float fragmentDepthViewSpace = -positionViewSpace.z; 
 
     for (uint i = 0u; i < numberOfCascades; ++i) {
+        
+        // Finding the cascade
         if (fragmentDepthViewSpace > cascadesPlanes[i] && fragmentDepthViewSpace < cascadesPlanes[i + 1u]) {
-            return calculateShadowFactor(position, normal, lightViewProjectionMatrices[i], shadowMaps[i]);
+
+            float currentCascadeShadowFactor = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i], shadowMaps[i]);
+            
+            // Checking if we are in the closest cascade
+            if (i == 0u) {
+                // Are in the further blend band
+                if (fragmentDepthViewSpace > cascadesPlanes[i + 1u] - blendBandSize) {
+                    // Finding a normalized position in band [0,1]
+                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i + 1u] - blendBandSize) / (blendBandSize * 2.0);
+
+                    float shadowFactorB = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i + 1u], shadowMaps[i + 1u]);
+
+                    return smoothstep(0.0, 1.0, mix(currentCascadeShadowFactor, shadowFactorB, positionInBand)) * 0.9;
+                }
+
+            } else if (i == numberOfCascades - 1u) { // Checking if we are in the last cascade
+                // Are we in the closer blend band
+                if (fragmentDepthViewSpace < cascadesPlanes[i] + blendBandSize) {
+                
+                    // Finding a normalized position in band [0,1]
+                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i] - blendBandSize) / (blendBandSize * 2.0);
+
+                    float shadowFactorA = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i - 1u], shadowMaps[i - 1u]);
+
+                    return mix(shadowFactorA, currentCascadeShadowFactor, positionInBand);
+                }
+            } else {
+                // Are we in the closer blend band
+                if (fragmentDepthViewSpace < cascadesPlanes[i] + blendBandSize) {
+                
+                    // Finding a normalized position in band [0,1]
+                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i] - blendBandSize) / (blendBandSize * 2.0);
+
+                    float shadowFactorA = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i - 1u], shadowMaps[i - 1u]);
+
+                    return mix(shadowFactorA, currentCascadeShadowFactor, positionInBand);
+                }
+
+                // Are in the further blend band
+                if (fragmentDepthViewSpace > cascadesPlanes[i + 1u] - blendBandSize) {
+                    // Finding a normalized position in band [0,1]
+                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i + 1u] - blendBandSize) / (blendBandSize * 2.0);
+
+                    float shadowFactorB = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i + 1u], shadowMaps[i + 1u]);
+
+                    return mix(currentCascadeShadowFactor, shadowFactorB, positionInBand);
+
+                }
+            }
+            return currentCascadeShadowFactor;
         }
     }
 
@@ -342,7 +397,9 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
     vec2 brdf  = texture(brdfLUT, vec2(max(dot(normal, V), 0.0), roughness)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-    vec3 ambientLo = (kD * diffuse + specular) * ambientOcclusion;
+
+    float ao = texture(ssao, fragTextCoords).r;
+    vec3 ambientLo = (kD * diffuse + specular) * ao;
 
     vec3 color = ambientLo + Lo;
 

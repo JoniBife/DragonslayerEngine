@@ -1,11 +1,9 @@
 #version 330 core
-layout (location = 0) out vec4 fragmentColor;
+layout (location = 0) out float fragmentColor;
 
 // SSAO By John Chapman http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
 
 in vec2 fragTextCoords;
-
-uniform sampler2D previousRenderTexture; // A texture that resulted from the previous render pass
 
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferDepth;
@@ -17,7 +15,7 @@ const vec2 noiseScale = vec2(1366.0/4.0, 768.0/4.0);
 uniform vec3 samples[64];
 uniform uint sampleSize;
 
-uniform float sampleRadius = 0.5;
+uniform float sampleRadius = 0;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
@@ -58,9 +56,8 @@ mat3 calculateTBN(vec3 position, vec3 normal) {
 
 void main()
 {
-    vec3 color = texture(previousRenderTexture, fragTextCoords).xyz;
     vec3 positionViewSpace = extractPositionFromDepth(texture(gBufferDepth, fragTextCoords).r);
-    vec3 normal = texture(gBufferNormalRoughness, fragTextCoords).xyz;
+    vec3 normal = (viewMatrix * vec4(texture(gBufferNormalRoughness, fragTextCoords).xyz,1.0)).xyz;
 
     // Tiling the noise to repeat over the screen
     vec2 noiseTextCoords = fragTextCoords * noiseScale;
@@ -77,24 +74,24 @@ void main()
         vec4 samplePosition = vec4(positionViewSpace + sampleViewSpace * sampleRadius, 1.0);
 
         // Moving to clip space
-        samplePosition = projectionMatrix * samplePosition;
+        vec4 offset = projectionMatrix * samplePosition;
 
         // Transforming to NDC by performing perspective division
-        samplePosition /= samplePosition.w;
+        offset.xyz /= offset.w;
 
         // Moving to the [0, 1] range
-        samplePosition = samplePosition*0.5 + 0.5;
+        offset.xyz = offset.xyz*0.5 + 0.5;
 
-        vec2 sampleTextCoords = samplePosition.xy;
+        vec2 sampleTextCoords = offset.xy;
 
         float sampleDepth = extractPositionFromDepth(texture(gBufferDepth, sampleTextCoords).r).z;
 
         // Comparing depth in view space, increasing in the -z direction
         float rangeCheck = smoothstep(0.0, 1.0, sampleRadius / abs(positionViewSpace.z  - sampleDepth));
-        occlusion += (sampleDepth >= positionViewSpace.z + 0.025 ? 1.0 : 0.0) * rangeCheck;
+        occlusion += (sampleDepth >= samplePosition.z + 0.025 ? 1.0 : 0.0) * rangeCheck;
     }
 
     occlusion /= sampleSize;
 
-    fragmentColor = vec4(color * (1.0 - occlusion), 1.0);
+    fragmentColor = 1.0 - occlusion;
 } 

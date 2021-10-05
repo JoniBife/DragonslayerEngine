@@ -24,6 +24,8 @@ class Texture2D : public ITexture, public GLObject {
 private:
 	int width = 0, height = 0, nrChannels = 0; // In RGB there are 3 channels while in RGBA there are 4 for example
 	GLint internalFormat = 0;
+	GLint format = 0;
+	GLint precision = 0;
 
 	void _deleteObject() override;
 

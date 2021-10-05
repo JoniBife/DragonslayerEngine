@@ -101,7 +101,7 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 	Vec4 cornerLightSpace;
 
 	//Iterating over the corners to find all of the planes that incapsulate the bounding box
-	for (Vec4 corner : corners) {
+	for (Vec4& corner : corners) {
 
 		cornerLightSpace = lightView * inverseCameraView * corner;
 
@@ -114,5 +114,5 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 	}
 
 	// Near and far sign is altered again because ortho expects them positive and inverts them internally
-	return ortho(roundf(left), roundf(right), roundf(bottom), roundf(top), near * -1, far * -1);
+	return ortho(roundf(left), roundf(right), roundf(bottom), roundf(top), -near, -far);
 }

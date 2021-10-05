@@ -10,6 +10,7 @@
 #include "meshes/Mesh.h"
 #include "textures/CubeMap.h"
 #include <chrono>
+#include <random>
 
 using namespace WarriorRenderer;
 
@@ -129,6 +130,60 @@ void WarriorRenderer::Renderer::doGeometryPass(const Camera& camera)
 	gBuffer.unbind();
 }
 
+void WarriorRenderer::Renderer::doSSAOPass(const Camera& camera)
+{
+	ssaoBuffer.bind();
+	ssaoShaderProgram.use();
+
+	GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
+
+	ssaoShaderProgram.setUniform("gBufferNormalRoughness", 0);
+	gBuffer.getColorAttachment(1).bind(GL_TEXTURE0);
+
+	ssaoShaderProgram.setUniform("gBufferDepth", 1);
+	gBuffer.getDepthAttachment().bind(GL_TEXTURE1);
+
+	ssaoShaderProgram.setUniform("noise", 2);
+	GL_CALL(glActiveTexture(GL_TEXTURE2));
+	GL_CALL(glBindTexture(GL_TEXTURE_2D, noiseTexture));
+
+	for (unsigned int i = 0u; i < sampleSize; ++i) {
+		std::string uniformName = "samples[" + std::to_string(i) + "]";
+		ssaoShaderProgram.setUniform(uniformName, samples[i]);
+	}
+	ssaoShaderProgram.setUniform("sampleSize", sampleSize);
+
+	ssaoShaderProgram.setUniform("projectionMatrix", camera.getProjection());
+	//shaderProgram.setUniform("viewMatrix", camera.getView());
+	Mat4 inverseProjection;
+	camera.getProjection().inverse(inverseProjection);
+	Mat4 inverseView;
+	camera.getView().inverse(inverseView);
+	ssaoShaderProgram.setUniform("inverseProjectionMatrix", inverseProjection);
+
+	quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
+	
+	ssaoShaderProgram.stopUsing();
+	ssaoBuffer.unbind();
+
+	ssaoBlurBuffer.bind();
+	ssaoBlurShaderProgram.use();
+
+	GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
+
+	ssaoBlurShaderProgram.setUniform("dottedSSAO", 0);
+	ssaoBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
+
+	quadNDC->bind();
+	quadNDC->draw();
+	quadNDC->unBind();
+
+	ssaoBlurShaderProgram.stopUsing();
+	ssaoBlurBuffer.unbind();
+}
+
 void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections)
 {
 	std::queue<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
@@ -151,7 +206,7 @@ void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights&
 
 				shadowMapShaderProgram.use();
 
-				Mat4 lightView = lookAt(-1.0f * lights.directionalLights[i].direction * 10.0f, Vec3::ZERO, Vec3::Y);
+				Mat4 lightView = lookAt(-1.0f * lights.directionalLights[i].direction * 50.0f, Vec3::ZERO, Vec3::Y);
 
 				Mat4 inverseCameraView;
 				camera.getView().inverse(inverseCameraView);
@@ -182,6 +237,8 @@ void WarriorRenderer::Renderer::doShadowPass(const Camera& camera, const Lights&
 
 				shadowMapShaderProgram.stopUsing();
 				shadowMapBuffers[j].unbind();
+
+				
 
 				//ImGui::Image((ImTextureID)shadowMapBuffers[j].getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 			}
@@ -230,31 +287,37 @@ void WarriorRenderer::Renderer::doLightingPass(const Camera& camera, const Light
 	pbrShaderProgram.bindUniformBlock(index, 1);
 	pbrShaderProgram.setUniform("numberOfPointLights", (unsigned int)lights.pointLights.size());
 
+	pbrShaderProgram.setUniform("blendBandSize", blend);
+
 	pbrShaderProgram.setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram.setUniform("gBufferMetallic", 0);
 	pbrShaderProgram.setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram.setUniform("gBufferAlbedoAmbientOcclusion", 2);
 	pbrShaderProgram.setUniform("gBufferDepth", 3);
-	pbrShaderProgram.setUniform("irradianceCubeMap", 4);
-	pbrShaderProgram.setUniform("prefilterCubeMap", 5);
-	pbrShaderProgram.setUniform("brdfLUT", 6);
+	pbrShaderProgram.setUniform("ssao", 4);
+	pbrShaderProgram.setUniform("irradianceCubeMap", 5);
+	pbrShaderProgram.setUniform("prefilterCubeMap", 6);
+	pbrShaderProgram.setUniform("brdfLUT", 7);
 
 	gBuffer.getColorAttachment(0).bind(GL_TEXTURE0);
 	gBuffer.getColorAttachment(1).bind(GL_TEXTURE1);
 	gBuffer.getColorAttachment(2).bind(GL_TEXTURE2);
 	gBuffer.getDepthAttachment().bind(GL_TEXTURE3);
-	
-	irradianceCubeMap.bind(GL_TEXTURE4);
-	prefilterCubeMap.bind(GL_TEXTURE5);
-	brdfLUT.bind(GL_TEXTURE6);
+
+	// SSAO Texture
+	ssaoBlurBuffer.getColorAttachment(0).bind(GL_TEXTURE4);
+
+	irradianceCubeMap.bind(GL_TEXTURE5);
+	prefilterCubeMap.bind(GL_TEXTURE6);
+	brdfLUT.bind(GL_TEXTURE7);
 
 	// Sending shadow parameters
 	pbrShaderProgram.setUniform("cascadesPlanes[0]", camera.getNearPlane());
 	for (int i = 0; i < renderingConfigurations.cascadesPlanes.size(); ++i) {
 		pbrShaderProgram.setUniform("cascadesPlanes[" + std::to_string(i + 1) + "]",
 			renderingConfigurations.cascadesPlanes[i]);
-		pbrShaderProgram.setUniform("shadowMaps[" + std::to_string(i) + "]", 7 + i);
-		shadowMapBuffers[i].getDepthAttachment().bind(GL_TEXTURE7 + i);
+		pbrShaderProgram.setUniform("shadowMaps[" + std::to_string(i) + "]", 8 + i);
+		shadowMapBuffers[i].getDepthAttachment().bind(GL_TEXTURE8 + i);
 		pbrShaderProgram.setUniform("lightViewProjectionMatrices[" + std::to_string(i) + "]", lightViewProjections[i]);
 	}
 
@@ -295,6 +358,61 @@ void WarriorRenderer::Renderer::doSkyBoxPass() {
 	skyboxBuffer.unbind();
 }
 
+FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(const Camera& camera, PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture,
+	unsigned int currPass) {
+
+	// Alternate between buffers inbetween post processing passes
+	if (currPass % 2u == 0u) {
+		postProcessingBuffer.bind();
+
+		GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
+
+		auto shaderProgram = postProcessingCommand.getShader();
+		shaderProgram.use();
+
+		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
+
+		quadNDC->bind();
+		quadNDC->draw();
+		quadNDC->unBind();
+
+		shaderProgram.stopUsing();
+		postProcessingBuffer.unbind();
+
+		++currPass;
+
+		if (renderQueue.isPostProcessingEmpty())
+			return postProcessingBuffer;
+
+		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer.getColorAttachment(0), currPass);
+
+	}
+	else {
+		postProcessingBuffer2.bind();
+
+		GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
+
+		auto shaderProgram = postProcessingCommand.getShader();
+		shaderProgram.use();
+
+		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
+
+		quadNDC->bind();
+		quadNDC->draw();
+		quadNDC->unBind();
+
+		shaderProgram.stopUsing();
+		postProcessingBuffer2.unbind();
+
+		++currPass;
+
+		if (renderQueue.isPostProcessingEmpty())
+			return postProcessingBuffer2;
+
+		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer2.getColorAttachment(0), currPass);
+	}
+}
+
 WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConfigurations) {
 
 	assert(renderingConfigurations.areValid());
@@ -325,6 +443,16 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	geometryShaderProgram = ShaderProgram(geometryVS, geometryFS);
 	objectsToDelete.push_back(&geometryVS);
 	objectsToDelete.push_back(&geometryFS);
+
+	Shader postProcessingVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/postProcessingVS.glsl");
+	Shader ssaoFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/ssaoFS.glsl");
+	ssaoShaderProgram = ShaderProgram(postProcessingVS, ssaoFS);
+	objectsToDelete.push_back(&postProcessingVS);
+	objectsToDelete.push_back(&ssaoFS);
+
+	Shader ssaoBlurFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/ssaoBlurFS.glsl");
+	ssaoBlurShaderProgram = ShaderProgram(postProcessingVS, ssaoBlurFS);
+	objectsToDelete.push_back(&ssaoBlurFS);
 
 	Shader depthVS(GL_VERTEX_SHADER, "../WarriorRenderer/shaders/deferred/depthVS.glsl");
 	Shader depthFS(GL_FRAGMENT_SHADER, "../WarriorRenderer/shaders/deferred/depthFS.glsl");
@@ -362,6 +490,16 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 		.attachColorBuffers(1, GL_FLOAT, GL_RED) 
 		.attachColorBuffers(2, GL_FLOAT, GL_RGBA)
 		.attachDepthBuffer()
+		.build();
+
+	ssaoBuffer = frameBufferBuilder
+		.setSize(renderingConfigurations.renderWidth, renderingConfigurations.renderHeight)
+		.attachColorBuffers(1, GL_FLOAT, GL_RED)
+		.build();
+
+	ssaoBlurBuffer = frameBufferBuilder
+		.setSize(renderingConfigurations.renderWidth, renderingConfigurations.renderHeight)
+		.attachColorBuffers(1, GL_FLOAT, GL_RED)
 		.build();
 
 	for (int i = 0; i < renderingConfigurations.cascadesPlanes.size(); ++i) {
@@ -474,16 +612,61 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	// 10. Load brdf LUT texture
 	brdfLUT = Texture2D::fromFloatArrayFile("../WarriorRenderer/textures/irradiance/brdf.fa", 512, 512);
 
-	// 11. Insert all render passes map entries
+	// 11. Load SSAO parameters
+	// Not using rand because it's result is biased when using the mod operator
+	// https://stackoverflow.com/questions/7114043/random-number-generation-in-c11-how-to-generate-how-does-it-work
+	std::uniform_real_distribution<float> dist(0.0, 1.0); // random floats between [0.0, 1.0]
+	std::default_random_engine generator;
+
+	// Generating samples in Tangent space around the normal oriented hemisphere (i.e. the z sample component is within the [0,1] interval)
+	for (unsigned int i = 0; i < sampleSize; ++i)
+	{
+		Vec3 sample(
+			dist(generator) * 2.0 - 1.0,
+			dist(generator) * 2.0 - 1.0,
+			dist(generator)
+		);
+		sample = sample.normalize();
+		sample *= dist(generator);
+
+		float scale = float(i) / sampleSize;
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+		samples.push_back(sample);
+	}
+
+	std::vector<Vec2> noise;
+	// Generating a noise texture
+	for (unsigned int i = 0; i < noiseSize * noiseSize; ++i)
+	{
+		Vec2 randomVec(
+			dist(generator) * 2.0 - 1.0,
+			dist(generator) * 2.0 - 1.0
+		);
+		noise.push_back(randomVec);
+	}
+
+	glGenTextures(1, &noiseTexture);
+	glBindTexture(GL_TEXTURE_2D, noiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, noiseSize, noiseSize, 0, GL_RG, GL_FLOAT, &noise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // We are tiling the texture over the whole screen
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+
+
+	// 12. Insert all render passes map entries
 #ifdef DEBUG_RENDERER
 	renderPassesFrameTime.insert({ RenderPass::GEOMETRY, -1.0f });
+	renderPassesFrameTime.insert({ RenderPass::SSAO, -1.0f });
 	renderPassesFrameTime.insert({ RenderPass::SHADOW, -1.0f });
 	renderPassesFrameTime.insert({ RenderPass::LIGHT, -1.0f });
 	renderPassesFrameTime.insert({ RenderPass::SKYBOX, -1.0f });
 	renderPassesFrameTime.insert({ RenderPass::POSTPROCESSING, -1.0f });
 #endif
 
-	// 12. Finally delete any open gl objects that are no longer necesary
+	// 13. Finally delete any open gl objects that are no longer necesary
 	for (GLObject* object : objectsToDelete) {
 		object->deleteObject();
 	}
@@ -614,7 +797,19 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	doGeometryPass(camera);
 #endif
 
-	// 2. Render from each of the lights perspective to generate each of the shadow maps
+	// 2. Render ambient occlusion to post processing buffer
+#ifdef DEBUG_RENDERER
+	start = std::chrono::high_resolution_clock::now();
+	doSSAOPass(camera);
+	glFinish();
+	end = std::chrono::high_resolution_clock::now();
+	duration = end - start;
+	renderPassesFrameTime[RenderPass::SSAO] = duration.count();
+#else 
+	doGeometryPass(camera);
+#endif
+
+	// 3. Render from each of the lights perspective to generate each of the shadow maps
 	std::vector<Mat4> lightViewProjections;
 
 #ifdef DEBUG_RENDERER
@@ -628,7 +823,7 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	doShadowPass(camera, lights, lightViewProjections);
 #endif
 
-	// 3. Render with lighting
+	// 4. Render with lighting
 #ifdef DEBUG_RENDERER
 	start = std::chrono::high_resolution_clock::now();
 	doLightingPass(camera, lights, lightViewProjections);
@@ -640,7 +835,7 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	doLightingPass(camera, lights, lightViewProjections);
 #endif
 
-	// 4. Render skybox
+	// 5. Render skybox
 #ifdef DEBUG_RENDERER
 	start = std::chrono::high_resolution_clock::now();
 	doSkyBoxPass();
@@ -652,7 +847,7 @@ void WarriorRenderer::Renderer::render(const Camera& camera, const Lights& light
 	doSkyBoxPass();
 #endif
 
-	// 5. Apply post processing if there is any
+	// 6. Apply post processing if there is any
 #ifdef DEBUG_RENDERER
 	start = std::chrono::high_resolution_clock::now();
 	if (!renderQueue.isPostProcessingEmpty()) {
@@ -682,60 +877,6 @@ void WarriorRenderer::Renderer::renderToTarget(const Camera& camera, const Light
 {
 }
 
-FrameBuffer& WarriorRenderer::Renderer::doPostProcessingPasses(const Camera& camera, PostProcessingCommand& postProcessingCommand, Texture2D& previousRenderTexture,
-	unsigned int currPass) {
-
-	// Alternate between buffers inbetween post processing passes
-	if (currPass % 2u == 0u) {
-		postProcessingBuffer.bind();
-
-		GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
-
-		auto shaderProgram = postProcessingCommand.getShader();
-		shaderProgram.use();
-
-		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
-
-		quadNDC->bind();
-		quadNDC->draw();
-		quadNDC->unBind();
-
-		shaderProgram.stopUsing();
-		postProcessingBuffer.unbind();
-
-		++currPass;
-
-		if (renderQueue.isPostProcessingEmpty())
-			return postProcessingBuffer;
-
-		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer.getColorAttachment(0), currPass);
-
-	} else {
-		postProcessingBuffer2.bind();
-
-		GL_CALL(glViewport(0, 0, renderingConfigurations.renderWidth, renderingConfigurations.renderHeight));
-
-		auto shaderProgram = postProcessingCommand.getShader();
-		shaderProgram.use();
-
-		postProcessingCommand.sendParametersToShader(camera, gBuffer, previousRenderTexture);
-
-		quadNDC->bind();
-		quadNDC->draw();
-		quadNDC->unBind();
-
-		shaderProgram.stopUsing();
-		postProcessingBuffer2.unbind();
-
-		++currPass;
-
-		if (renderQueue.isPostProcessingEmpty())
-			return postProcessingBuffer2;
-
-		return doPostProcessingPasses(camera, renderQueue.dequeuePostProcessing(), postProcessingBuffer2.getColorAttachment(0), currPass);
-	}
-}
-
 bool WarriorRenderer::Renderer::enqueueRender(RenderCommand* renderCommand)
 {
 	return renderQueue.enqueueRender(renderCommand);
@@ -746,13 +887,23 @@ bool WarriorRenderer::Renderer::enqueuePostProcessing(PostProcessingCommand* pos
 	return renderQueue.enqueuePostProcessing(postProcessingCommand);
 }
 
-float WarriorRenderer::Renderer::getFrameTime(const RenderPass& renderPass) const
+double WarriorRenderer::Renderer::getFrameTime(const RenderPass& renderPass) const
 {
 #ifdef DEBUG_RENDERER
 	return renderPassesFrameTime.find(renderPass)->second;
 #else
 	return -1.0f;
 #endif
+}
+
+GLint WarriorRenderer::Renderer::getBufferTexture()
+{
+	return ssaoBlurBuffer.getColorAttachment(0).getId();
+}
+
+void WarriorRenderer::Renderer::setBlend(float blend)
+{
+	this->blend = blend;
 }
 
 Material* WarriorRenderer::Renderer::createMaterial() const
