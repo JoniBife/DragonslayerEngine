@@ -287,8 +287,6 @@ void WarriorRenderer::Renderer::doLightingPass(const Camera& camera, const Light
 	pbrShaderProgram.bindUniformBlock(index, 1);
 	pbrShaderProgram.setUniform("numberOfPointLights", (unsigned int)lights.pointLights.size());
 
-	pbrShaderProgram.setUniform("blendBandSize", blend);
-
 	pbrShaderProgram.setUniform("viewPosition", camera.getPosition());
 	pbrShaderProgram.setUniform("gBufferMetallic", 0);
 	pbrShaderProgram.setUniform("gBufferNormalRoughness", 1);
@@ -654,8 +652,6 @@ WarriorRenderer::Renderer::Renderer(const RenderingConfigurations& renderingConf
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // We are tiling the texture over the whole screen
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-
-
 	// 12. Insert all render passes map entries
 #ifdef DEBUG_RENDERER
 	renderPassesFrameTime.insert({ RenderPass::GEOMETRY, -1.0f });
@@ -899,11 +895,6 @@ double WarriorRenderer::Renderer::getFrameTime(const RenderPass& renderPass) con
 GLint WarriorRenderer::Renderer::getBufferTexture()
 {
 	return ssaoBlurBuffer.getColorAttachment(0).getId();
-}
-
-void WarriorRenderer::Renderer::setBlend(float blend)
-{
-	this->blend = blend;
 }
 
 Material* WarriorRenderer::Renderer::createMaterial() const

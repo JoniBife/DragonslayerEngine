@@ -224,5 +224,8 @@
     <ClInclude Include="src\meshes\MeshGroup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Sky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

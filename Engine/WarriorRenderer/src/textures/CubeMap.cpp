@@ -141,7 +141,6 @@ void CubeMap::addMipFromFloatArray(const std::vector<std::string>& facesFilePath
 
     for (unsigned int i = 0; i < facesFilePath.size(); i++)
     {
-
         unsigned int mipWidth = width * std::pow(0.5, level); // TODO Where did this power came from (documentation ?)
         unsigned int mipHeight = height * std::pow(0.5, level);
 

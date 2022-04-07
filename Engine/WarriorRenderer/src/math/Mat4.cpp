@@ -534,7 +534,7 @@ void Mat4::decompose(Vec3& scale, Vec3& rotation, Vec3& position) const
 {
 
 	// Decomposing matrix as explained here:
-	https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati/3554913
+	// https://math.stackexchange.com/questions/237369/given-this-transformation-matrix-how-do-i-decompose-it-into-translation-rotati/3554913
 
 	position = { m[0][3], m[1][3], m[2][3] };
 

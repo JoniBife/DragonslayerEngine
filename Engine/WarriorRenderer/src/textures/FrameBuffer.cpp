@@ -208,7 +208,7 @@ FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, 
 #endif
 
 	this->numberOfColorAttachments += number;
-	for (int i = 0; i < number; ++i) {
+	for (unsigned int i = 0; i < number; ++i) {
 		colorAttachmentsFormat.push_back(format);
 		colorAttachmentsPrecision.push_back(precision);
 		allowSampleColor.push_back(allowSample);
@@ -258,7 +258,7 @@ FrameBuffer FrameBufferBuilder::build()
 
 
 	// 1. First do all color attachments (if there are any)
-	for (int i = 0; i < numberOfColorAttachments; ++i) {
+	for (unsigned int i = 0; i < numberOfColorAttachments; ++i) {
 
 		// If the allow sample if enabled then we attach a texture to the framebuffer
 		// otherwise we attach a render buffer object

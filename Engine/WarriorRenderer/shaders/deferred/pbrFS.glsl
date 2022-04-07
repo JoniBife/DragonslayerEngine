@@ -165,7 +165,7 @@ float calculateShadowFactor(vec4 position, vec3 normal, mat4 lightViewProjection
 	return shadow;
 }
 
-uniform float blendBandSize;
+//uniform float blendBandSize;
 float calculateShadows(vec4 position, vec3 normal) {
     
     // The near and far planes distance for each of the cascades is relative to the position of the camera
@@ -182,7 +182,8 @@ float calculateShadows(vec4 position, vec3 normal) {
             float currentCascadeShadowFactor = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i], shadowMaps[i]);
             
             // Checking if we are in the closest cascade
-            if (i == 0u) {
+            // TODO Improve transition between cascades
+            /*if (i == 0u) {
                 // Are in the further blend band
                 if (fragmentDepthViewSpace > cascadesPlanes[i + 1u] - blendBandSize) {
                     // Finding a normalized position in band [0,1]
@@ -190,7 +191,7 @@ float calculateShadows(vec4 position, vec3 normal) {
 
                     float shadowFactorB = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i + 1u], shadowMaps[i + 1u]);
 
-                    return smoothstep(0.0, 1.0, mix(currentCascadeShadowFactor, shadowFactorB, positionInBand)) * 0.9;
+                    return mix(currentCascadeShadowFactor, shadowFactorB, positionInBand);
                 }
 
             } else if (i == numberOfCascades - 1u) { // Checking if we are in the last cascade
@@ -226,7 +227,7 @@ float calculateShadows(vec4 position, vec3 normal) {
                     return mix(currentCascadeShadowFactor, shadowFactorB, positionInBand);
 
                 }
-            }
+            }*/
             return currentCascadeShadowFactor;
         }
     }

@@ -1,5 +1,5 @@
 #define _USE_MATH_DEFINES
-#include <math.h>
+
 #include <math/MathAux.h>
 #include "Engine.h"
 #include <utils/OpenGLUtils.h>
@@ -7,12 +7,9 @@
 #include <view/Transformations.h>
 #include "core/Input.h"
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-#include <stdio.h>
 #include <meshes/MeshLoader.h>
-#include "gui/ImGuiExtensions.h"
 #include <cstdlib>
+#include <iostream>
 #include <textures/IBL.h>
 #include <WarriorRenderer.h>
 #include <meshes/MeshGroup.h>
@@ -34,7 +31,6 @@ void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy)
 {
 	if (winx > 0 && winy > 0)
 		engine->updateWindow(winx, winy);
-	GL_CALL(glViewport(0, 0, winx, winy));
 	//engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
 	//GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
 }
@@ -94,8 +90,6 @@ void Engine::setupGLFW() {
 
 	window = setupWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE, FULLSCREEN, VSYNC);
 	setupCallbacks(window);
-
-	
 
 #if _DEBUG
 	std::cout << "GLFW " << glfwGetVersionString() << std::endl;
@@ -202,7 +196,7 @@ void Engine::run() {
 
 	//sceneGraph->init(); // Init scene graph after start has been called where the scene setup was made
 
-	MeshGroup group2 = MeshGroup::loadFromFile("../Engine/objs/axe.fbx");
+	/*MeshGroup group2 = MeshGroup::loadFromFile("../Engine/objs/axe.fbx");
 	RenderCommand cerberusCommand;
 	//group2.meshes[0]->calculateTangents();
 	group2.meshes[0]->init();
@@ -214,9 +208,9 @@ void Engine::run() {
 	cerberusCommand.material->setRoughnessMap(new Texture2D("../Engine/textures/pbr/axe/roughness.png"));
 	cerberusCommand.material->setAOMap(new Texture2D("../Engine/textures/pbr/axe/ao.png"));
 	
-	cerberusCommand.model = Mat4::translation({ 0.0f, 2.0f, 0.0f }) * Mat4::rotation(PI/2, Vec3::Y) * Mat4::rotation(-PI/2, Vec3::X);
+	cerberusCommand.model = Mat4::translation({ 0.0f, .5f, 0.0f }) * Mat4::rotation(PI/2, Vec3::Y) * Mat4::rotation(-PI/2, Vec3::X) * Mat4::scaling(2.0f);*/
 
-	MeshGroup group = MeshGroup::loadFromFile("../Engine/objs/sphere.fbx");
+	MeshGroup group = MeshGroup::loadFromFile("../Engine/objs/sphere.obj");
 	RenderCommand renderCommand;
 	Mesh* sphereMesh = group.meshes[0];
 	sphereMesh->calculateTangents();
@@ -255,33 +249,40 @@ void Engine::run() {
 
 	WarriorRenderer::Material* defaultMat = renderer->createMaterial();
 
-	for (int i = -2; i < 10; ++i) {
-		RenderCommand rc;
+	for (int j = 0; j < 5; ++j) {
+		for (int i = 0; i < 5; ++i) {
+		
+			RenderCommand rc;
 
-		rc.mesh = sphereMesh;
-		rc.model = Mat4::translation(0, 0.01f, -i * 3.5f)
-		*Mat4::rotation(PI / 2.0f, Vec3::X);// * Mat4::scaling(0.1f);
-		rc.material = material;
-			
-		renderCommands.push_back(rc);
+			rc.mesh = sphereMesh;
+			rc.model = Mat4::translation(j * 8.5f, 0.01f, i * 8.5f)
+				* Mat4::rotation(PI / 2.0f, Vec3::X) * Mat4::scaling(2.0f);;
+			rc.material = renderer->createMaterial();
+			rc.material->setMetallic(i / 4.0f);
+			rc.material->setRoughness(j / 4.0f);
+			rc.material->setAlbedoTint({ i/4.0f, i / 4.0f, i / 4.0f });
+
+			renderCommands.push_back(rc);
+		}
+
 	}
 	
 	Lights lights;
 	DirectionalLight light;
 	DirectionalLight light2;
 	light2.direction = { 10.0, -10.0, 0.0 };
-	light2.color = { 0.0, 1.0, 0.0 };
+	light2.color = { 1.0, 1.0, 1.0};
 	lights.directionalLights.push_back(light);
-	//lights.directionalLights.push_back(light2);
+	lights.directionalLights.push_back(light2);
 
-	/*
-	for (int i = -10; i < 10; ++i) {
-		for (int j = -20; j < 20; ++j) {
+	
+	/*for (int i = -10; i < 10; ++i) {
+		for (int j = -10; j < 10; ++j) {
 			PointLight pLight;
 			pLight.position = { (float)i * 3.5f ,0.0f , (float)j * 3.5f };
-			pLight.color = { 1.0f ,0.0f ,0.0f };
-			pLight.radiance = 20.0f;
-			pLight.radius = 2.0f;
+			pLight.color = { 1.0f ,fabsf(i)/10.0f , fabsf(j)/10.0f };
+			pLight.radiance = 50.0f;
+			pLight.radius = 2.0f + sinf(i) + cos(j);
 			lights.pointLights.push_back(pLight);
 		}
 	}*/
@@ -316,14 +317,14 @@ void Engine::run() {
 
 		gui->preRenderUI();
 
-		gui->getMaterialPanel().onGUI();
+		//gui->getMaterialPanel().onGUI();
 
 		editorCamera->update(elapsedTime);
 
-		ImGui::ShowMetricsWindow();
+		//ImGui::ShowMetricsWindow();
 
-		renderer->enqueueRender(&renderCommand2);
-		renderer->enqueueRender(&cerberusCommand);
+		//renderer->enqueueRender(&renderCommand2);
+		//renderer->enqueueRender(&cerberusCommand);
 
 		for (RenderCommand& rc : renderCommands) {
 			renderer->enqueueRender(&rc);
@@ -337,13 +338,9 @@ void Engine::run() {
 		ImGui::Checkbox("Fxaa", &enableFxaa);
 		if (enableFxaa) renderer->enqueuePostProcessing(&fxaa);
 
-		static float blend = 0.1f;
-		if (ImGui::SliderFloat("Blend band size", &blend, 0.0f, 10.0f))
-			renderer->setBlend(blend);
-
 		renderer->render(*editorCamera, lights);
 
-		ImGui::Image((ImTextureID)renderer->getBufferTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
+		//ImGui::Image((ImTextureID)renderer->getBufferTexture(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 
 		debugPanel.onGUI();
 

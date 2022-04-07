@@ -139,7 +139,6 @@ namespace WarriorRenderer {
 		only works if the DEBUG_RENDERER directive is active */
 		double getFrameTime(const RenderPass& renderPass) const;
 		GLint getBufferTexture();
-		void setBlend(float blend);
 
 		/* Creates a material using the default textures and settings */
 		Material* createMaterial() const;
