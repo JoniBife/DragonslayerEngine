@@ -7,9 +7,6 @@
 [submodule "DragonslayerEngineExample/libs/glfw"]
 	path = DragonslayerEngineExample/libs/glfw
 	url = https://github.com/glfw/glfw
-[submodule "DragonslayerEngineExample/libs/lmath"]
-	path = DragonslayerEngineExample/libs/lmath
-	url = https://github.com/LongJohnny/LMath/lmath
 	
 
 	
