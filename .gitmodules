@@ -3,7 +3,7 @@
 	url = https://github.com/assimp/assimp
 [submodule "DragonslayerEngine/libs/lmath"]
 	path = DragonslayerEngine/libs/lmath
-	url = https://github.com/LongJohnny/LMath/lmath
+	url = https://github.com/LongJohnny/LMath
 [submodule "DragonslayerEngineExample/libs/glfw"]
 	path = DragonslayerEngineExample/libs/glfw
 	url = https://github.com/glfw/glfw
