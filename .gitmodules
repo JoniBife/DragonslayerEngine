@@ -1,0 +1,17 @@
+[submodule "DragonslayerEngine/libs/assimp"]
+	path = DragonslayerEngine/libs/assimp
+	url = https://github.com/assimp/assimp
+[submodule "DragonslayerEngine/libs/lmath"]
+	path = DragonslayerEngine/libs/lmath
+	url = https://github.com/LongJohnny/LMath/lmath
+[submodule "DragonslayerEngineExample/libs/glfw"]
+	path = DragonslayerEngineExample/libs/glfw
+	url = https://github.com/glfw/glfw
+[submodule "DragonslayerEngineExample/libs/lmath"]
+	path = DragonslayerEngineExample/libs/lmath
+	url = https://github.com/LongJohnny/LMath/lmath
+	
+
+	
+
+
