@@ -1,14 +1,9 @@
 [submodule "DragonslayerEngine/libs/assimp"]
 	path = DragonslayerEngine/libs/assimp
-	url = https://github.com/assimp/assimp
+	url = https://github.com/assimp/assimp.git
 [submodule "DragonslayerEngine/libs/lmath"]
 	path = DragonslayerEngine/libs/lmath
-	url = https://github.com/LongJohnny/LMath
+	url = https://github.com/LongJohnny/LMath.git
 [submodule "DragonslayerEngineExample/libs/glfw"]
 	path = DragonslayerEngineExample/libs/glfw
-	url = https://github.com/glfw/glfw
-	
-
-	
-
-
+	url = https://github.com/glfw/glfw.git
