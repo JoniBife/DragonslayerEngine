@@ -1,0 +1,60 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"DragonslayerEngineExample/libs/glfw/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 394,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"DragonslayerEngineExample/libs/glfw/src/libglfwd.so.3.4",
+				"DragonslayerEngineExample/libs/glfw/src/libglfwd.so.3"
+			],
+			"targetId" : "glfw::@8a4d3c486abb40b2d651",
+			"targetIndex" : 6,
+			"targetInstallNamelink" : "skip",
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"DragonslayerEngineExample/libs/glfw/src/libglfwd.so"
+			],
+			"targetId" : "glfw::@8a4d3c486abb40b2d651",
+			"targetIndex" : 6,
+			"targetInstallNamelink" : "only",
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "DragonslayerEngineExample/libs/glfw/src",
+		"source" : "DragonslayerEngineExample/libs/glfw/src"
+	}
+}

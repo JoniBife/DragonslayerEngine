@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "DragonslayerEngine/libs/glad",
+		"source" : "DragonslayerEngine/libs/glad"
+	}
+}

@@ -4,6 +4,8 @@
 
 #include <string>
 #include <fstream>
+#include <math.h>
+
 namespace fa {
 
     static float* loadFromFile(const std::string& inputPath, unsigned int length) {

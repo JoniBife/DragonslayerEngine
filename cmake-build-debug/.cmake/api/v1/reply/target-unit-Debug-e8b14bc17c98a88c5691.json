@@ -1,0 +1,1449 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "DragonslayerEngine/libs/assimp/bin/unit"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"LINK_DIRECTORIES",
+			"target_link_libraries",
+			"ADD_DEFINITIONS",
+			"add_definitions",
+			"INCLUDE_DIRECTORIES",
+			"target_sources"
+		],
+		"files" : 
+		[
+			"DragonslayerEngine/libs/assimp/test/CMakeLists.txt",
+			"DragonslayerEngine/libs/assimp/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 208,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 61,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 264,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 618,
+				"parent" : 4
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 45,
+				"parent" : 4
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 44,
+				"parent" : 4
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 531,
+				"parent" : 4
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 247,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 248,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 234,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 237,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 1,
+				"line" : 244,
+				"parent" : 4
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 41,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 48,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 233,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 225,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-fno-strict-aliasing  -g -fPIE"
+				},
+				{
+					"fragment" : "-std=gnu99"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "ASSIMP_BUILD_NO_C4D_IMPORTER"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "ASSIMP_BUILD_NO_M3D_EXPORTER"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "ASSIMP_BUILD_NO_M3D_IMPORTER"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "ASSIMP_BUILD_NO_OWN_ZLIB"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "ASSIMP_TEST_MODELS_DIR=\"/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/models\""
+				},
+				{
+					"backtrace" : 10,
+					"define" : "ASSIMP_TEST_MODELS_NONBSD_DIR=\"/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/models-nonbsd\""
+				},
+				{
+					"backtrace" : 11,
+					"define" : "RAPIDJSON_HAS_STDSTRING=1"
+				},
+				{
+					"backtrace" : 12,
+					"define" : "RAPIDJSON_NOMEMBERITERATORCLASS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp/include"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/include"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/code"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/."
+				},
+				{
+					"backtrace" : 14,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/unit"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/gtest/include"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/gtest"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/pugixml/src"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/../contrib/rapidjson/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/code/../include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp/code/../include"
+				}
+			],
+			"language" : "C",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "99"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-fvisibility=hidden -fno-strict-aliasing -Wall  -g -fPIE"
+				},
+				{
+					"fragment" : "-std=gnu++11"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 5,
+					"define" : "ASSIMP_BUILD_NO_C4D_IMPORTER"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "ASSIMP_BUILD_NO_M3D_EXPORTER"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "ASSIMP_BUILD_NO_M3D_IMPORTER"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "ASSIMP_BUILD_NO_OWN_ZLIB"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "ASSIMP_TEST_MODELS_DIR=\"/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/models\""
+				},
+				{
+					"backtrace" : 10,
+					"define" : "ASSIMP_TEST_MODELS_NONBSD_DIR=\"/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/models-nonbsd\""
+				},
+				{
+					"backtrace" : 11,
+					"define" : "RAPIDJSON_HAS_STDSTRING=1"
+				},
+				{
+					"backtrace" : 12,
+					"define" : "RAPIDJSON_NOMEMBERITERATORCLASS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp/include"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/include"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/code"
+				},
+				{
+					"backtrace" : 13,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/."
+				},
+				{
+					"backtrace" : 14,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/unit"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/gtest/include"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/gtest"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/contrib/pugixml/src"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/test/../contrib/rapidjson/include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/assimp/code/../include"
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp/code/../include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "11"
+			},
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				18,
+				19,
+				20,
+				21,
+				23,
+				25,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68,
+				69,
+				70,
+				71,
+				72,
+				73,
+				74,
+				75,
+				76,
+				77,
+				78,
+				79,
+				80,
+				81,
+				82,
+				83,
+				84,
+				85,
+				86,
+				87,
+				88,
+				89,
+				90,
+				92,
+				93,
+				94,
+				95,
+				96,
+				97,
+				98,
+				99,
+				100,
+				101,
+				102,
+				103,
+				104,
+				105,
+				106,
+				107,
+				108,
+				109,
+				110,
+				111,
+				112,
+				113,
+				114,
+				115,
+				116,
+				117,
+				118,
+				119,
+				120,
+				121,
+				122,
+				123,
+				124
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "assimp::@ec39618279b300e0af6c"
+		}
+	],
+	"id" : "unit::@f90b21e569ff4dd3aa77",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-fvisibility=hidden -fno-strict-aliasing -Wall  -g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-L/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp:/home/jonisilva/Projects/rendering-engine/cmake-build-debug/DragonslayerEngine/libs/assimp/bin",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "DragonslayerEngine/libs/assimp/bin/libassimpd.so.5.2.0",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lpthread",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/libz.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lminizip",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/librt.a",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "unit",
+	"nameOnDisk" : "unit",
+	"paths" : 
+	{
+		"build" : "DragonslayerEngine/libs/assimp/test",
+		"source" : "DragonslayerEngine/libs/assimp/test"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "UnitTests\\Compiler",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				3,
+				124
+			]
+		},
+		{
+			"name" : "UnitTests\\Common",
+			"sourceIndexes" : 
+			[
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40
+			]
+		},
+		{
+			"name" : "UnitTests\\ImportExport",
+			"sourceIndexes" : 
+			[
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68,
+				69,
+				70,
+				71,
+				72,
+				73,
+				74,
+				75,
+				76,
+				77,
+				78,
+				79,
+				80,
+				81,
+				82,
+				83,
+				84,
+				85,
+				86,
+				87,
+				88,
+				89,
+				90,
+				91,
+				92,
+				93,
+				94,
+				95,
+				96
+			]
+		},
+		{
+			"name" : "UnitTests\\Material",
+			"sourceIndexes" : 
+			[
+				97
+			]
+		},
+		{
+			"name" : "UnitTests\\Math",
+			"sourceIndexes" : 
+			[
+				98,
+				99,
+				100
+			]
+		},
+		{
+			"name" : "UnitTests\\PostProcess",
+			"sourceIndexes" : 
+			[
+				101,
+				102,
+				103,
+				104,
+				105,
+				106,
+				107,
+				108,
+				109,
+				110,
+				111,
+				112,
+				113,
+				114,
+				115,
+				116,
+				117,
+				118,
+				119,
+				120,
+				121,
+				122,
+				123
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/CCompilerTest.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Main.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/code/Common/Version.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/code/Common/Base64.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSimd.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utIOSystem.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utIOStreamBuffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utIssues.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utAnim.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest_aiMatrix3x3.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest_aiMatrix4x4.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest_aiQuaternion.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest_aiVector2D.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AssimpAPITest_aiVector3D.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/MathTest.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/MathTest.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/RandomNumberGeneration.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBatchLoader.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utDefaultIOStream.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utFastAtof.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utMetadata.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/SceneDiffer.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/SceneDiffer.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/UTLogStream.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/AbstractImportExportBase.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/TestIOSystem.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/TestModelFactory.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utTypes.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utVersion.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utProfiler.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSharedPPData.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utStringUtils.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utMesh.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utStandardShapes.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/uiScene.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utLineSplitter.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utSpatialSort.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utAssertHandler.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utXmlParser.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/Common/utBase64.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/Assxml/utAssxmlImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utLWSImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utLWOImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSMDImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utglTFImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utglTF2ImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utHMPImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utIFCImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utFBXImporterExporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utImporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utExporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ut3DImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ut3DSImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utACImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utAMFImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utASEImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utD3MFImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utQ3DImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSTLImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utXImporterExporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utX3DImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utDXFImporterExporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utPMXImporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utPLYImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utObjImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utObjTools.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utOpenGEXImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSIBImporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBlenderIntermediate.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBlendImportAreaLight.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBlenderImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBlendImportMaterials.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBlenderWork.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utBVHImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utColladaExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utColladaImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utCSMImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utB3DImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utMDCImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utAssbinImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utAssjsonImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utCOBImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utOgreImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utQ3BSPFileImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utOFFImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utNFFImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utXGLImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utMD2Importer.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utMD5Importer.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/utMDLImporter.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/MDL/MDLHL1TestFiles.h",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/MDL/utMDLImporter_HL1_ImportSettings.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/MDL/utMDLImporter_HL1_Materials.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/MDL/utMDLImporter_HL1_Nodes.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/RAW/utRAWImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/ImportExport/Terragen/utTerragenImportExport.cpp",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utMaterialSystem.cpp",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utMatrix3x3.cpp",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utMatrix4x4.cpp",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utVector3.cpp",
+			"sourceGroupIndex" : 5
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utImproveCacheLocality.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utFixInfacingNormals.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utGenNormals.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utTriangulate.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utTextureTransform.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utRemoveRedundantMaterials.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utRemoveVCProcess.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utScaleProcess.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utArmaturePopulate.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utJoinVertices.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utRemoveComments.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utRemoveComponent.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utVertexTriangleAdjacency.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSplitLargeMeshes.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utFindDegenerates.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utFindInvalidData.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utLimitBoneWeights.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utPretransformVertices.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utScenePreprocessor.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utTargetAnimation.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSortByPType.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utSceneCombiner.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/test/unit/utGenBoundingBoxesProcess.cpp",
+			"sourceGroupIndex" : 6
+		},
+		{
+			"backtrace" : 17,
+			"compileGroupIndex" : 1,
+			"path" : "DragonslayerEngine/libs/assimp/contrib/gtest/src/gtest-all.cc",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "EXECUTABLE"
+}

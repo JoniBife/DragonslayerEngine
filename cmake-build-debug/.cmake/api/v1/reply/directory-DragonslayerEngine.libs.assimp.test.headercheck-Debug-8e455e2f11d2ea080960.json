@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "DragonslayerEngine/libs/assimp/test/headercheck",
+		"source" : "DragonslayerEngine/libs/assimp/test/headercheck"
+	}
+}

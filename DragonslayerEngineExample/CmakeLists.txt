@@ -9,7 +9,7 @@ target_include_directories(DragonslayerEngineExample PUBLIC "")
 add_subdirectory ("libs/glfw")
 
 target_link_libraries (DragonslayerEngineExample
-	glfw
-	LMath
-	DragonslayerEngine
+        glfw
+        LMath
+        DragonslayerEngine
 )
