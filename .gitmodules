@@ -1,6 +1,6 @@
 [submodule "DragonslayerEngine/libs/assimp"]
 	path = DragonslayerEngine/libs/assimp
-	url = https://github.com/assimp/assimp/tree/v5.2.5
+	url = https://github.com/assimp/assimp/tree/v5.2.4.git
 [submodule "DragonslayerEngine/libs/lmath"]
 	path = DragonslayerEngine/libs/lmath
 	url = https://github.com/LongJohnny/LMath.git
