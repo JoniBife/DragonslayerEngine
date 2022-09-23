@@ -1,3 +1,0 @@
-/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/glad/CMakeFiles/glad.dir
-/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/glad/CMakeFiles/edit_cache.dir
-/home/jonisilva/Projects/rendering-engine/DragonslayerEngine/libs/glad/CMakeFiles/rebuild_cache.dir
