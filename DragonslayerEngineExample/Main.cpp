@@ -7,117 +7,131 @@
 
 using namespace DragonslayerEngine;
 
-
-///////////////////////////////////////////////////////////////////// CALLBACKS
-void window_size_callback(GLFWwindow* win, int winx, int winy)
-{
-	/*int newWidth, newHeight;
-	glfwGetFramebufferSize(win, &newWidth, &newHeight);
-	engine->updateWindow(newWidth, newHeight);
-	GL_CALL(glViewport(0, 0, newWidth, newHeight));*/
-}
-void frameBufferSizeCallBack(GLFWwindow* win, int winx, int winy)
-{
-	//engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
-	//GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
-}
-void glfw_error_callback(int error, const char* description)
-{
-	std::cerr << "GLFW Error: " << description << std::endl;
-}
-
-GLFWwindow* loadGlfwAndCreateWindow() {
-	glfwSetErrorCallback(glfw_error_callback);
-
-	if (!glfwInit())
-	{
-		exit(EXIT_FAILURE);
-	}
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4.6);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3.3);
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-
-	GLFWwindow* window = glfwCreateWindow(1366, 768, "Cool", 0, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-	glfwMakeContextCurrent(window);
-	glfwSwapInterval(true);
-
-	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallBack);
-	glfwSetWindowSizeCallback(window, window_size_callback);
-
-	return window;
-}
-
+void glfwWindowSizeCallBack(GLFWwindow* win, int winx, int winy);
+void glfwFramebufferSizeCallBack(GLFWwindow* win, int winx, int winy);
+void glfwErrorCallback(int error, const char* description);
+GLFWwindow* loadGlfwAndCreateWindow(unsigned int width, unsigned int height, const char* title);
 
 int main()
 {
-	GLFWwindow* window = loadGlfwAndCreateWindow();
+    RenderingConfigurations renderingConfigs;
 
-	RenderingConfigurations renderingConfigs;
-	renderingConfigs.shadowsResolution = 4048;
-	Renderer* renderer = new Renderer(
-		renderingConfigs, 
-		(GLLoadProc)glfwGetProcAddress
-	);
+    GLFWwindow* window = loadGlfwAndCreateWindow(renderingConfigs.renderWidth, renderingConfigs.renderHeight, "DragonslayerEngine - Example");
 
-	core::Input::initialize(window);
+    Renderer* renderer = new Renderer(
+            renderingConfigs,
+            (GLLoadProc)glfwGetProcAddress
+    );
 
-	EditorCamera camera;
-	camera.setEditorWindowFocus(true);
-	camera.setViewportSize(1366, 720);
-	
-	Lights lights;
-	lights.directionalLights.push_back(DirectionalLight());
-	
-	RenderCommand renderCommand;
-	renderCommand.model = Mat4::scaling(10.0f);
-	MeshGroup group = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/sphere.obj");
-	renderCommand.mesh = group.meshes[0];
-	renderCommand.material = renderer->createMaterial();
-	renderCommand.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+    core::Input::initialize(window);
 
-	RenderCommand renderCommand2;
-	renderCommand2.model = Mat4::translation({0.0f, -1.0f, 0.0f});
-	MeshGroup group2 = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/plane.obj");
-	renderCommand2.mesh = group2.meshes[0];
-	renderCommand2.material = renderer->createMaterial();
-	renderCommand2.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+    EditorCamera camera; {
+        camera.setEditorWindowFocus(true);
+        camera.setViewportSize(renderingConfigs.renderWidth, renderingConfigs.renderHeight);
+        camera.setPosition(LMath::Vec3(0.0, 10.0, 20.0));
+        camera.setFarPlane(200.0);
+    }
 
-	ACESToneMappingCommand toneMapping = ACESToneMappingCommand();
-	//ReinhardToneMappingCommand toneMapping = ReinhardToneMappingCommand();
-	FxaaCommand fxaa = FxaaCommand();
+    Lights lights; {
+        DirectionalLight directionalLight; {
+            directionalLight.intensity = 1.0f;
+            directionalLight.color = LMath::Vec3(1.0, 1.0, 1.0);
+        }
+        lights.directionalLights.emplace_back(directionalLight);
+    }
 
-	double elapsedTime, lastTime = 0.0;
-	while (!glfwWindowShouldClose(window))
-	{
-		glfwPollEvents();
+    RenderCommand renderCommand; {
+        renderCommand.model = Mat4::scaling(1.0f);
+        MeshGroup group = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/sphere.obj");
+        renderCommand.mesh = group.meshes[0];
+        renderCommand.material = renderer->createMaterial();
+        renderCommand.material->setAlbedoTint({1.0f, 1.0f, 1.0f});
+    }
 
-		double time = glfwGetTime();
-		elapsedTime = time - lastTime;
-		lastTime = time;
+    RenderCommand renderCommand2; {
+        renderCommand2.model = Mat4::translation({0.0f, -1.0f, 0.0f});
+        MeshGroup group2 = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/plane.obj");
+        renderCommand2.mesh = group2.meshes[0];
+        renderCommand2.material = renderer->createMaterial();
+        renderCommand2.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+    }
 
-		renderCommand.material->setMetallic(sin(time) * 0.5 + 0.5);
-		renderCommand.material->setRoughness(sin(time * .5) * 0.5 + 0.5);
+    ACESToneMappingCommand toneMapping = ACESToneMappingCommand();
+    //ReinhardToneMappingCommand toneMapping = ReinhardToneMappingCommand();
+    FxaaCommand fxaa = FxaaCommand();
 
-		camera.update(elapsedTime);
-		renderer->enqueuePostProcessing(&fxaa);
-		renderer->enqueuePostProcessing(&toneMapping);
-		renderer->enqueueRender(&renderCommand);
-		renderer->enqueueRender(&renderCommand2);
-		
-		renderer->render(camera, lights);
+    double elapsedTime, lastTime = 0.0;
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
 
-		glfwSwapBuffers(window);
-	}
+        double time = glfwGetTime();
+        elapsedTime = time - lastTime;
+        lastTime = time;
 
-	glfwDestroyWindow(window);
-	glfwTerminate();
+        renderCommand.material->setMetallic(sin(time) * 0.5 + 0.5);
+        renderCommand.material->setRoughness(sin(time * .5) * 0.5 + 0.5);
+
+        camera.update(elapsedTime);
+        renderer->enqueuePostProcessing(&fxaa);
+        renderer->enqueuePostProcessing(&toneMapping);
+        renderer->enqueueRender(&renderCommand);
+        renderer->enqueueRender(&renderCommand2);
+
+        renderer->render(camera, lights);
+
+        glfwSwapBuffers(window);
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return 0;
+}
+
+void glfwWindowSizeCallBack(GLFWwindow* win, int winx, int winy)
+{
+    /*int newWidth, newHeight;
+    glfwGetFramebufferSize(win, &newWidth, &newHeight);
+    engine->updateWindow(newWidth, newHeight);
+    GL_CALL(glViewport(0, 0, newWidth, newHeight));*/
+}
+void glfwFramebufferSizeCallBack(GLFWwindow* win, int winx, int winy)
+{
+    //engine->updateWindow(2.0f/3.0f * winx, 2.0f / 3.0f * winy);
+    //GL_CALL(glViewport(0, winy / 3.0f, 2.0f / 3.0f * winx , 2.0f/3.0f * winy));
+}
+void glfwErrorCallback(int error, const char* description)
+{
+    std::cerr << "GLFW Error: " << description << std::endl;
+}
+GLFWwindow* loadGlfwAndCreateWindow(unsigned int width, unsigned int height, const char* title) {
+
+    glfwSetErrorCallback(glfwErrorCallback);
+
+    if (!glfwInit())
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4.6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3.3);
+#ifdef _DEBUF_
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+
+    GLFWwindow* window = glfwCreateWindow(width, height, title, 0, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(true);
+
+    glfwSetFramebufferSizeCallback(window, glfwFramebufferSizeCallBack);
+    glfwSetWindowSizeCallback(window, glfwWindowSizeCallBack);
+
+    return window;
 }

@@ -87,7 +87,7 @@ namespace DragonslayerEngine {
 		Mesh* cube;
 		CubeMap* skyBox;
 
-		//Post processing
+		//Post-processing
 		FrameBuffer postProcessingBuffer;
 		FrameBuffer postProcessingBuffer2;
 		Mesh* quadNDC;
@@ -137,7 +137,7 @@ namespace DragonslayerEngine {
 		*/
 		bool enqueuePostProcessing(PostProcessingCommand* postProcessingCommand);
 
-		void updateConfigutations(const RenderingConfigurations& newRenderingConfigurations);
+		void updateConfigurations(const RenderingConfigurations& newRenderingConfigurations);
 
 #ifdef DEBUG_RENDERER
 		/* Returns the frame time in milliseconds for a specific pass

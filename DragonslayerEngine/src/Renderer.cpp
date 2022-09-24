@@ -715,7 +715,7 @@ DragonslayerEngine::Renderer::~Renderer()
 	brdfLUT.deleteObject();
 }
 
-void DragonslayerEngine::Renderer::updateConfigutations(const RenderingConfigurations& newRenderingConfigurations)
+void DragonslayerEngine::Renderer::updateConfigurations(const RenderingConfigurations& newRenderingConfigurations)
 {
 	assert(newRenderingConfigurations.areValid());
 
