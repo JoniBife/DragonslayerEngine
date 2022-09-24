@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DragonSlayerEngine.iml" filepath="$PROJECT_DIR$/.idea/DragonSlayerEngine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/DragonslayerEngine.iml" filepath="$PROJECT_DIR$/.idea/DragonslayerEngine.iml" />
     </modules>
   </component>
 </project>

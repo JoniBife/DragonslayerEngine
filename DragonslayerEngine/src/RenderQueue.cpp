@@ -3,7 +3,7 @@
 
 using namespace DragonslayerEngine;
 
-bool DragonslayerEngine::RenderQueue::enqueueRender(RenderCommand* const renderCommand)
+bool DragonslayerEngine::RenderQueue::enqueueRender(RenderCommand* renderCommand)
 {
 	if (!renderCommand->isValid()) {
 		return false;
@@ -12,7 +12,7 @@ bool DragonslayerEngine::RenderQueue::enqueueRender(RenderCommand* const renderC
 	geometryQueue.push(renderCommand);
 
 	if (renderCommand->castShadows)
-		shadowMapQueue.push_back(renderCommand);
+		shadowMapQueue.push(renderCommand);
 
 	// TODO Uncomment when implementing alpha testing
 	/*if (renderCommand.blending)
@@ -58,19 +58,19 @@ RenderCommand& DragonslayerEngine::RenderQueue::dequeueShadowMap()
 	assert(!shadowMapQueue.empty());
 	
 	RenderCommand* command = shadowMapQueue.front();
-	shadowMapQueue.pop_front();
+	shadowMapQueue.pop();
 	return *command;
 }
 
-std::deque<RenderCommand*>& DragonslayerEngine::RenderQueue::getShadowMapQueue()
+std::queue<RenderCommand*>& DragonslayerEngine::RenderQueue::getShadowMapQueue()
 {
 	return shadowMapQueue;
 }
 
 void DragonslayerEngine::RenderQueue::clearShadowMapQueue()
 {
-    std::deque<RenderCommand*> empty;
-    shadowMapQueue.swap(empty);
+	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty;
+	shadowMapQueue.swap(empty);
 }
 
 bool DragonslayerEngine::RenderQueue::isAlphaTestEmpty()
@@ -120,7 +120,7 @@ void DragonslayerEngine::RenderQueue::clear()
 	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty;
 	geometryQueue.swap(empty);
 
-	std::deque<RenderCommand*> empty1;
+	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty1;
 	shadowMapQueue.swap(empty1);
 
 	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty2;

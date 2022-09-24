@@ -2,5 +2,12 @@
 # Visual Studio cache/options directory
 .vs/
 
+.idea/
+
 # CMake output
-out/
+out
+
+cmake-build-debug/
+
+cmake-build-release/
+

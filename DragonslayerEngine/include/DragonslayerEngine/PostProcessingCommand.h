@@ -1,7 +1,7 @@
 #ifndef POST_PROCESSING_COMMAND_H
 #define POST_PROCESSING_COMMAND_H
 
-#include "shaders/ShaderProgram.h"
+#include "shaders/shaderProgram.h"
 #include "textures/FrameBuffer.h"
 #include "DragonslayerEngine/Camera.h"
 #include <string>

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <math.h>
 #include <DragonslayerEngine/Renderer.h>
 #include <GLFW/glfw3.h>
 #include <cameras/EditorCamera.h>

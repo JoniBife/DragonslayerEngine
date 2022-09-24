@@ -104,7 +104,7 @@ bool Shader::compileShader() {
         GL_CALL(glGetShaderInfoLog(id, logLength, &logLength, infoLog));
 
         std::cout << "Shader compilation ERROR [ Failed to compile a " 
-            << getShaderTypeName(type) << " (" << filePath  <<") | log: " << infoLog << " ]" << std::endl;
+            << getShaderTypeName(type) << " | log: " << infoLog << " ]" << std::endl;
 
         delete[] infoLog;
         GL_CALL(glDeleteShader(id));

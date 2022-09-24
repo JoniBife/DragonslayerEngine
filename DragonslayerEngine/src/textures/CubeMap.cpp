@@ -1,7 +1,6 @@
-#include <math.h>
-#include <assert.h>
 #include "DragonslayerEngine/textures/CubeMap.h"
 #include "stb_image.h"
+#include <assert.h>
 #include "DragonslayerEngine/utils/OpenGLUtils.h"
 #include "DragonslayerEngine/textures/FrameBuffer.h"
 #include "DragonslayerEngine/textures/FloatArrayFile.h"

@@ -12,8 +12,6 @@
 #include <chrono>
 #include <random>
 
-#define _DEBUG
-
 using namespace LMath;
 
 using namespace DragonslayerEngine;
@@ -190,7 +188,7 @@ void DragonslayerEngine::Renderer::doSSAOPass(const Camera& camera)
 
 void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections)
 {
-	std::deque<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
+	std::queue<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
 
 	if (shadowMapCommands.size() > 0 && !lights.directionalLights.empty()) {
 
@@ -231,7 +229,7 @@ void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Ligh
 
 			shadowMapShaderProgram.setUniform("lightSpaceProjectionMatrix", lightViewProjections[j]);
 
-			for (RenderCommand* shadowMapCommand : shadowMapCommands) {
+			for (RenderCommand* shadowMapCommand : shadowMapCommands._Get_container()) {
 
 				shadowMapShaderProgram.setUniform("modelMatrix", shadowMapCommand->model);
 				shadowMapCommand->mesh->bind();
@@ -424,11 +422,11 @@ DragonslayerEngine::Renderer::Renderer(const RenderingConfigurations& renderingC
 	{
 		std::cerr << "ERROR failed to load OpenGL" << std::endl;
 		exit(EXIT_FAILURE);
-	} 
+	}
 
 	// 2. Setting the renderer default OpenGL configurations 
-#ifdef _DEBUG
-	printOpenGLInfo();
+#if _DEBUG
+	//printOpenGLInfo();
 #endif
 	openGLState.setToDefaultState();
 
