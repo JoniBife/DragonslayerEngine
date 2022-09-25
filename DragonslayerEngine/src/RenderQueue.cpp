@@ -12,7 +12,7 @@ bool DragonslayerEngine::RenderQueue::enqueueRender(RenderCommand* renderCommand
 	geometryQueue.push(renderCommand);
 
 	if (renderCommand->castShadows)
-		shadowMapQueue.push(renderCommand);
+		shadowMapQueue.push_back(renderCommand);
 
 	// TODO Uncomment when implementing alpha testing
 	/*if (renderCommand.blending)
@@ -58,18 +58,18 @@ RenderCommand& DragonslayerEngine::RenderQueue::dequeueShadowMap()
 	assert(!shadowMapQueue.empty());
 	
 	RenderCommand* command = shadowMapQueue.front();
-	shadowMapQueue.pop();
+	shadowMapQueue.pop_front();
 	return *command;
 }
 
-std::queue<RenderCommand*>& DragonslayerEngine::RenderQueue::getShadowMapQueue()
+std::deque<RenderCommand*>& DragonslayerEngine::RenderQueue::getShadowMapQueue()
 {
 	return shadowMapQueue;
 }
 
 void DragonslayerEngine::RenderQueue::clearShadowMapQueue()
 {
-	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty;
+	std::deque<RenderCommand*> empty;
 	shadowMapQueue.swap(empty);
 }
 
@@ -120,7 +120,7 @@ void DragonslayerEngine::RenderQueue::clear()
 	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty;
 	geometryQueue.swap(empty);
 
-	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty1;
+	std::deque<RenderCommand*> empty1;
 	shadowMapQueue.swap(empty1);
 
 	std::queue<RenderCommand*, std::deque<RenderCommand*>> empty2;

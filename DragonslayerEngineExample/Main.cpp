@@ -4,6 +4,7 @@
 #include <cameras/EditorCamera.h>
 #include <core/Input.h>
 #include <DragonslayerEngine/MeshGroup.h>
+#include <cmath>
 
 using namespace DragonslayerEngine;
 

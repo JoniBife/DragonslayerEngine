@@ -188,7 +188,7 @@ void DragonslayerEngine::Renderer::doSSAOPass(const Camera& camera)
 
 void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Lights& lights, std::vector<Mat4>& lightViewProjections)
 {
-	std::queue<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
+	std::deque<RenderCommand*>& shadowMapCommands = renderQueue.getShadowMapQueue();
 
 	if (shadowMapCommands.size() > 0 && !lights.directionalLights.empty()) {
 
@@ -229,7 +229,7 @@ void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Ligh
 
 			shadowMapShaderProgram.setUniform("lightSpaceProjectionMatrix", lightViewProjections[j]);
 
-			for (RenderCommand* shadowMapCommand : shadowMapCommands._Get_container()) {
+			for (RenderCommand* shadowMapCommand : shadowMapCommands) {
 
 				shadowMapShaderProgram.setUniform("modelMatrix", shadowMapCommand->model);
 				shadowMapCommand->mesh->bind();

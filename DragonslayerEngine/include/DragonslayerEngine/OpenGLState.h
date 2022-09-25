@@ -2,7 +2,7 @@
 #define OPEN_GL_STATE_H
 
 #include <glad/glad.h>
-#include "shaders/shaderProgram.h"
+#include "shaders/ShaderProgram.h"
 
 namespace DragonslayerEngine {
 
