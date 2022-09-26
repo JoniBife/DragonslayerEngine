@@ -77,6 +77,16 @@ int main()
         renderCommand2.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
     }
 
+    RenderCommand renderCommand3; {
+        renderCommand3.model = Mat4::translation({0.0f, 0.0f, 0.0f}) * Mat4::scaling(2.0f, 10.0f, 2.0f);
+        MeshGroup group2 = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/cube.obj");
+        renderCommand3.mesh = group2.meshes[0];
+        renderCommand3.material = renderer->createMaterial();
+        renderCommand3.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+    }
+
+    RenderCommand renderCommand4;
+
     ACESToneMappingCommand toneMapping = ACESToneMappingCommand();
     //ReinhardToneMappingCommand toneMapping = ReinhardToneMappingCommand();
     FxaaCommand fxaa = FxaaCommand();
@@ -121,13 +131,15 @@ int main()
         }
 
         camera.update(elapsedTime);
-        renderCommand.model = Mat4::translation(0.0, sin(time * 10.0), 0.0);
+        renderCommand.model = Mat4::translation(cos(time) * 10.0, sin(time * 7.0) * 3.0 + 5.0, 0.0);
         renderCommand.material->setMetallic(sin(time) * 0.5 + 0.5);
         renderCommand.material->setRoughness(sin(time * .5) * 0.5 + 0.5);
         renderer->enqueuePostProcessing(&fxaa);
         renderer->enqueuePostProcessing(&toneMapping);
         renderer->enqueueRender(&renderCommand);
         renderer->enqueueRender(&renderCommand2);
+        renderer->enqueueRender(&renderCommand3);
+        renderer->enqueueRender(&renderCommand4);
 
         renderer->render(camera, lights);
 
@@ -140,6 +152,8 @@ int main()
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    delete renderer;
 
     glfwDestroyWindow(window);
     glfwTerminate();

@@ -30,7 +30,7 @@ void checkForOpenGLErrors(std::string error);
 #if _DEBUG
 #define GL_CALL(x) clearError();\
 	x;\
-	if(hasOpenGLError(#x,__FILE__, __LINE__)) __debugbreak() // WARNING This function (__debugbreak) is compiler specific 
+	if(hasOpenGLError(#x,__FILE__, __LINE__)) __debugbreak() // WARNING This function (__debugbreak) is compiler specific
 
 static void clearError() { while (glGetError() != GL_NO_ERROR); }
 static bool hasOpenGLError(const char* function, const char* file, int line) {

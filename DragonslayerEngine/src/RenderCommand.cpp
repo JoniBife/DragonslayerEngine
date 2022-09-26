@@ -2,5 +2,5 @@
 
 bool DragonslayerEngine::RenderCommand::isValid() const
 {
-	return mesh != nullptr && material != nullptr;
+	return mesh && material;
 }

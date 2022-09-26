@@ -68,7 +68,7 @@ void main()
     mat3 TBN = mat3(T,B,normal); // Moves from tangent space to viewspace
 
     float occlusion = 0.0;
-    for (unsigned int i = 0u; i < sampleSize; ++i) {
+    for (uint i = 0u; i < sampleSize; ++i) {
         
         vec3 sampleViewSpace = TBN * samples[i];
         vec4 samplePosition = vec4(positionViewSpace + sampleViewSpace * sampleRadius, 1.0);

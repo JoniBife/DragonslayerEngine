@@ -22,7 +22,7 @@ target_include_directories(imgui PUBLIC "libs/imgui" "libs/imgui/backends")
 target_link_libraries(imgui glfw)
 
 # SETUP RENDERER
-set(GENERATE_DEBUG_INFORMATION ON CACHE FALSE "" FORCE)
+set(GENERATE_DEBUG_INFORMATION ON CACHE BOOL "" FORCE)
 
 # SETUP EXAMPLE
 add_executable (DragonslayerEngineExample "Main.cpp"  "cameras/EditorCamera.cpp" "cameras/EditorCamera.h" "core/Input.cpp" "core/Input.h")

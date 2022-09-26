@@ -49,7 +49,6 @@ private:
 	GLuint vboTextCoordsId = 0u;
 	GLuint eboIndicesId = 0u;
 	GLuint vboTangentsId = 0u;
-	GLuint vboBitangentsId = 0u;
 	GLenum drawingPrimitive = GL_TRIANGLES;
 	bool hasBeenInitialized = false;
 	bool hasBeenBound = false;

@@ -7,8 +7,8 @@
 namespace DragonslayerEngine {
 
 	struct RenderCommand {
-		Mesh* mesh;
-		Material* material;
+		Mesh* mesh = nullptr;
+		Material* material = nullptr;
 		Mat4 model;
 		bool castShadows = true;
 		bool receiveShadows = true;

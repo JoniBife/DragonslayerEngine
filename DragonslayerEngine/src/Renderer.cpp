@@ -156,7 +156,7 @@ void DragonslayerEngine::Renderer::doSSAOPass(const Camera& camera)
 	ssaoShaderProgram.setUniform("sampleSize", sampleSize);
 
 	ssaoShaderProgram.setUniform("projectionMatrix", camera.getProjection());
-	//shaderProgram.setUniform("viewMatrix", camera.getView());
+    ssaoShaderProgram.setUniform("viewMatrix", camera.getView());
 	Mat4 inverseProjection;
 	camera.getProjection().inverse(inverseProjection);
 	Mat4 inverseView;

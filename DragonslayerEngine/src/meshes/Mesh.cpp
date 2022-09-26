@@ -72,7 +72,6 @@ Mesh::~Mesh() {
 	vboTextCoordsId = 0u;
 	eboIndicesId = 0u;
 	vboTangentsId = 0u;
-	vboBitangentsId = 0u;
 }
 
 Mesh& Mesh::operator=(const Mesh& mesh) {
