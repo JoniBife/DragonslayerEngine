@@ -1,5 +1,5 @@
 #include "DragonslayerEngine/RenderQueue.h"
-#include <assert.h>
+#include <cassert>
 
 using namespace DragonslayerEngine;
 

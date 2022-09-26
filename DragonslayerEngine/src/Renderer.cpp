@@ -659,7 +659,7 @@ DragonslayerEngine::Renderer::Renderer(const RenderingConfigurations& renderingC
 	renderPassesFrameTime.insert({ RenderPass::POSTPROCESSING, -1.0f });
 #endif
 
-	// 13. Finally delete any open gl objects that are no longer necesary
+	// 13. Finally delete any open gl objects that are no longer necessary
 	for (GLObject* object : objectsToDelete) {
 		object->deleteObject();
 	}
@@ -790,7 +790,7 @@ void DragonslayerEngine::Renderer::render(const Camera& camera, const Lights& li
 	doGeometryPass(camera);
 #endif
 
-	// 2. Render ambient occlusion to post processing buffer
+	// 2. Render ambient occlusion to post-processing buffer
 #ifdef DEBUG_RENDERER
 	start = std::chrono::high_resolution_clock::now();
 	doSSAOPass(camera);
@@ -840,7 +840,7 @@ void DragonslayerEngine::Renderer::render(const Camera& camera, const Lights& li
 	doSkyBoxPass();
 #endif
 
-	// 6. Apply post processing if there is any
+	// 6. Apply post-processing if there is any
 #ifdef DEBUG_RENDERER
 	start = std::chrono::high_resolution_clock::now();
 	if (!renderQueue.isPostProcessingEmpty()) {
