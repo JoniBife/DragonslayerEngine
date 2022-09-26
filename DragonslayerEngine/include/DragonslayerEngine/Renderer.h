@@ -17,8 +17,7 @@
 namespace DragonslayerEngine {
 
 	typedef void* (*GLLoadProc)(const char* name);
-	
-#ifdef DEBUG_RENDERER
+
 	enum class RenderPass {
 		GEOMETRY,
 		SSAO,
@@ -27,7 +26,6 @@ namespace DragonslayerEngine {
 		SKYBOX,
 		POSTPROCESSING
 	};
-#endif
 
 	class Renderer {
 
@@ -94,10 +92,8 @@ namespace DragonslayerEngine {
 
 		float blend = 0.1f;
 
-#ifdef DEBUG_RENDERER
-		// Contains the frame time for each of the render passes
+		// If the DEBUB_RENDERER directive is set then it contains the frame time for each of the render passes
 		std::unordered_map<RenderPass, double> renderPassesFrameTime;
-#endif
 
 		/* Creates empty global uniform buffer */
 		void createGlobalUniformsBuffer();
@@ -139,12 +135,11 @@ namespace DragonslayerEngine {
 
 		void updateConfigurations(const RenderingConfigurations& newRenderingConfigurations);
 
-#ifdef DEBUG_RENDERER
-		/* Returns the frame time in milliseconds for a specific pass
+        /* Returns the frame time in milliseconds for a specific pass
 		only works if the DEBUG_RENDERER directive is active */
-		double getFrameTime(const RenderPass& renderPass) const;
+        double getFrameTime(const RenderPass& renderPass) const;
+
 		GLint getBufferTexture();
-#endif
 
 		/* Creates a material using the default textures and settings */
 		Material* createMaterial() const;

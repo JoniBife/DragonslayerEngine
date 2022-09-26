@@ -7,3 +7,6 @@
 [submodule "DragonslayerEngineExample/libs/glfw"]
 	path = DragonslayerEngineExample/libs/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "DragonslayerEngineExample/libs/imgui"]
+	path = DragonslayerEngineExample/libs/imgui
+	url = https://github.com/ocornut/imgui

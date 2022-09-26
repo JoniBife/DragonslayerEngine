@@ -57,4 +57,4 @@ private:
 	void _deleteObject() override;
 };
 
-#endif SHADER_H
+#endif //SHADER_H

@@ -49,7 +49,8 @@ namespace core {
 		X = GLFW_KEY_X,
 		Y = GLFW_KEY_Y,
 		Z = GLFW_KEY_Z,
-		LEFT_CTRL = GLFW_KEY_LEFT_CONTROL
+		LEFT_CTRL = GLFW_KEY_LEFT_CONTROL,
+        SPACE = GLFW_KEY_SPACE
 		// TODO Add rest of keys
 	};
 

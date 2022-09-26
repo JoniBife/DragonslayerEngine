@@ -10,10 +10,18 @@ set(ASSIMP_BUILD_ASSIMP_VIEW OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL_PDB OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
 
-add_subdirectory ("libs/glad")
 add_subdirectory ("libs/assimp")
+add_subdirectory ("libs/glad")
 add_subdirectory ("libs/lmath")
+
+if (GENERATE_DEBUG_INFORMATION)
+	add_compile_definitions(DEBUG_RENDERER)
+endif()
 
 add_library (DragonslayerEngine STATIC
 		"src/Renderer.cpp"

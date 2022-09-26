@@ -880,7 +880,6 @@ bool DragonslayerEngine::Renderer::enqueuePostProcessing(PostProcessingCommand* 
 	return renderQueue.enqueuePostProcessing(postProcessingCommand);
 }
 
-#ifdef DEBUG_RENDERER
 double DragonslayerEngine::Renderer::getFrameTime(const RenderPass& renderPass) const
 {
 #ifdef DEBUG_RENDERER
@@ -890,11 +889,16 @@ double DragonslayerEngine::Renderer::getFrameTime(const RenderPass& renderPass) 
 #endif
 }
 
+
 GLint DragonslayerEngine::Renderer::getBufferTexture()
 {
+#ifdef DEBUG_RENDERER
 	return ssaoBlurBuffer.getColorAttachment(0).getId();
-}
+#else
+    return -1;
 #endif
+}
+
 
 Material* DragonslayerEngine::Renderer::createMaterial() const
 {

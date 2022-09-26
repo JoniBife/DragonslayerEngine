@@ -12,7 +12,8 @@ namespace DragonslayerEngine {
 		Mat4 model;
 		bool castShadows = true;
 		bool receiveShadows = true;
-		bool blending;
+		bool transparent = false;
+        bool instanced = false;
 
 		/* Check if the rendering command is valid (i.e. Mesh is not null nor material) */
 		bool isValid() const;
