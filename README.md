@@ -1,6 +1,6 @@
 # Dragonslayer Engine
 
-A simple 3D rendering engine that can be easily integrated in any c++ application.
+A simple 3D rendering engine that can be easily integrated in any C++ application.
 Currently supports OpenGL only. Even though the engine was designed to be integrated in a game engine. It can be used by any application that required 3D rendering.
 
 ## Using the engine
