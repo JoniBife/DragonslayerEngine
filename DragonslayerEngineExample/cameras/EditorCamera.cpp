@@ -12,41 +12,6 @@ bool EditorCamera::freeMovement(float elapsedTime, Vec2 currMousePosition)
 
     Input::setCursorVisibility(false);
 
-    Vec3 positionUpdate = Vec3::ZERO;
-
-    if (Input::isKeyDown(KeyCode::UP) || Input::isKeyDown(KeyCode::W)) {
-        positionUpdate += front.normalize();
-    }
-    else if (Input::isKeyDown(KeyCode::DOWN) || Input::isKeyDown(KeyCode::S)) {
-        positionUpdate -= front.normalize();
-    }
-
-    if (Input::isKeyDown(KeyCode::LEFT) || Input::isKeyDown(KeyCode::A)) {
-        if (positionUpdate.sqrMagnitude() > 0) {
-            positionUpdate += cross(up, front).normalize();
-            positionUpdate = positionUpdate.normalize();
-        }
-        else {
-            positionUpdate += cross(up, front).normalize();
-        }
-    }
-    else if (Input::isKeyDown(KeyCode::RIGHT) || Input::isKeyDown(KeyCode::D)) {
-        if (positionUpdate.sqrMagnitude() > 0) {
-            positionUpdate += cross(front, up).normalize();
-            positionUpdate = positionUpdate.normalize();
-        }
-        else {
-            positionUpdate += cross(front, up).normalize();
-        }
-    }
-
-    // Only update position if there was any change to positionUpdate
-    if (positionUpdate.sqrMagnitude() > 0) {
-        //target += positionUpdate * movementSpeed * elapsedTime;
-        position += positionUpdate * movementSpeed * elapsedTime;
-        performedAction = true;
-    }
-
     Vec2 mouseMovement = (currMousePosition - lastMousePosition);
 
     if (mouseMovement.magnitude() > 0.0f) {
@@ -67,6 +32,28 @@ bool EditorCamera::freeMovement(float elapsedTime, Vec2 currMousePosition)
         front.z = sinf(degreesToRadians(yaw)) * cosf(degreesToRadians(pitch));
         front = front.normalize();
 
+        performedAction = true;
+    }
+
+    Vec3 positionUpdate = Vec3::ZERO;
+
+    if (Input::isKeyDown(KeyCode::UP) || Input::isKeyDown(KeyCode::W)) {
+        positionUpdate += front;
+    }
+    else if (Input::isKeyDown(KeyCode::DOWN) || Input::isKeyDown(KeyCode::S)) {
+        positionUpdate -= front;
+    }
+
+    if (Input::isKeyDown(KeyCode::LEFT) || Input::isKeyDown(KeyCode::A)) {
+        positionUpdate += -right;
+    }
+    else if (Input::isKeyDown(KeyCode::RIGHT) || Input::isKeyDown(KeyCode::D)) {
+        positionUpdate = right;
+    }
+
+    // Only update position if there was any change to positionUpdate
+    if (positionUpdate.sqrMagnitude() > 0) {
+        position += positionUpdate.normalize() * movementSpeed * elapsedTime;
         performedAction = true;
     }
 

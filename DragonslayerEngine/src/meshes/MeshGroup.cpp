@@ -15,7 +15,7 @@ MeshGroup MeshGroup::loadFromFile(const std::string& filePath)
 	const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-		std::cout << "ERROR::ASSIMP" << importer.GetErrorString() << std::endl;
+		std::cout << "ERROR::ASSIMP " << importer.GetErrorString() << std::endl;
 	} else {
 		processNode(*scene->mRootNode, *scene, meshGroup);
 	}

@@ -49,7 +49,7 @@ int main()
     EditorCamera camera; {
         camera.setEditorWindowFocus(true);
         camera.setViewportSize(renderingConfigs.renderWidth, renderingConfigs.renderHeight);
-        camera.setPosition(LMath::Vec3(0.0, 10.0, 20.0));
+        camera.setPosition(LMath::Vec3(0.0, 0.0, 3.0));
         camera.setFarPlane(200.0);
     }
 
@@ -75,6 +75,7 @@ int main()
         renderCommand2.mesh = group2.meshes[0];
         renderCommand2.material = renderer->createMaterial();
         renderCommand2.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
+        renderCommand2.material->setRoughness(0.5);
     }
 
     RenderCommand renderCommand3; {
@@ -85,7 +86,34 @@ int main()
         renderCommand3.material->setAlbedoTint({ 1.0f, 1.0f, 1.0f });
     }
 
-    RenderCommand renderCommand4;
+    RenderCommand renderCommand4; {
+        MeshGroup group2 = MeshGroup::loadFromFile("assets/Dragonslayer/dragonslayer.obj");
+        renderCommand4.mesh = group2.meshes[0];
+        renderCommand4.material = renderer->createMaterial();
+        renderCommand4.material->setAlbedoMap(new Texture2D("assets/Dragonslayer/Dragon_slayer_albedo.jpeg"));
+        renderCommand4.material->setAOMap(new Texture2D("assets/Dragonslayer/Dragon_slayer_AO.jpeg"));
+        renderCommand4.material->setMetallicMap(new Texture2D("assets/Dragonslayer/Dragon_slayer_metallic.jpeg"));
+        renderCommand4.material->setRoughnessMap(new Texture2D("assets/Dragonslayer/Dragon_slayer_roughness.jpeg"));
+        renderCommand4.material->setNormalMap(new Texture2D("assets/Dragonslayer/Dragon_slayer_normal.png"));
+    }
+
+    MeshGroup group = MeshGroup::loadFromFile("../DragonslayerEngine/assets/objs/sphere.obj");
+    std::vector<RenderCommand> renderCommandSpheres;
+
+    float p = 0.0f;
+    for (int i = 0; i < 30; ++i) {
+        RenderCommand renderCommandSphere;
+
+        renderCommandSphere.model = Mat4::translation(0.0, 0.0, -p * 4.0f);
+        std::cout << renderCommandSphere.model << std::endl;
+
+        renderCommandSphere.mesh = group.meshes[0];
+        renderCommandSphere.material = renderer->createMaterial();
+        renderCommandSphere.material->setAlbedoTint({1.0f, 1.0f, 1.0f});
+
+        renderCommandSpheres.push_back(renderCommandSphere);
+        p += 1.0f;
+    }
 
     ACESToneMappingCommand toneMapping = ACESToneMappingCommand();
     //ReinhardToneMappingCommand toneMapping = ReinhardToneMappingCommand();
@@ -136,10 +164,16 @@ int main()
         renderCommand.material->setRoughness(sin(time * .5) * 0.5 + 0.5);
         renderer->enqueuePostProcessing(&fxaa);
         renderer->enqueuePostProcessing(&toneMapping);
-        renderer->enqueueRender(&renderCommand);
+        //renderer->enqueueRender(&renderCommand);
         renderer->enqueueRender(&renderCommand2);
-        renderer->enqueueRender(&renderCommand3);
+        //renderer->enqueueRender(&renderCommand3);
+
+        renderCommand4.model = Mat4::rotation(sin(time), Vec3::Z) * Mat4::rotation(cos(time), Vec3::Y)  * Mat4::rotation(cos(time), Vec3::X)  * Mat4::scaling(1.0f);
         renderer->enqueueRender(&renderCommand4);
+
+        for (RenderCommand& rcSphere : renderCommandSpheres) {
+            renderer->enqueueRender(&rcSphere);
+        }
 
         renderer->render(camera, lights);
 

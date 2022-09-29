@@ -198,6 +198,13 @@ void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Ligh
 
 		// TODO calculate shadows from all directional lights
 
+        shadowMapShaderProgram.use();
+
+        Mat4 lightView = lookAt(-lights.directionalLights[0].direction.normalize(), Vec3::ZERO, Vec3::Y);
+
+        Mat4 inverseCameraView;
+        camera.getView().inverse(inverseCameraView);
+
 		for (int j = 0; j < shadowMapBuffers.size(); ++j) {
 
 			shadowMapBuffers[j].bind();
@@ -205,13 +212,6 @@ void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Ligh
 			openGLState.setViewPort(0, 0, shadowMapBuffers[j].getWidth(), shadowMapBuffers[j].getHeigth());
 
 			GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
-
-			shadowMapShaderProgram.use();
-
-			Mat4 lightView = lookAt(-1.0f * lights.directionalLights[0].direction, Vec3::ZERO, Vec3::Y);
-
-			Mat4 inverseCameraView;
-			camera.getView().inverse(inverseCameraView);
 
 			// First cascade uses the near camera plane 
 			float nearPlane = j == 0 ? camera.getNearPlane() : renderingConfigurations.cascadesPlanes[j - 1];
@@ -237,13 +237,12 @@ void DragonslayerEngine::Renderer::doShadowPass(const Camera& camera, const Ligh
 				shadowMapCommand->mesh->unBind();
 			}
 
-			shadowMapShaderProgram.stopUsing();
 			shadowMapBuffers[j].unbind();
-
-			//ImGui::Image((ImTextureID)shadowMapBuffers[j].getColorAttachment(0).getId(), ImVec2(200, 200), ImVec2(0, 1), ImVec2(1, 0));
 		}
 
+        shadowMapShaderProgram.stopUsing();
 		renderQueue.clearShadowMapQueue();
+
 		//openGLState.setCullFace(GL_BACK);
 		//openGLState.setFaceCulling(true);
 
@@ -497,13 +496,15 @@ DragonslayerEngine::Renderer::Renderer(const RenderingConfigurations& renderingC
 		.attachColorBuffers(1, GL_FLOAT, GL_RED)
 		.build();
 
+    float resolution_scale = 1.0f;
 	for (int i = 0; i < renderingConfigurations.cascadesPlanes.size(); ++i) {
 		// TODO Lower resolution for further cascades
 		shadowMapBuffers.push_back(frameBufferBuilder
-			.setSize(renderingConfigurations.shadowsResolution, renderingConfigurations.shadowsResolution)
+			.setSize(renderingConfigurations.shadowsResolution * resolution_scale, renderingConfigurations.shadowsResolution * resolution_scale)
 			.attachColorBuffers(1, GL_HALF_FLOAT)
 			.attachDepthBuffer()
 			.build());
+        //resolution_scale *= 0.5f;
 	}
 
 	lightBuffer = frameBufferBuilder

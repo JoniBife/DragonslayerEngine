@@ -1,9 +1,6 @@
-
 #include "Transformations.h"
-#include <math.h>
-#include <assert.h>
-#include <initializer_list>
-#include <limits>
+#include <cmath>
+#include <cassert>
 
 Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 
@@ -12,8 +9,8 @@ Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 	Vec3 u = cross(s, v);
 
 	return {
-		s.x, s.y, s.z, dot(s * -1.0f, eye),
-		u.x, u.y, u.z, dot(u * -1.0f, eye),
+		s.x, s.y, s.z, -dot(s, eye),
+		u.x, u.y, u.z, -dot(u, eye),
 		-v.x, -v.y, -v.z, dot(v, eye),
 		0,  0,  0,  1
 	};
@@ -48,6 +45,7 @@ Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 
 	// Divisions by 0 are not possible
 	assert(aspectRatio != 0);
+	assert(aspectRatio < 180.0);
 	assert(near != far);
 
 	float theta = fovyRad / 2.0f;
@@ -63,44 +61,39 @@ Mat4 perspective(float fovyRad, float aspectRatio, float near, float far) {
 	return ret;
 }
 
-Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, Mat4 inverseCameraView, Mat4 lightView)
+Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float aspectRatio, const Mat4& inverseCameraView, const Mat4& lightView)
 {
 	assert(farViewSpace > nearViewSpace);
 
 	// First we find the coordinates of the min and max points that define the bounding box
-	// Trignometry explained here: https://ogldev.org/www/tutorial49/tutorial49.html
 	float halfFov = fovRad * 0.5f;
-	float x1 = tanf(halfFov) * nearViewSpace * inverseAspectRatio; // TODO Check if this multiplication is correct
-	float x2 = tanf(halfFov) * farViewSpace * inverseAspectRatio;
-
-	// Height is typically smaller than the width so we have to ajust the FOV
-	float y1 = tanf(halfFov) * nearViewSpace;
-	float y2 = tanf(halfFov) * farViewSpace;
+	float w = tanf(halfFov) * farViewSpace / aspectRatio;
+	float h = tanf(halfFov) * farViewSpace;
 
 	// Defining the bounding box that captures this area of the view frustrum
 	// which contains the cascade
 	Vec4 corners[8];
 	// Top vertices
-	corners[0] = { -x2, y2, -nearViewSpace , 1.0f };
-	corners[1] = { -x2, y2, -farViewSpace, 1.0f };
-	corners[2] = { x2, y2, -nearViewSpace, 1.0f };
-	corners[3] = { x2, y2, -farViewSpace, 1.0f };
+	corners[0] = { -w, h, -nearViewSpace , 1.0f };
+	corners[1] = { -w, h, -farViewSpace, 1.0f };
+	corners[2] = { w, h, -nearViewSpace, 1.0f };
+	corners[3] = { w, h, -farViewSpace, 1.0f };
 	// Bottom vertices
-	corners[4] = { -x2, -y2, -nearViewSpace , 1.0f };
-	corners[5] = { -x2, -y2, -farViewSpace, 1.0f };
-	corners[6] = { x2, -y2, -nearViewSpace, 1.0f };
-	corners[7] = { x2, -y2, -farViewSpace, 1.0f };
+	corners[4] = { -w, -h, -nearViewSpace , 1.0f };
+	corners[5] = { -w, -h, -farViewSpace, 1.0f };
+	corners[6] = { w, -h, -nearViewSpace, 1.0f };
+	corners[7] = { w, -h, -farViewSpace, 1.0f };
 
-	float far = corners[0].z;
-	float near = corners[0].z;
-	float left = corners[0].x;
-	float right = corners[0].x;
-	float bottom = corners[0].y;
-	float top = corners[0].y;
+	float far = std::numeric_limits<float>::max();
+	float near = std::numeric_limits<float>::min();
+	float left = std::numeric_limits<float>::max();
+	float right = std::numeric_limits<float>::min();
+	float bottom = std::numeric_limits<float>::max();
+	float top = std::numeric_limits<float>::min();
 
 	Vec4 cornerLightSpace;
 
-	//Iterating over the corners to find all of the planes that incapsulate the bounding box
+	//Iterating over the corners to find all the planes that encapsulate the bounding box
 	for (Vec4& corner : corners) {
 
 		cornerLightSpace = lightView * inverseCameraView * corner;
@@ -114,5 +107,5 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float i
 	}
 
 	// Near and far sign is altered again because ortho expects them positive and inverts them internally
-	return ortho(roundf(left), roundf(right), roundf(bottom), roundf(top), -near, -far);
+	return ortho(left, right, bottom, top, -near, -far);
 }

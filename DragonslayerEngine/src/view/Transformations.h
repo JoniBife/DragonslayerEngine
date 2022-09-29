@@ -17,6 +17,6 @@ Mat4 ortho(float left, float right, float bottom, float top, float near, float f
 Mat4 perspective(float fovy, float aspectRatio, float near, float far);
 
 /* Creates an orthographic matrix from a cascade, defined by the near and far planes passed as parameters, within the camera view frustrum  */
-Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, Mat4 inverseCameraView, Mat4 lightView);
+Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float inverseAspectRatio, const Mat4& inverseCameraView, const Mat4& lightView);
 
 #endif

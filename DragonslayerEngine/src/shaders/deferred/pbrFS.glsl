@@ -82,7 +82,7 @@ https://seblagarde.wordpress.com/2012/06/03/spherical-gaussien-approximation-for
 difference is unnoticable and slightly cheaper
 */
 vec3 fresnelSphericalGaussian(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(2, -5.55473 * cosTheta - 6.98316 * cosTheta);
+    return F0 + (1.0 - F0) * pow(2.0, -5.55473 * cosTheta - 6.98316 * cosTheta);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness) {
@@ -186,54 +186,7 @@ float calculateShadows(vec4 position, vec3 normal) {
             if (i == numberOfCascades - 1u && diff < 1.0) {
                 currentCascadeShadowFactor = mix(currentCascadeShadowFactor, 0.0, 1.0 - diff);                
             }
-            
-            // Checking if we are in the closest cascade
-            // TODO Improve transition between cascades
-            /*if (i == 0u) {
-                // Are in the further blend band
-                if (fragmentDepthViewSpace > cascadesPlanes[i + 1u] - blendBandSize) {
-                    // Finding a normalized position in band [0,1]
-                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i + 1u] - blendBandSize) / (blendBandSize * 2.0);
 
-                    float shadowFactorB = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i + 1u], shadowMaps[i + 1u]);
-
-                    return mix(currentCascadeShadowFactor, shadowFactorB, positionInBand);
-                }
-
-            } else if (i == numberOfCascades - 1u) { // Checking if we are in the last cascade
-                // Are we in the closer blend band
-                if (fragmentDepthViewSpace < cascadesPlanes[i] + blendBandSize) {
-                
-                    // Finding a normalized position in band [0,1]
-                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i] - blendBandSize) / (blendBandSize * 2.0);
-
-                    float shadowFactorA = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i - 1u], shadowMaps[i - 1u]);
-
-                    return mix(shadowFactorA, currentCascadeShadowFactor, positionInBand);
-                }
-            } else {
-                // Are we in the closer blend band
-                if (fragmentDepthViewSpace < cascadesPlanes[i] + blendBandSize) {
-                
-                    // Finding a normalized position in band [0,1]
-                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i] - blendBandSize) / (blendBandSize * 2.0);
-
-                    float shadowFactorA = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i - 1u], shadowMaps[i - 1u]);
-
-                    return mix(shadowFactorA, currentCascadeShadowFactor, positionInBand);
-                }
-
-                // Are in the further blend band
-                if (fragmentDepthViewSpace > cascadesPlanes[i + 1u] - blendBandSize) {
-                    // Finding a normalized position in band [0,1]
-                    float positionInBand = (fragmentDepthViewSpace - cascadesPlanes[i + 1u] - blendBandSize) / (blendBandSize * 2.0);
-
-                    float shadowFactorB = calculateShadowFactor(position, normal, lightViewProjectionMatrices[i + 1u], shadowMaps[i + 1u]);
-
-                    return mix(currentCascadeShadowFactor, shadowFactorB, positionInBand);
-
-                }
-            }*/
             return currentCascadeShadowFactor;
         }
     }
@@ -287,7 +240,7 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
         DirectionalLight directionalLight = directionalLights[i];
       
         // calculate per-light radiance
-        vec3 L = -1 * directionalLight.direction;
+        vec3 L = -1.0 * directionalLight.direction;
         vec3 H = normalize(V + L);
         vec3 radiance = directionalLight.color * directionalLight.radiance;
 
@@ -296,11 +249,12 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
         float G   = GeometrySmith(normal, V, L, roughness);      
         vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
            
-        vec3 numerator    = NDF * G * F; 
-        float denominator = 4 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
+        vec3 numerator    = NDF * G * F;
+        float denominator = 4.0 * max(dot(normal, V), 0.0) * max(dot(normal, L), 0.0) + 0.001; // 0.001 to prevent divide by zero.
         vec3 specular = numerator / denominator;
-        vec3 diffuse = 
-        /*OrenNayarDiffuse(albedo, roughness, L, V);*/ LambertianDiffuse(albedo);
+        vec3 diffuse =
+        LambertianDiffuse(albedo);
+        //OrenNayarDiffuse(albedo, roughness, L, V);
         
         // kS is equal to Fresnel
         vec3 kS = F;
@@ -316,10 +270,10 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
         // scale light by NdotL
         float NdotL = max(dot(normal, L), 0.0);     
     
-        float shadow = calculateShadows(vec4(position,1.0),normal);
+        float shadow = 1.0 - calculateShadows(vec4(position,1.0),normal);
 
         // add to outgoing radiance Lo
-        Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        Lo += (kD * diffuse + specular) * radiance * NdotL * shadow;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }
 
     // Point lights contribution
@@ -381,10 +335,10 @@ vec3 pbr(vec3 position, vec3 normal, vec3 albedo, float metallic, float roughnes
             // scale light by NdotL
             float NdotL = max(dot(normal, L), 0.0);     
     
-            float shadow = calculateShadows(vec4(position,1.0),normal);
+            float shadow = 1.0 - calculateShadows(vec4(position,1.0),normal);
 
             // add to outgoing radiance Lo
-            Lo += (kD * diffuse + specular) * radiance * NdotL * (1-shadow);  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+            Lo += (kD * diffuse + specular) * radiance * NdotL * shadow;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
         }
     }
 
