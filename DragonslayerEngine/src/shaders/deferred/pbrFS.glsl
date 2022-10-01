@@ -41,7 +41,7 @@ uniform uint numberOfPointLights;
 //uniform vec3 lposition;
 
 // G-Buffer inputs ----------------------------------------------------------
-uniform sampler2D gBufferMetallic; // Contains the metallic values 
+uniform sampler2D gBufferLocalPositionMetallic; // Contains the metallic values
 uniform sampler2D gBufferNormalRoughness; // Contains both the normal and roughness values
 uniform sampler2D gBufferAlbedoAmbientOcclusion; // Contains both the albedo and ambient occlusion values
 uniform sampler2D gBufferDepth;
@@ -388,7 +388,7 @@ void main(void)
 {
     // 1. Extract position, metallic map, normal, roughness map, albedo and ambient occlusion map values
     // from each of the buffers that compose the gBuffer
-    float metallic = texture(gBufferMetallic, fragTextCoords).r;
+    float metallic = texture(gBufferLocalPositionMetallic, fragTextCoords).w;
     vec4 normalRoughness = texture(gBufferNormalRoughness, fragTextCoords);
     vec4 albedoAmbientOcclusion = texture(gBufferAlbedoAmbientOcclusion, fragTextCoords);
     

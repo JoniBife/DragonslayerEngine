@@ -195,10 +195,10 @@ FrameBufferBuilder& FrameBufferBuilder::setSize(unsigned width, unsigned height)
 	return *this;
 }
 
-FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, GLenum precision, GLenum format, bool allowSample)
+FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int numberOfBuffers, GLenum precision, GLenum format, bool allowSample)
 {
-	assert(number <= MAX_COLOR_ATTACHMENTS);
-	assert(numberOfColorAttachments + number <= MAX_COLOR_ATTACHMENTS);
+	assert(numberOfBuffers <= MAX_COLOR_ATTACHMENTS);
+	assert(numberOfColorAttachments + numberOfBuffers <= MAX_COLOR_ATTACHMENTS);
 
 #ifdef DEBUG
 	// Color attachments have to all be of the same type
@@ -207,8 +207,8 @@ FrameBufferBuilder& FrameBufferBuilder::attachColorBuffers(unsigned int number, 
 	}
 #endif
 
-	this->numberOfColorAttachments += number;
-	for (unsigned int i = 0; i < number; ++i) {
+	this->numberOfColorAttachments += numberOfBuffers;
+	for (unsigned int i = 0; i < numberOfBuffers; ++i) {
 		colorAttachmentsFormat.push_back(format);
 		colorAttachmentsPrecision.push_back(precision);
 		allowSampleColor.push_back(allowSample);
@@ -265,7 +265,7 @@ FrameBuffer FrameBufferBuilder::build()
 		if (allowSampleColor[i]) {
 			
 			// TODO Is this the right approach, it does not
-			// feel intuitive no flexible
+			// feel intuitive nor flexible
 
 			GLenum format = colorAttachmentsFormat[i];
 			GLenum precision = colorAttachmentsPrecision[i];

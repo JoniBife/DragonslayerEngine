@@ -25,7 +25,7 @@ target_link_libraries(imgui glfw)
 set(GENERATE_DEBUG_INFORMATION ON CACHE BOOL "" FORCE)
 
 # SETUP EXAMPLE
-add_executable (DragonslayerEngineExample "Main.cpp"  "cameras/EditorCamera.cpp" "cameras/EditorCamera.h" "core/Input.cpp" "core/Input.h")
+add_executable (DragonslayerEngineExample "Main.cpp"  "cameras/EditorCamera.cpp" "cameras/EditorCamera.h" "core/Input.cpp" "core/Input.h" CrossHatchingPostProcessing.cpp CrossHatchingPostProcessing.h)
 target_include_directories(DragonslayerEngineExample PUBLIC "")
 target_link_libraries (DragonslayerEngineExample
 	glfw
@@ -36,4 +36,6 @@ target_link_libraries (DragonslayerEngineExample
 
 add_custom_command(TARGET DragonslayerEngineExample POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/assets $<TARGET_FILE_DIR:DragonslayerEngineExample>/assets
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:DragonslayerEngineExample>/shaders
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/textures $<TARGET_FILE_DIR:DragonslayerEngineExample>/textures
 		)

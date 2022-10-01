@@ -98,12 +98,13 @@ Mat4 orthoCascade(float nearViewSpace, float farViewSpace, float fovRad, float a
 
 		cornerLightSpace = lightView * inverseCameraView * corner;
 
+        far = fminf(far, cornerLightSpace.z); // Inverted because the forward direction is -Z
+        near = fmaxf(near, cornerLightSpace.z); // Inverted because the forward direction is -Z
 		right = fmaxf(right, cornerLightSpace.x);
 		left = fminf(left, cornerLightSpace.x);
 		top = fmaxf(top, cornerLightSpace.y);
 		bottom = fminf(bottom, cornerLightSpace.y);
-		far = fminf(far, cornerLightSpace.z); // Inverted because the forward direction is -Z
-		near = fmaxf(near, cornerLightSpace.z); // Inverted because the forward direction is -Z
+
 	}
 
 	// Near and far sign is altered again because ortho expects them positive and inverts them internally

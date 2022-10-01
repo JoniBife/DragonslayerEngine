@@ -85,7 +85,7 @@ public:
 	FrameBufferBuilder();
 
 	FrameBufferBuilder& setSize(unsigned width, unsigned height);
-	FrameBufferBuilder& attachColorBuffers(unsigned int number, GLenum precision, GLenum format = GL_RGBA, bool allowSample = true);
+	FrameBufferBuilder& attachColorBuffers(unsigned int numberOfBuffers, GLenum precision, GLenum format = GL_RGBA, bool allowSample = true);
 	FrameBufferBuilder& attachStencilBuffer(bool allowSample = true);
 	FrameBufferBuilder& attachDepthBuffer(bool allowSample = true);
 	FrameBuffer build();

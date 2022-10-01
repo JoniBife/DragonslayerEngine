@@ -286,7 +286,7 @@ void DragonslayerEngine::Renderer::doLightingPass(const Camera& camera, const Li
 	pbrShaderProgram.setUniform("numberOfPointLights", (unsigned int)lights.pointLights.size());
 
 	pbrShaderProgram.setUniform("viewPosition", camera.getPosition());
-	pbrShaderProgram.setUniform("gBufferMetallic", 0);
+	pbrShaderProgram.setUniform("gBufferLocalPositionMetallic", 0);
 	pbrShaderProgram.setUniform("gBufferNormalRoughness", 1);
 	pbrShaderProgram.setUniform("gBufferAlbedoAmbientOcclusion", 2);
 	pbrShaderProgram.setUniform("gBufferDepth", 3);
@@ -481,8 +481,7 @@ DragonslayerEngine::Renderer::Renderer(const RenderingConfigurations& renderingC
 
 	gBuffer = frameBufferBuilder
 		.setSize(renderingConfigurations.renderWidth, renderingConfigurations.renderHeight)
-		.attachColorBuffers(1, GL_FLOAT, GL_RED) 
-		.attachColorBuffers(2, GL_FLOAT, GL_RGBA)
+		.attachColorBuffers(3, GL_FLOAT, GL_RGBA)
 		.attachDepthBuffer()
 		.build();
 

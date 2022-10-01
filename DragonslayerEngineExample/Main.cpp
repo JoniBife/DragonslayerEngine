@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "CrossHatchingPostProcessing.h"
 #include <cmath>
 
 using namespace DragonslayerEngine;
@@ -116,6 +117,7 @@ int main()
     }
 
     ACESToneMappingCommand toneMapping = ACESToneMappingCommand();
+    CrossHatchingCommand crossHatching = CrossHatchingCommand();
     //ReinhardToneMappingCommand toneMapping = ReinhardToneMappingCommand();
     FxaaCommand fxaa = FxaaCommand();
 
@@ -164,11 +166,12 @@ int main()
         renderCommand.material->setRoughness(sin(time * .5) * 0.5 + 0.5);
         renderer->enqueuePostProcessing(&fxaa);
         renderer->enqueuePostProcessing(&toneMapping);
+        renderer->enqueuePostProcessing(&crossHatching);
         //renderer->enqueueRender(&renderCommand);
         renderer->enqueueRender(&renderCommand2);
         //renderer->enqueueRender(&renderCommand3);
 
-        renderCommand4.model = Mat4::rotation(sin(time), Vec3::Z) * Mat4::rotation(cos(time), Vec3::Y)  * Mat4::rotation(cos(time), Vec3::X)  * Mat4::scaling(1.0f);
+        renderCommand4.model = Mat4::rotation(sin(time), Vec3::Z) * Mat4::rotation(cos(time), Vec3::Y)  * Mat4::rotation(cos(time), Vec3::X)  * Mat4::scaling(5.0f);
         renderer->enqueueRender(&renderCommand4);
 
         for (RenderCommand& rcSphere : renderCommandSpheres) {
